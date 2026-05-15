@@ -1,0 +1,35 @@
+/* ANIMACIONES PARA LOS RESULTADOS DE COTIZACIÓN */
+.animate-in {
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.zoom-in {
+  animation: zoomIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* PERSONALIZACIÓN DE LA BARRA DE DESPLAZAMIENTO (ESTILO MENDOZA RENT) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #fbbf24; /* brandYellow definido en tailwind.config.js */
+  border-radius: 10px;
+}

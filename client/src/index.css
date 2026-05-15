@@ -1,0 +1,22 @@
+/* 1. INYECCIÓN DE LAS UTILIDADES DE TAILWIND */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 2. RESETEO GLOBAL NO INTRUSIVO */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply antialiased bg-white text-slate-900;
+    font-family: 'Inter', sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
