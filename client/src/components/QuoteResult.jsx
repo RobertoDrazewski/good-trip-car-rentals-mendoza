@@ -1,158 +1,127 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { CheckCircle, Loader2, User, Phone, ShieldCheck, Dog, Baby, MapPin, ArrowRight } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { 
+  CheckCircle, Clock, ShieldCheck, Car, Plane, Building2, 
+  ChevronRight, Calendar, Sparkles
+} from 'lucide-react';
 
 export default function QuoteResult({ quote }) {
-  const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
-  const [cliente, setCliente] = useState({ nombre: '', whatsapp: '' });
 
-  if (!quote) return null;
+  if (!quote?.enviado) return null;
 
-  const handleConfirmar = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      const payload = {
-        auto_id: quote.auto_id,
-        auto_modelo: quote.auto_modelo,
-        cliente_nombre: cliente.nombre,
-        cliente_whatsapp: cliente.whatsapp,
-        desde: quote.desde || quote.fecha_inicio, 
-        hasta: quote.hasta || quote.fecha_fin,
-        monto_total_ars: quote.totalArs || quote.monto_total_ars,
-        lugar_entrega: quote.lugar_entrega || 'Ciudad',
-        lugar_devolucion: quote.lugar_devolucion || 'Ciudad'
-      };
+  const {
+    monto_total_ars = 0,
+    cotizacion = 1400,
+    dias = 0,
+    precio_sillita_ars = 0,
+    garantia_usd = 300,
+    cliente_nombre = 'Cliente',
+    entrega = 'mendoza ciudad',
+    devolucion = 'mendoza ciudad',
+    sillita = false,
+    auto_modelo = 'Vehículo Seleccionado',
+    desde = '',
+    hasta = '',
+    hora_inicio = '10:00',
+    hora_fin = '10:00'
+  } = quote;
 
-      if (!payload.desde || !payload.hasta) {
-        throw new Error(t('error_calc'));
-      }
-
-      await axios.post('http://localhost:3001/api/admin/nueva-cotizacion', payload);
-      
-      setConfirmado(true);
-      new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3').play().catch(() => {});
-
-    } catch (err) {
-      console.error("Error al enviar lead:", err);
-      const msg = err.response?.data?.error || t('chat_error');
-      alert(`❌ Error: ${msg}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const garantiaArs = garantia_usd * cotizacion;
+  const itemEstilo = "flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 text-left";
 
   return (
-    <div id="reservas" className="max-w-5xl mx-auto mt-16 mb-32 px-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
+    <div id="resultado-solicitud" className="max-w-3xl mx-auto mt-16 scroll-mt-32 animate-in fade-in zoom-in-95 duration-500">
       {!confirmado ? (
-        <div className="bg-slate-900 text-white rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] overflow-hidden border border-white/5 relative">
-          
-          {/* Brillo decorativo de fondo */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/10 blur-[100px] -z-0" />
+        <div className="bg-white p-10 md:p-14 rounded-[4rem] shadow-2xl border-2 border-slate-100 text-slate-900">
+          <div className="flex items-center gap-2 bg-yellow-500/10 text-yellow-700 px-5 py-2 rounded-full w-fit mx-auto mb-6 text-xs font-black uppercase tracking-wider">
+            <Sparkles size={14} className="animate-spin" style={{ animationDuration: '3s' }} /> 
+            Presupuesto Calculado al Instante
+          </div>
 
-          <div className="p-10 md:p-16 relative z-10">
-            {/* ENCABEZADO DEL RESULTADO */}
-            <div className="flex flex-col lg:flex-row justify-between items-start gap-12 mb-16">
-              <div className="space-y-4">
-                <span className="bg-yellow-500 text-slate-900 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
-                  {t('resumen_dias', { count: quote.dias })}
-                </span>
-                <h3 className="text-7xl md:text-8xl font-black italic tracking-tighter text-white leading-none">
-                  ${parseFloat(quote.totalArs || 0).toLocaleString('es-AR')}
-                </h3>
-                <div className="flex flex-col gap-1">
-                  <p className="text-slate-400 text-xs font-black uppercase tracking-widest">
-                    {t('nav_flota')}: <span className="text-white">{quote.auto_modelo}</span>
-                  </p>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">
-                    {t('nav_reserva')} {quote.desde || quote.fecha_inicio} — {quote.hasta || quote.fecha_fin}
-                  </p>
-                </div>
-              </div>
+          <h3 className="text-3xl font-black uppercase italic text-center text-slate-900 mb-2 tracking-tight">
+            Tu Resumen de <span className="text-yellow-500">Viaje</span>
+          </h3>
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] text-center mb-10 italic">
+            Hola {cliente_nombre}, revisá las condiciones de tu cotización oficial:
+          </p>
 
-              {/* CARD DE GARANTÍA */}
-              <div className="bg-white/5 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/10 w-full lg:w-72 shadow-inner">
-                <div className="flex items-center gap-2 mb-3 text-yellow-500 font-black text-[10px] uppercase tracking-widest">
-                  <ShieldCheck size={16}/> {t('label_garantia')}
-                </div>
-                <p className="text-3xl font-black text-white italic">
-                  ${parseFloat(quote.garantia || 0).toLocaleString('es-AR')}
-                </p>
-                <p className="text-[10px] text-slate-400 uppercase font-bold mt-2 leading-relaxed">{t('garantia_desc')}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={itemEstilo}>
+              <div className="p-3 bg-slate-900 text-yellow-500 rounded-xl"><Car size={20}/></div>
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Vehículo solicitado</p>
+                <p className="text-sm font-black uppercase italic text-slate-900 mt-0.5">{auto_modelo}</p>
+                <p className="text-xs font-bold text-slate-500 mt-0.5">Duración: {dias} {dias === 1 ? 'Día' : 'Días'} de alquiler</p>
               </div>
             </div>
 
-            {/* FORMULARIO DE CONFIRMACIÓN */}
-            <form onSubmit={handleConfirmar} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end bg-white/5 p-8 rounded-[3rem] border border-white/5">
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-4 tracking-[0.2em]">
-                  {t('placeholder_nombre')}
-                </label>
-                <div className="relative group">
-                  <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-yellow-500 transition-colors" size={20} />
-                  <input 
-                    type="text" required placeholder={t('placeholder_nombre')}
-                    className="w-full bg-slate-800/50 border-2 border-transparent p-5 pl-14 rounded-[1.8rem] outline-none focus:border-yellow-500 transition-all font-bold text-white placeholder:text-slate-600"
-                    onChange={e => setCliente({...cliente, nombre: e.target.value})}
-                  />
-                </div>
+            <div className={itemEstilo}>
+              <div className="p-3 bg-yellow-500 text-slate-950 rounded-xl">
+                {String(entrega).toLowerCase().includes('aeropuerto') ? <Plane size={20}/> : <Building2 size={20}/>}
               </div>
-
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-4 tracking-[0.2em]">
-                  {t('placeholder_wa')}
-                </label>
-                <div className="relative group">
-                  <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-yellow-500 transition-colors" size={20} />
-                  <input 
-                    type="tel" required placeholder="Ej: 261555..."
-                    className="w-full bg-slate-800/50 border-2 border-transparent p-5 pl-14 rounded-[1.8rem] outline-none focus:border-yellow-500 transition-all font-bold text-white placeholder:text-slate-600"
-                    onChange={e => setCliente({...cliente, whatsapp: e.target.value})}
-                  />
-                </div>
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Lugar de Entrega</p>
+                <p className="text-sm font-black uppercase italic text-slate-900 mt-0.5">{entrega}</p>
+                <p className="text-xs font-bold text-slate-600 flex items-center gap-1 mt-0.5"><Calendar size={12}/> {desde} • <Clock size={12}/> {hora_inicio} hs</p>
               </div>
+            </div>
 
-              <button 
-                type="submit" disabled={loading}
-                className="group bg-yellow-500 hover:bg-white text-slate-950 p-5 rounded-[1.8rem] font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 disabled:bg-slate-700 disabled:text-slate-500 flex items-center justify-center gap-3 shadow-xl shadow-yellow-500/10"
-              >
-                {loading ? <Loader2 className="animate-spin" /> : (
-                  <>
-                    {t('btn_reservar')}
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-              </button>
-            </form>
+            <div className={itemEstilo}>
+              <div className="p-3 bg-slate-200 text-slate-700 rounded-xl">
+                {String(devolucion).toLowerCase().includes('aeropuerto') ? <Plane size={20}/> : <Building2 size={20}/>}
+              </div>
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Lugar de Devolución</p>
+                <p className="text-sm font-black uppercase italic text-slate-900 mt-0.5">{devolucion}</p>
+                <p className="text-xs font-bold text-slate-600 flex items-center gap-1 mt-0.5"><Calendar size={12}/> {hasta} • <Clock size={12}/> {hora_fin} hs</p>
+              </div>
+            </div>
 
-            {/* TAGS INFERIORES */}
-            <div className="mt-12 pt-8 border-t border-white/5 flex flex-wrap gap-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-              <span className="flex items-center gap-2.5"><MapPin size={16} className="text-yellow-500"/> {t('lugar_retiro')}: {quote.lugar_entrega || 'Ciudad'}</span>
-              <span className="flex items-center gap-2.5"><Dog size={16} className="text-yellow-500"/> {t('pet_friendly_tag')}</span>
-              {quote.sillita && <span className="flex items-center gap-2.5"><Baby size={16} className="text-yellow-500"/> {t('silla_bebe_q')}</span>}
+            <div className={itemEstilo}>
+              <div className="p-3 bg-blue-50 text-blue-600 rounded-xl text-xl leading-none flex items-center justify-center">👶</div>
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Opcional Sillita de Bebé</p>
+                <p className="text-sm font-black uppercase italic text-slate-900 mt-0.5">
+                  {sillita === true || sillita === 1 || String(sillita) === 'true' ? '✔️ Adicionada' : '❌ No Solicitada'}
+                </p>
+              </div>
+            </div>
+
+            <div className={`${itemEstilo} md:col-span-2 border-l-4 border-l-blue-500 bg-blue-50/40`}>
+              <div className="p-3 bg-blue-600 text-white rounded-xl"><ShieldCheck size={20}/></div>
+              <div className="flex-1">
+                <p className="text-[9px] font-black uppercase tracking-widest text-blue-600">Franquicia de Garantía Reembolsable</p>
+                <p className="text-base font-black uppercase italic text-slate-900 mt-0.5">
+                  $ {garantiaArs.toLocaleString('es-AR')} <span className="text-xs font-bold text-slate-500 not-italic">ARS ({garantia_usd} USD)</span>
+                </p>
+              </div>
+            </div>
+
+            <div className={`${itemEstilo} md:col-span-2 border-l-4 border-l-emerald-500 bg-emerald-50/30`}>
+              <div className="p-3 bg-emerald-600 text-white rounded-xl text-xl flex items-center justify-center">🐩</div>
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-emerald-600">Good Trip Experience • Pet Friendly Activo</p>
+                <p className="text-xs font-black uppercase text-slate-800 mt-0.5">¡Tu Caniche o mascota viaja con vos!</p>
+              </div>
             </div>
           </div>
+
+          <div className="mt-8 bg-slate-900 p-8 rounded-[2.5rem] text-white text-center shadow-xl relative overflow-hidden">
+            <p className="text-[10px] font-black uppercase text-yellow-500 tracking-[0.3em] mb-2">Total Final Estimado Alquiler</p>
+            <p className="text-4xl md:text-5xl font-black italic tracking-tighter text-white">
+              $ {monto_total_ars.toLocaleString('es-AR')} <span className="text-sm font-bold text-slate-400 not-italic">ARS</span>
+            </p>
+          </div>
+
+          <button onClick={() => setConfirmado(true)} className="mt-8 w-full bg-yellow-500 hover:bg-slate-900 text-slate-950 hover:text-white font-black py-7 rounded-[2rem] transition-all flex items-center justify-center gap-4 shadow-lg active:scale-95 duration-150 group">
+            <span className="uppercase text-sm tracking-wider font-black italic">RESERVAR AHORA</span>
+          </button>
         </div>
       ) : (
-        /* PANTALLA DE ÉXITO PREMIUM */
-        <div className="bg-white p-20 rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] text-center border border-slate-100 animate-in zoom-in-95 duration-500">
-          <div className="w-24 h-24 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-900 shadow-xl shadow-yellow-500/20">
-            <CheckCircle size={48} strokeWidth={3} />
-          </div>
-          <h3 className="text-5xl md:text-6xl font-black italic text-slate-900 mb-4 uppercase tracking-tighter">{t('modal_titulo')}</h3>
-          <p className="text-slate-500 font-bold uppercase text-[11px] tracking-[0.3em] max-w-sm mx-auto leading-relaxed">
-            {t('modal_sub')}
-          </p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="mt-12 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-yellow-600 transition-colors"
-          >
-            ← {t('nav_reserva')}
-          </button>
+        <div className="bg-white p-12 rounded-[4rem] shadow-2xl border-2 border-slate-100 text-center animate-in zoom-in duration-300">
+          <div className="bg-green-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"><CheckCircle size={48} className="text-green-600" /></div>
+          <h3 className="text-3xl font-black uppercase italic text-slate-900 mb-4 leading-none">Solicitud <span className="text-green-600">Recibida</span></h3>
+          <p className="text-slate-500 font-medium leading-relaxed mb-10 italic px-4 text-sm">"Mauricio Manoni ha recibido tu solicitud en el Panel de Control. En breve nos pondremos en contacto directo a tu WhatsApp."</p>
         </div>
       )}
     </div>

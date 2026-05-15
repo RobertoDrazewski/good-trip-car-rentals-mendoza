@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Activity } from 'lucide-react'; 
 
@@ -13,6 +13,7 @@ import GoogleReviews from './components/GoogleReviews';
 import ChatIA from './components/ChatIA';
 import RoutesSection from './components/RoutesSection';
 import WeatherWidget from './components/WeatherWidget';
+import Requirements from './components/Requirements'; 
 
 // Importación de Páginas
 import AdminDashboard from './pages/AdminDashboard';
@@ -28,10 +29,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* LANDING PRINCIPAL: MENDOZA RENT ESTÉTICA ORIGINAL */}
+        {/* RUTA PÚBLICA PRINCIPAL */}
         <Route path="/" element={
           <div className="relative min-h-screen bg-gray-50 overflow-x-hidden font-sans text-slate-900">
-            {/* Navbar fijo en la parte superior */}
             <div className="sticky top-0 z-50 shadow-sm bg-white/90 backdrop-blur-md">
               <Navbar />
             </div>
@@ -40,15 +40,13 @@ function App() {
             
             <main className="relative z-10 max-w-6xl mx-auto px-4 py-16 space-y-32 md:space-y-48">
               
-              {/* SECCIÓN 1: RESERVAS Y RESULTADOS */}
+              {/* SECCIÓN 1: RESERVAS */}
               <section id="reservas" className="scroll-mt-32">
                 <BookingForm 
                   onQuoteGenerated={(data) => setQuote(data)} 
                   setAiContext={setAiContext}
                   setIsChatOpen={setIsChatOpen}
                 />
-                
-                {/* Animación fluida cuando aparece el resultado */}
                 {quote && (
                   <div className="mt-12 animate-in fade-in zoom-in duration-500">
                     <QuoteResult quote={quote} />
@@ -56,12 +54,12 @@ function App() {
                 )}
               </section>
 
-              {/* SECCIÓN 2: TESTIMONIOS DE GOOGLE */}
+              {/* SECCIÓN 2: TESTIMONIOS */}
               <section id="testimonios" className="scroll-mt-24">
                 <GoogleReviews />
               </section>
 
-              {/* SECCIÓN 3: FLOTA 2026 */}
+              {/* SECCIÓN 3: FLOTA */}
               <section id="flota" className="scroll-mt-24">
                 <div className="text-center mb-16">
                   <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter text-slate-900 uppercase">
@@ -72,7 +70,12 @@ function App() {
                 <CarCarousel />
               </section>
 
-              {/* SECCIÓN 4: CLIMA EN MENDOZA */}
+              {/* SECCIÓN 4: REQUISITOS */}
+              <section id="requisitos" className="scroll-mt-32">
+                <Requirements />
+              </section>
+
+              {/* SECCIÓN 5: CLIMA */}
               <section id="clima" className="scroll-mt-24">
                 <div className="text-center mb-12">
                   <p className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] mb-3">
@@ -85,24 +88,23 @@ function App() {
                 <WeatherWidget />
               </section>
 
-              {/* SECCIÓN 5: RUTAS Y DESTINOS */}
+              {/* SECCIÓN 6: RUTAS */}
               <section id="rutas" className="scroll-mt-24">
                 <RoutesSection />
               </section>
 
             </main>
 
-            {/* ASISTENTE VIRTUAL IA */}
+            {/* CHAT INTELIGENTE */}
             <ChatIA 
               isOpen={isChatOpen} 
               setIsOpen={setIsChatOpen} 
               context={aiContext} 
             />
 
-            {/* FOOTER PREMIUM ORIGINAL */}
+            {/* FOOTER CORPORATIVO */}
             <footer className="bg-[#0f172a] text-white pt-24 pb-12 text-center border-t-[12px] border-yellow-500 relative">
               <div className="max-w-4xl mx-auto px-6">
-                {/* Logo en el Footer */}
                 <div className="flex items-center justify-center gap-3 mb-8">
                   <div className="bg-yellow-500 p-2 rounded-xl">
                     <Activity className="text-slate-900" size={28} fill="currentColor"/>
@@ -111,15 +113,10 @@ function App() {
                     MENDOZA<span className="text-yellow-500">RENT</span>
                   </span>
                 </div>
-
                 <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed mb-12 font-medium italic">
                   {t('hero_subtitle')}
                 </p>
-
-                {/* Línea divisoria decorativa */}
                 <div className="h-[1px] bg-gradient-to-r from-transparent via-slate-700 to-transparent w-full mb-10" />
-                
-                {/* Créditos y Copyright */}
                 <div className="space-y-4">
                   <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.5em]">
                     © 2026 {t('footer_rights')}
@@ -133,10 +130,13 @@ function App() {
           </div>
         } />
 
-        {/* RUTAS PARA EL PANEL DE ADMINISTRACIÓN */}
-        <Route path="/login" element={<Login onLoginSuccess={() => window.location.href = '/admin'} />} />
+        {/* INTERFAZ DE RUTAS ADMINISTRATIVAS - CORREGIDAS */}
+        <Route path="/login" element={<Login onLoginSuccess={() => { window.location.href = '/admin'; }} />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/setup-password" element={<SetupPassword />} />
+
+        {/* REDIRECCIÓN DE SEGURIDAD POR SI ESCRIBEN MAL LA URL */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

@@ -31,10 +31,15 @@ router.post('/check-availability', async (req, res) => {
     }
 });
 
-// --- 2. COTIZAR (LÓGICA DE PRECISIÓN POR HORAS) ---
+// --- 2. COTIZAR (LÓGICA DE PRECISIÓN POR HORAS - REPARADO CON DATOS DE AUTO) ---
 router.post('/quote', async (req, res) => {
     try {
-        const { desde, hasta, hora_inicio, hora_fin, entrega, devolucion, sillita } = req.body;
+        // CORREGIDO: Ahora extraemos explícitamente auto_id para buscar la patente y el modelo
+        const { desde, hasta, hora_inicio, hora_fin, entrega, devolucion, sillita, auto_id } = req.body;
+
+        if (!desde || !hasta || !auto_id) {
+            return res.status(400).json({ error: "Faltan datos obligatorios para la cotización." });
+        }
 
         // 1. Crear objetos de fecha reales
         const d1 = new Date(`${desde}T${hora_inicio || '10:00'}:00`);
@@ -64,31 +69,40 @@ router.post('/quote', async (req, res) => {
         const mes = d1.getMonth() + 1;
         const anio = d1.getFullYear();
 
-        // Obtener configuración y precios
+        // Obtener configuración, precios y datos específicos de la unidad seleccionada
         const [rowsMes] = await db.query('SELECT * FROM precios_mensuales WHERE mes = ? AND anio = ?', [mes, anio]);
         const [rowsSet] = await db.query('SELECT * FROM settings WHERE id = 1');
+        const [rowsAuto] = await db.query('SELECT modelo, patente FROM autos WHERE id = ?', [auto_id]);
         
-        const settings = rowsSet[0];
+        if (rowsAuto.length === 0) {
+            return res.status(404).json({ error: "El vehículo seleccionado no existe." });
+        }
+
+        const settings = rowsSet[0] || {};
         const mensual = rowsMes[0] || {};
+        const autoInfo = rowsAuto[0];
 
-        const precioDia = parseFloat(mensual.precio_dia) || parseFloat(settings.precio_dia);
-        const cargoAero = parseFloat(mensual.cargo_aeropuerto) || parseFloat(settings.cargo_aeropuerto);
-        const precioSilla = parseFloat(mensual.precio_sillita) || parseFloat(settings.precio_sillita);
-        const cotizacion = parseFloat(mensual.cotizacion_dolar) || parseFloat(settings.cotizacion_dolar);
-        const garantia = parseFloat(mensual.garantia_ars) || parseFloat(settings.garantia_ars);
+        const precioDia = parseFloat(mensual.precio_dia) || parseFloat(settings.precio_dia) || 0;
+        const cargoAero = parseFloat(mensual.cargo_aeropuerto) || parseFloat(settings.cargo_aeropuerto) || 0;
+        const precioSilla = parseFloat(mensual.precio_sillita) || parseFloat(settings.precio_sillita) || 0;
+        const cotizacion = parseFloat(mensual.cotizacion_dolar) || parseFloat(settings.cotizacion_dolar) || 1;
+        const garantia = parseFloat(mensual.garantia_ars) || parseFloat(settings.garantia_ars) || 450000;
 
-        // 4. Cálculos finales
+        // 4. Cálculos finales de tarifas
         let totalArs = diasParaCobrar * precioDia;
         if (entrega === 'aeropuerto' || devolucion === 'aeropuerto') totalArs += cargoAero;
         if (sillita === true || sillita === 'true') totalArs += (Math.ceil(diasParaCobrar) * precioSilla);
 
+        // Devolvemos el JSON enriquecido para que el Frontend reciba absolutamente todo impecable
         res.json({
             status: 'success',
-            dias: diasParaCobrar, // Ahora puede devolver 1.5, 2, 2.5, etc.
-            totalArs,
-            totalUsd: totalArs / (cotizacion || 1),
+            dias_totales: diasParaCobrar, 
+            monto_total_ars: totalArs,
+            totalUsd: totalArs / cotizacion,
             cotizacion,
-            garantia,
+            garantia_ars: garantia,
+            auto_modelo: autoInfo.modelo, // <-- Enviamos el nombre del auto real
+            patente: autoInfo.patente,     // <-- Enviamos la patente real de la base de datos
             desde,
             hasta,
             hora_inicio,
@@ -96,7 +110,7 @@ router.post('/quote', async (req, res) => {
         });
     } catch (error) {
         console.error("❌ Error en quote:", error);
-        res.status(500).json({ error: "Error al calcular cotización." });
+        res.status(500).json({ error: "Error al calcular cotización en el servidor." });
     }
 });
 

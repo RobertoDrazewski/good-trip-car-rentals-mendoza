@@ -1,80 +1,80 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Ticket as TicketIcon, Printer } from 'lucide-react';
+const generarPDF = () => {
+  const doc = new jsPDF();
+  const purple = [110, 80, 200];
+  const dark = [15, 23, 42];
 
-export default function Ticket({ data }) {
-  const { t } = useTranslation();
+  // --- Función para limpiar fechas (Elimina el T03:00:00.000Z) ---
+  const formatFecha = (str) => {
+    if(!str) return "Consultar";
+    const f = str.split('T')[0]; // Toma solo AAAA-MM-DD
+    const [y, m, d] = f.split('-');
+    return `${d}/${m}/${y}`; // Retorna DD/MM/AAAA
+  };
 
-  if (!data) return null;
+  // DISEÑO DEL ENCABEZADO
+  doc.setFillColor(...dark);
+  doc.rect(0, 0, 210, 40, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22);
+  doc.text("GOOD TRIP CAR RENTALS", 105, 25, { align: "center" });
 
-  // Calculamos el monto total a entregar (Alquiler + Garantía)
-  const montoEntregaReal = data.total + (data.garantia || 450000);
+  // DATOS DE CONTACTO
+  doc.setTextColor(100, 100, 100);
+  doc.setFontSize(10);
+  doc.text(`WhatsApp: +54 9 261 276 4618 | Mendoza, Argentina`, 105, 50, { align: "center" });
 
-  return (
-    <div className="relative group max-w-sm mx-auto animate-in fade-in zoom-in duration-500">
-      {/* Botón flotante para imprimir (Opcional) */}
-      <button 
-        onClick={() => window.print()} 
-        className="absolute -right-4 -top-4 bg-gray-900 text-white p-2 rounded-full shadow-lg hover:bg-gray-800 transition-all md:flex hidden"
-      >
-        <Printer size={16} />
-      </button>
+  // SECCIÓN FECHAS LIMPIAS
+  doc.setTextColor(...purple);
+  doc.setFont("helvetica", "bold");
+  doc.text("Día de entrega", 30, 70);
+  doc.text("Día de devolución", 130, 70);
 
-      <div className="bg-white border-2 border-dashed border-gray-300 p-8 rounded-xl shadow-inner font-mono relative overflow-hidden">
-        {/* Decoración de papel cortado superior */}
-        <div className="absolute top-0 left-0 right-0 h-1 flex justify-around">
-          {[...Array(15)].map((_, i) => (
-            <div key={i} className="w-4 h-4 bg-gray-50 rounded-full -translate-y-2 border border-gray-200"></div>
-          ))}
-        </div>
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("helvetica", "normal");
+  // Aquí usamos la función de limpieza
+  doc.text(`${formatFecha(quote.desde)} - ${quote.hora_inicio} hs`, 30, 77);
+  doc.text(`${formatFecha(quote.hasta)} - ${quote.hora_fin} hs`, 130, 77);
 
-        <div className="text-center mb-6 border-b-2 border-gray-100 pb-4">
-          <h2 className="font-black text-xl tracking-tighter text-gray-900">MENDOZA RENT-A-CAR</h2>
-          <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Mendoza, Argentina</p>
-        </div>
+  // VEHÍCULO Y TOTAL
+  let y = 100;
+  doc.setDrawColor(230, 230, 230);
+  doc.line(20, y, 190, y);
+  
+  y += 15;
+  doc.setFont("helvetica", "bold");
+  doc.text("Vehículo Seleccionado:", 20, y);
+  doc.text(quote.auto_modelo.toUpperCase(), 120, y);
+  
+  y += 15;
+  doc.setTextColor(...purple);
+  doc.text("TOTAL PRESUPUESTO (EFECTIVO/TRANSF):", 20, y);
+  doc.setTextColor(0, 0, 0);
+  doc.rect(120, y-7, 70, 10);
+  doc.text(`$ ${quote.total_ars.toLocaleString()}`, 125, y);
 
-        <div className="space-y-3 text-[12px] text-gray-700">
-          <div className="flex justify-between border-b border-gray-50 py-1">
-            <span className="text-gray-400">{t('label_retiro')}:</span> 
-            <strong className="text-gray-900">{data.inicio}</strong>
-          </div>
-          <div className="flex justify-between border-b border-gray-50 py-1">
-            <span className="text-gray-400">{t('label_devolucion')}:</span> 
-            <strong className="text-gray-900">{data.fin}</strong>
-          </div>
-          <div className="flex justify-between border-b border-gray-50 py-1">
-            <span className="text-gray-400">{t('lugar_retiro')}:</span> 
-            <strong className="text-gray-900 uppercase">{data.retiro || data.entrega}</strong>
-          </div>
+  // FINANCIACIÓN CON TARJETA
+  const total = quote.total_ars;
+  const opciones = [
+    { t: "TARJETA CRÉDITO - 1 PAGO", v: total * 1.08 },
+    { t: "TARJETA CRÉDITO - 3 PAGOS", v: total * 1.16 },
+    { t: "TARJETA CRÉDITO - 6 PAGOS", v: total * 1.32 }
+  ];
 
-          <div className="pt-4 space-y-1">
-            <div className="flex justify-between font-bold text-gray-800">
-              <span>{t('nav_reserva')}:</span> 
-              <span>${data.total.toLocaleString('es-AR')}</span>
-            </div>
-            <div className="flex justify-between text-blue-600 font-bold italic">
-              <span>{t('label_garantia')}:</span> 
-              <span>+${(data.garantia || 450000).toLocaleString('es-AR')}</span>
-            </div>
-          </div>
+  opciones.forEach(opt => {
+    y += 15;
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text(opt.t, 20, y);
+    doc.setTextColor(0, 0, 0);
+    doc.rect(120, y-7, 70, 10);
+    doc.text(`$ ${Math.round(opt.v).toLocaleString()}`, 125, y);
+  });
 
-          <div className="mt-6 bg-gray-900 text-white p-4 rounded-lg text-center">
-            <p className="text-[9px] uppercase tracking-widest opacity-70 mb-1">{t('total_entrega')}</p>
-            <p className="text-lg font-black tracking-tight">
-              ${montoEntregaReal.toLocaleString('es-AR')} ARS
-            </p>
-          </div>
-        </div>
+  // REQUISITOS FINALES
+  y += 30;
+  doc.setFontSize(8);
+  doc.setTextColor(150, 150, 150);
+  doc.text("Requisitos: +23 años, Licencia Vigente, Nafta Infinia, Garantía $450.000.", 105, y, { align: "center" });
 
-        <div className="mt-8 text-center space-y-2">
-          <p className="text-[10px] text-gray-400 italic">
-            "Atención personalizada de Mauricio Manoni"
-          </p>
-          <div className="flex justify-center gap-1 opacity-20">
-             {[...Array(20)].map((_, i) => <div key={i} className="w-1 h-4 bg-black"></div>)}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+  doc.save(`Presupuesto_GoodTrip_${quote.auto_modelo}.pdf`);
+};

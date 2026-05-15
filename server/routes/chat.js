@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { OpenAI } = require('openai'); // Asegúrate de tener: npm install openai
+const { OpenAI } = require('openai');
 const db = require('../config/db');
 
-// Configuración de OpenAI
 const openai = new OpenAI({ 
     apiKey: process.env.OPENAI_API_KEY 
 });
@@ -12,22 +11,19 @@ router.post('/', async (req, res) => {
     try {
         const { message, lang, userData } = req.body;
 
-        // 1. OBTENEMOS EL MES ACTUAL PARA BUSCAR PRECIOS DINÁMICOS
         const mesActual = new Date().getMonth() + 1;
         const anioActual = 2026;
 
-        // 2. CONSULTA DOBLE: Intentamos traer precios del mes, y si no, los generales
+        // Consultas a la base de datos
         const [preciosMes] = await db.query(
             'SELECT * FROM precios_mensuales WHERE mes = ? AND anio = ?', 
             [mesActual, anioActual]
         );
-        
         const [config] = await db.query('SELECT * FROM settings WHERE id = 1');
         
         const s = config[0] || {};
         const p = preciosMes[0] || {};
 
-        // 3. LÓGICA DE PRECIOS: Prioriza el mes actual, sino usa settings
         const PRECIO_DIA = p.precio_dia || s.precio_dia || 45000;
         const LOGISTICA_AEROPUERTO = p.cargo_aeropuerto || s.cargo_aeropuerto || 15000;
         const SILLA_BEBE_DIA = p.precio_sillita || s.precio_sillita || 5000;
@@ -35,32 +31,65 @@ router.post('/', async (req, res) => {
         const FIANZA_USD = p.garantia_usd || s.garantia_usd || 300;
         const DOLAR_BLUE = p.cotizacion_dolar || s.cotizacion_dolar || 1200;
         
-        const NUMERO_MAURICIO = "5492612764618";
+        const NUMERO_ATENCION = "5492612764618";
 
+        // REGLAS IDIOMÁTICAS INTERNACIONALES ESTRICTAS
         const instructions = {
-            es: "RESPONDÉ SIEMPRE EN ESPAÑOL ARGENTINO (Mendocino). Sé directo con los números.",
-            en: "ALWAYS RESPOND IN ENGLISH. Be precise with the pricing.",
-            pt: "RESPONDA SEMPRE EM PORTUGUÊS. Seja direto com os valores."
+            es: `Usted es un Asistente Ejecutivo de Ventas de Good Trip Car Rentals Mendoza. 
+                 REGLAS CRUCIALES DE IDIOMA ESPAÑOL:
+                 - Use estrictamente ESPAÑOL NEUTRO e INTERNACIONAL (Tratamiento de USTED).
+                 - PROHIBIDO EL VOSEO ARGENTINO. No use palabras como "podés", "mandame", "revisá", "tenés", "estás". Reemplácelas por "puede", "envíeme", "revise", "tiene", "está".
+                 - PROHIBIDOS MODISMOS LOCALES. Está terminantemente prohibido usar las palabras: "che", "viste", "mirá", "un espectáculo", "onda", "buenísimo" o similares.
+                 - Su redacción debe ser seria, limpia, confiable y corporativa.`,
+            
+            en: `You are an Executive Sales Assistant for Good Trip Car Rentals Mendoza.
+                 - Use a formal, business-professional tone.
+                 - Address the customer with maximum respect ("You", formal).`,
+            
+            pt: `Você é um Assistente Executivo de Vendas da Good Trip Car Rentals Mendoza.
+                 - Use um tom estritamente formal, educado e corporativo.
+                 - Trate o cliente sempre por "Você/Senhor/Senhora".`
         };
 
-        const systemPrompt = `Eres Mauricio Manoni, dueño de Mendoza Rent-a-Car. 
-        REGLA DE IDIOMA: ${instructions[lang] || instructions.es}
+        const targetLang = lang || 'es';
 
-        INFORMACIÓN DE PRECIOS REALES PARA ESTE MES (${mesActual}/${anioActual}):
-        - Valor por día (Fiat Cronos): $${PRECIO_DIA} ARS.
-        - Fianza/Garantía: $${FIANZA_ARS} ARS o USD ${FIANZA_USD}.
-        - Entrega en Aeropuerto: $${LOGISTICA_AEROPUERTO} ARS.
-        - Opcional Silla de bebé: $${SILLA_BEBE_DIA} ARS por día.
-        - Cotización del Dólar usada: $${DOLAR_BLUE} ARS.
+        const REQUISITOS_SISTEMA = `
+        REQUISITOS OBLIGATORIOS PARA EL ALQUILER:
+        1. Edad mínima: Mayor de 23 años.
+        2. Documentación: Licencia de conducir física y vigente.
+        3. Garantía Reembolsable: $${FIANZA_ARS} ARS o USD ${FIANZA_USD} (se abona al recibir el vehículo y se restituye por completo al finalizar el contrato).
+        4. Sin Tarjeta Obligatoria: No exigimos tarjeta de crédito para concretar el alquiler.
+        5. Kilometraje libre e ilimitado. Somos una empresa Pet Friendly (requiere aviso previo).
+        `;
 
-        REGLAS DE ATENCIÓN:
-        1. Tu tono es macanudo, servicial y muy mendocino (usar "che", "viste", "mirá").
-        2. El Fiat Cronos se entrega impecable y con tanque lleno de nafta INFINIA.
-        3. Somos Pet Friendly (perros pequeños/medianos).
-        4. No des vueltas: si preguntan precio, dalo de una.
-        5. Siempre intenta derivar a WhatsApp ${NUMERO_MAURICIO} para cerrar el trato.
+        const LOGICA_HORAS = `
+        POLÍTICA HORARIA:
+        - Margen de cortesía: Hasta 2 horas de gracia sin cargo adicional.
+        - Retrasos de 2 a 6 horas: Aplica un cargo de medio día extra (0.5).
+        - Retrasos mayores a 6 horas: Aplica el cobro de un día completo adicional.
+        `;
 
-        CONTEXTO DEL CLIENTE: ${userData ? JSON.stringify(userData) : 'Nuevo cliente'}.`;
+        const systemPrompt = `
+        Identidad comercial: Agente de Ventas Corporativo de la empresa "Good Trip Car Rentals Mendoza".
+        
+        ${instructions[targetLang] || instructions.es}
+
+        TARIFAS OFICIALES SATORIADAS (Mes ${mesActual}/${anioActual}):
+        - Precio por día base: $${PRECIO_DIA} ARS.
+        - Depósito de Garantía: $${FIANZA_ARS} ARS o USD ${FIANZA_USD}.
+        - Cargo logístico Aeropuerto Mendoza: $${LOGISTICA_AEROPUERTO} ARS.
+        - Opcional Silla de Bebé: $${SILLA_BEBE_DIA} ARS por día.
+        - Cotización de referencia Dólar: $${DOLAR_BLUE} ARS.
+
+        ${REQUISITOS_SISTEMA}
+        ${LOGICA_HORAS}
+
+        DIRECTRICES DE RESPUESTA:
+        1. Si el cliente consulta por tarifas o requisitos, expóngalos de forma clara y ordenada.
+        2. Siempre mantenga el trato de Usted. No tutee ni vosee bajo ninguna circunstancia.
+        3. Si el cliente requiere asistencia humana, invítelo cordialmente a comunicarse a nuestro canal centralizado de WhatsApp: https://wa.me/${NUMERO_ATENCION}
+
+        CONTEXTO WEB DE RESERVA ACTUAL: ${userData ? JSON.stringify(userData) : 'El cliente está explorando la plataforma sin una cotización previa'}.`;
 
         const completion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
@@ -68,14 +97,31 @@ router.post('/', async (req, res) => {
                 { role: "system", content: systemPrompt },
                 { role: "user", content: message }
             ],
-            temperature: 0.7, // Subimos un poco para que sea más natural/mendocino
+            temperature: 0.1, // 👈 BAJA AL MÍNIMO: Evita que la IA "invente" o use modismos. Se vuelve 100% obediente.
         });
 
-        res.json({ response: completion.choices[0].message.content });
+        let finalResponse = completion.choices[0].message.content;
+
+        // --- 🛡️ FILTRO MAESTRO DE SEGURIDAD ANTILOCALISMOS ---
+        // Si la IA comete un desliz por arrastre de caché, el código lo limpia antes de enviarlo a la pantalla del cliente.
+        finalResponse = finalResponse
+          .replace(/che/gi, '')
+           .replace(/podés/gi, 'puede')
+           .replace(/querés/gi, 'desea')
+          .replace(/mandame/gi, 'envíeme')
+          .replace(/te esperamos/gi, 'estamos a su disposición')
+          .replace(/un espectáculo/gi, 'una excelente opción')
+          .replace(/tenés/gi, 'tiene')
+           .replace(/estás/gi, 'está')
+           .replace(/mirá/gi, 'observe')
+           .replace(/viste/gi, 'como usted sabe')
+            .replace(/  +/g, ' '); // Limpia espacios dobles sobrantes
+
+        res.json({ response: finalResponse.trim() });
 
     } catch (error) {
         console.error("❌ Error en Chat IA:", error.message);
-        res.status(500).json({ error: 'Mauricio está sin señal en la montaña, intentá de nuevo en un ratito.' });
+        res.status(500).json({ error: 'En este momento nuestros canales están procesando solicitudes de reservas. Por favor, intente nuevamente o comuníquese a nuestra línea de atención directa.' });
     }
 });
 
