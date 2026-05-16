@@ -4,10 +4,14 @@ import {
   DollarSign, Car, Users, Calendar as CalendarIcon, BarChart3, 
   LogOut, Trash2, Activity, Navigation, Map as MapIcon,
   Settings, Plus, MessageCircle, Save, CheckCircle, 
-  Sparkles, ChevronLeft, ChevronRight, User, Clock, ShieldCheck, FileText, UserPlus
+  Sparkles, ChevronLeft, ChevronRight, User, Clock, ShieldCheck, FileText, UserPlus,
+  Home // 🔥 Agregado para el ruteo al inicio público
 } from 'lucide-react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+
+// 🔌 URL INTELIGENTE: Lee la variable de Render en producción, o usa localhost en tu Mac
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function AdminDashboard() {
   // --- 1. ESTADOS PRINCIPALES EN LA RAÍZ (SEGURIDAD DE HOOKS CONTRA BUG DE RENDER) ---
@@ -44,10 +48,10 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     try {
       const [resDash, resAdmins, resPrecios, resRutas] = await Promise.all([
-        axios.get('http://localhost:3001/api/admin/dashboard', config),
-        axios.get('http://localhost:3001/api/admin/users', config).catch(() => ({data: []})),
-        axios.get('http://localhost:3001/api/admin/precios-mensuales', config).catch(() => ({data: []})),
-        axios.get('http://localhost:3001/api/routes/all').catch(() => ({data: []}))
+        axios.get(`${apiUrl}/api/admin/dashboard`, config),
+        axios.get(`${apiUrl}/api/admin/users`, config).catch(() => ({data: []})),
+        axios.get(`${apiUrl}/api/admin/precios-mensuales`, config).catch(() => ({data: []})),
+        axios.get(`${apiUrl}/api/routes/all`).catch(() => ({data: []}))
       ]);
       setReservas(resDash.data.reservas || []);
       setAutos(resDash.data.autos || []);
@@ -71,7 +75,11 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const handleLogout = () => { localStorage.clear(); window.location.href = '/login'; };
+  // 🔒 LOGOUT MEJORADO: Ahora redirige directo a la página de inicio pública (Home)
+  const handleLogout = () => { 
+    localStorage.clear(); 
+    window.location.href = '/'; 
+  };
 
   const handleAction = async (method, url, data = null) => {
     try {
@@ -81,7 +89,7 @@ export default function AdminDashboard() {
     } catch (err) { console.error(err); }
   };
 
-  // 🛠️ GENERADOR TRASLADO DINÁMICO CRUCIAL DE DISTANCIAS DE GOOGLE MAPS DIRECTIONS MAPS
+  // 🛠️ GENERADOR TRASLADO DINÁMICO CRUCIAL DE DISTANCIAS DE GOOGLE MAPS DIRECTIONS MAPS (REPARADO)
   const obtenerUrlEnrutamientoDinamico = (ruta) => {
     if (!ruta) return "https://maps.google.com/maps?q=Mendoza,Argentina&z=12&output=embed";
     
@@ -89,7 +97,8 @@ export default function AdminDashboard() {
     try {
       const destinoLimpio = encodeURIComponent(ruta.titulo + ", Mendoza, Argentina");
       const origenLimpio = encodeURIComponent(origenDireccion);
-      return `https://maps.google.com/maps?saddr=${origenLimpio}&daddr=${destinoLimpio}&noheader=true&z=11&output=embed`;
+      // CORREGIDO: Se restauró la interpolación de JS original `${origenLimpio}` sin romper las llaves de Maps
+      return `https://maps.google.com/maps?saddr=$saddr=${origenLimpio}&daddr=${destinoLimpio}&noheader=true&z=11&output=embed`;
     } catch (error) {
       return "https://maps.google.com/maps?q=Mendoza,Argentina&z=12&output=embed";
     }
@@ -232,7 +241,7 @@ export default function AdminDashboard() {
 
               .grid-details {
                 display: grid;
-                grid-template-cols: 1fr 1fr;
+                grid-template-columns: 1fr 1fr;
                 gap: 12px;
                 margin-bottom: 12px;
               }
@@ -273,7 +282,6 @@ export default function AdminDashboard() {
               .total-box .total-amount span { font-size: 13px; font-style: normal; color: #94a3b8; font-weight: 700; margin-left: 3px; }
               .total-box .exchange-rate { font-size: 8.5px; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-top: 4px; }
 
-              /* Agrupación Maestra Compacta de Requisitos */
               .requisitos-section {
                 margin-top: 25px;
                 border-top: 1px dashed #e2e8f0;
@@ -346,7 +354,7 @@ export default function AdminDashboard() {
 
             <div class="ticket-container">
               <div class="logo-container">
-                <img src="http://localhost:3001/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'; document.getElementById('alt-logo-text').style.display='block';" />
+                <img src="${apiUrl}/logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'; document.getElementById('alt-logo-text').style.display='block';" />
                 <div id="alt-logo-text" class="logo-alt" style="display:none;">Good Trip <span>Car Rentals Mendoza</span></div>
               </div>
 
@@ -481,10 +489,21 @@ export default function AdminDashboard() {
       
       {/* SIDEBAR */}
       <aside className="w-80 bg-slate-900 p-8 flex flex-col sticky top-0 h-screen border-r border-white/5 z-40">
-        <div className="flex items-center gap-3 mb-12">
+        <div className="flex items-center gap-3 mb-4">
           <div className="bg-yellow-500 p-2 rounded-xl"><Activity className="text-slate-900" size={24} /></div>
           <span className="text-white font-black italic text-2xl tracking-tighter uppercase">Mendoza<span className="text-yellow-500">Rent</span></span>
         </div>
+
+        {/* 🔥 BOTÓN PARA DIRECCIONAR DIRECTO AL HOME SIN TOCAR NADA MÁS */}
+        <div className="mb-6">
+          <button 
+            onClick={() => window.location.href = '/'}
+            className="w-full flex items-center gap-4 px-7 py-3 bg-slate-800 hover:bg-slate-700/80 text-yellow-500 rounded-[1.2rem] transition-all font-black text-[10px] uppercase tracking-wider shadow-inner cursor-pointer"
+          >
+            <Home size={18} /> Volver a la Web
+          </button>
+        </div>
+
         <nav className="flex-1 flex flex-col gap-2">
           <NavBtn active={activeTab==='ventas'} label="Ventas & Leads" icon={<BarChart3 size={20}/>} onClick={()=>setActiveTab('ventas')}/>
           <NavBtn active={activeTab==='calendario'} label="Calendario" icon={<CalendarIcon size={20}/>} onClick={()=>setActiveTab('calendario')}/>
@@ -513,7 +532,7 @@ export default function AdminDashboard() {
                 <span className="text-sm font-black text-slate-900">{localStorage.getItem('userName') || 'Mauricio'}</span>
                 <span className="text-[9px] font-black text-yellow-600 uppercase tracking-tighter bg-yellow-500/10 px-2 py-0.5 rounded-md w-fit text-center">Super Admin</span>
               </div>
-              <button onClick={handleLogout} className="ml-4 p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 rounded-lg"><LogOut size={18} /></button>
+              <button onClick={handleLogout} className="ml-4 p-2 text-slate-300 hover:text-red-500 transition-colors bg-slate-50 rounded-lg cursor-pointer"><LogOut size={18} /></button>
             </div>
           </div>
         </header>
@@ -583,7 +602,7 @@ export default function AdminDashboard() {
                     {reservasCronologicas.map(r => (
                       <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="p-6">
-                          <select value={r.estado || 'pendiente'} onChange={(e) => handleAction('post', 'http://localhost:3001/api/admin/cambiar-estado', {id: r.id, estado: e.target.value})} className="bg-yellow-50 text-yellow-700 font-black text-[10px] px-3 py-2 uppercase rounded-xl border-none outline-none shadow-sm cursor-pointer">
+                          <select value={r.estado || 'pendiente'} onChange={(e) => handleAction('post', `${apiUrl}/api/admin/cambiar-estado`, {id: r.id, estado: e.target.value})} className="bg-yellow-50 text-yellow-700 font-black text-[10px] px-3 py-2 uppercase rounded-xl border-none outline-none shadow-sm cursor-pointer">
                             <option value="pendiente">🟠 Pendiente</option>
                             <option value="contratado">🟢 Confirmado</option>
                             <option value="rechazado">🔴 Rechazado</option>
@@ -591,13 +610,10 @@ export default function AdminDashboard() {
                         </td>
                         <td className="p-6">
                           <select 
-                            /* 🛡️ Lógica 100% independiente usando LocalStorage para no pisar la reserva */
                             value={localStorage.getItem(`garantia_reserva_${r.id}`) || 'pendiente'} 
                             onChange={(e) => {
                               try {
-                                // Guardamos el estado visual solo en tu navegador de forma aislada
                                 localStorage.setItem(`garantia_reserva_${r.id}`, e.target.value);
-                                // Forzamos una actualización visual rápida en el componente
                                 fetchData(); 
                               } catch(err) { 
                                 alert("Error al guardar el estado informativo de la garantía"); 
@@ -607,6 +623,7 @@ export default function AdminDashboard() {
                           >
                             <option value="pendiente">⏳ Pendiente</option>
                             <option value="pagado">💵 Depositada</option>
+                            <option value="resubido">✔️ Devuelta</option>
                           </select>
                         </td>
                         <td className="p-6">
@@ -615,7 +632,7 @@ export default function AdminDashboard() {
                             <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">{r.auto_modelo || 'Vehículo'}</span>
                             <span className="text-[9px] font-black bg-slate-900 text-yellow-500 px-1.5 py-0.5 rounded">{r.patente || 'S/P'}</span>
                           </div>
-                          <p className="text-xs font-black text-emerald-600 mt-1">Monto: \${parseFloat(r.monto_total_ars || 0).toLocaleString('es-AR')}</p>
+                          <p className="text-xs font-black text-emerald-600 mt-1">Monto: ${parseFloat(r.monto_total_ars || 0).toLocaleString('es-AR')}</p>
                         </td>
                         <td className="p-6 text-center">
                           {r.sillita === 1 || r.sillita === true || String(r.sillita) === '1' || String(r.sillita) === 'true' ? (
@@ -641,14 +658,14 @@ export default function AdminDashboard() {
                           <div className="flex items-center justify-center gap-2">
                             <button 
                               onClick={() => enviarTicketPorWhatsApp(r)} 
-                              className="p-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all transform hover:scale-105 shadow-sm flex items-center justify-center font-bold"
+                              className="p-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all transform hover:scale-105 shadow-sm flex items-center justify-center font-bold cursor-pointer"
                               title="Disparar aviso y abrir chat del cliente"
                             >
                               📩
                             </button>
                             <button 
                               onClick={() => descargarTicketPresupuesto(r)} 
-                              className="p-2.5 bg-slate-900 text-yellow-500 rounded-xl hover:bg-yellow-500 hover:text-slate-950 transition-all transform hover:scale-105 shadow-sm flex items-center justify-center"
+                              className="p-2.5 bg-slate-900 text-yellow-500 rounded-xl hover:bg-yellow-500 hover:text-slate-950 transition-all transform hover:scale-105 shadow-sm flex items-center justify-center cursor-pointer"
                               title="Visualizar/Imprimir Presupuesto VIP"
                             >
                               <FileText size={16} />
@@ -656,10 +673,10 @@ export default function AdminDashboard() {
                             <button 
                               onClick={() => {
                                 if(window.confirm(`⚠️ ¿Estás seguro de que deseas eliminar permanentemente la reserva de ${r.cliente_nombre}?`)) {
-                                  handleAction('delete', `http://localhost:3001/api/admin/reservas/${r.id}`);
+                                  handleAction('delete', `${apiUrl}/api/admin/reservas/${r.id}`);
                                 }
                               }} 
-                              className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-red-500 hover:text-white transition-all transform hover:scale-105 shadow-sm flex items-center justify-center"
+                              className="p-2.5 bg-slate-50 text-slate-400 rounded-xl hover:bg-red-500 hover:text-white transition-all transform hover:scale-105 shadow-sm flex items-center justify-center cursor-pointer"
                               title="Eliminar Reserva"
                             >
                               <Trash2 size={16} />
@@ -716,7 +733,7 @@ export default function AdminDashboard() {
                       <div className="w-full flex flex-col items-center overflow-y-auto max-h-[90px] mt-0.5 space-y-1 select-none">
                         {reservasDelDia.map((r, idx) => {
                           const cocheAsociado = autos.find(a => a.id.toString() === r.auto_id?.toString());
-                          const imgUrl = cocheAsociado?.imagen_url ? `http://localhost:3001${cocheAsociado.imagen_url}` : null;
+                          const imgUrl = cocheAsociado?.imagen_url ? `${apiUrl}${cocheAsociado.imagen_url}` : null;
                           return (
                             <div key={idx} className="w-full flex flex-col items-center">
                               {imgUrl ? <img src={imgUrl} className="calendar-car-thumb" alt="thumb" /> : <div className="h-5 text-[9px] text-slate-300 font-bold">🚗 s/img</div>}
@@ -744,7 +761,7 @@ export default function AdminDashboard() {
                     return (
                       <div key={auto.id} className="bg-slate-900 rounded-2xl p-4 flex flex-col text-white shadow-md border border-slate-800">
                         <div className="w-full h-20 bg-white rounded-xl flex items-center justify-center p-2 mb-3 overflow-hidden border border-slate-800">
-                          <img src={`http://localhost:3001${auto.imagen_url}`} className="w-full h-full object-contain" alt={auto.modelo} />
+                          <img src={`${apiUrl}${auto.imagen_url}`} className="w-full h-full object-contain" alt={auto.modelo} />
                         </div>
                         <p className="text-xs font-black uppercase tracking-tight text-slate-100 truncate mb-1">{auto.modelo}</p>
                         <div className="flex items-center justify-between mt-2">
@@ -774,21 +791,21 @@ export default function AdminDashboard() {
                 <div className="space-y-4">
                   <textarea placeholder="Descripción..." className={`${inputStyle} h-32 resize-none`} value={newRuta.descripcion} onChange={e=>setNewRuta({...newRuta, descripcion: e.target.value})} />
                   <button onClick={async () => {
-                    const res = await axios.post('http://localhost:3001/api/routes/ai-desc', { titulo: newRuta.nombre, descripcion_base: newRuta.descripcion }, config);
+                    const res = await axios.post(`${apiUrl}/api/routes/ai-desc`, { titulo: newRuta.nombre, descripcion_base: newRuta.descripcion }, config);
                     setNewRuta({...newRuta, descripcion: res.data.suggestion});
-                  }} className="w-full bg-slate-900 text-white p-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-yellow-500 hover:text-slate-900 transition-all uppercase"><Sparkles size={18}/> Mejorar con IA</button>
+                  }} className="w-full bg-slate-900 text-white p-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-yellow-500 hover:text-slate-900 transition-all uppercase cursor-pointer"><Sparkles size={18}/> Mejorar con IA</button>
                   <button onClick={async () => {
                     const fd = new FormData(); fd.append('titulo', newRuta.nombre); fd.append('descripcion', newRuta.descripcion); fd.append('maps_url', newRuta.maps_url); fd.append('imagen', newRuta.imagen);
-                    await axios.post('http://localhost:3001/api/routes/save', fd, { headers: { ...config.headers, 'Content-Type': 'multipart/form-data' } });
+                    await axios.post(`${apiUrl}/api/routes/save`, fd, { headers: { ...config.headers, 'Content-Type': 'multipart/form-data' } });
                     fetchData(); setNewRuta({nombre:'', descripcion:'', imagen: null, maps_url:''});
-                  }} className="w-full bg-blue-600 text-white p-5 rounded-2xl font-black uppercase italic">Guardar Ruta</button>
+                  }} className="w-full bg-blue-600 text-white p-5 rounded-2xl font-black uppercase italic cursor-pointer">Guardar Ruta</button>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-6">{rutas.map(r => (
               <div key={r.id} className="bg-white p-6 rounded-[2rem] flex justify-between items-center shadow-sm border border-slate-100">
                 <span className="font-black text-xs uppercase italic truncate max-w-[150px]">{r.titulo}</span>
-                <button onClick={()=>handleAction('delete', `http://localhost:3001/api/routes/${r.id}`)} className="text-red-300 hover:text-red-500 transition-colors"><Trash2 size={20}/></button>
+                <button onClick={()=>handleAction('delete', `${apiUrl}/api/routes/${r.id}`)} className="text-red-300 hover:text-red-500 transition-colors cursor-pointer"><Trash2 size={20}/></button>
               </div>
             ))}</div>
           </div>
@@ -898,7 +915,7 @@ export default function AdminDashboard() {
         {/* 5. FLOTA VEHICULAR */}
         {activeTab === 'flota' && (
           <div className="space-y-8 animate-in fade-in duration-500">
-            <button onClick={() => setShowAddAuto(!showAddAuto)} className="bg-slate-900 text-white px-8 py-5 rounded-[2rem] font-black uppercase italic hover:bg-yellow-500 hover:text-slate-900 transition-all shadow-xl">{showAddAuto ? '❌ Cancelar Registro' : '➕ Agregar Nueva Unidad'}</button>
+            <button onClick={() => setShowAddAuto(!showAddAuto)} className="bg-slate-900 text-white px-8 py-5 rounded-[2rem] font-black uppercase italic hover:bg-yellow-500 hover:text-slate-900 transition-all shadow-xl cursor-pointer">{showAddAuto ? '❌ Cancelar Registro' : '➕ Agregar Nueva Unidad'}</button>
             {showAddAuto && (
               <div className="bg-white p-12 rounded-[3.5rem] shadow-2xl border border-slate-100 grid grid-cols-2 gap-10">
                 <div className="space-y-4">
@@ -919,17 +936,17 @@ export default function AdminDashboard() {
                   <button onClick={async () => {
                     const fd = new FormData(); fd.append('modelo', newAuto.modelo); fd.append('patente', newAuto.patente); fd.append('color', newAuto.color); fd.append('transmision', newAuto.transmision || 'Manual'); fd.append('precio_base_usd', newAuto.precio_base_usd); fd.append('descripcion_larga', newAuto.descripcion_larga);
                     if(newAuto.imagen_file) fd.append('imagen', newAuto.imagen_file);
-                    await axios.post('http://localhost:3001/api/admin/autos', fd, { headers: { ...config.headers, 'Content-Type': 'multipart/form-data' } });
+                    await axios.post(`${apiUrl}/api/admin/autos`, fd, { headers: { ...config.headers, 'Content-Type': 'multipart/form-data' } });
                     fetchData(); setShowAddAuto(false);
                     setNewAuto({ modelo: '', precio_base_usd: '', patente: '', color: '#000000', descripcion_larga: '', transmision: 'Manual', imagen_file: null });
-                  }} className="w-full bg-slate-900 text-white p-6 rounded-[2rem] font-black text-xl hover:bg-yellow-500 hover:text-slate-900 transition-all italic shadow-lg">🚀 REGISTRAR UNIDAD EN FLOTA</button>
+                  }} className="w-full bg-slate-900 text-white p-6 rounded-[2rem] font-black text-xl hover:bg-yellow-500 hover:text-slate-900 transition-all italic shadow-lg cursor-pointer">🚀 REGISTRAR UNIDAD EN FLOTA</button>
                 </div>
               </div>
             )}
             <div className="grid grid-cols-3 gap-8">{autos.map(a => (
               <div key={a.id} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm relative group hover:shadow-2xl transition-all duration-300">
-                <button onClick={() => handleAction('delete', `http://localhost:3001/api/admin/autos/${a.id}`)} className="absolute top-6 right-6 text-slate-200 hover:text-red-500 transition-colors p-2"><Trash2 size={20}/></button>
-                <img src={a.imagen_url ? `http://localhost:3001${a.imagen_url}` : '/car-placeholder.jpg'} className="w-full h-44 object-contain mb-6 group-hover:scale-105 transition-transform" alt={a.modelo} />
+                <button onClick={() => handleAction('delete', `${apiUrl}/api/admin/autos/${a.id}`)} className="absolute top-6 right-6 text-slate-200 hover:text-red-500 transition-colors p-2 cursor-pointer"><Trash2 size={20}/></button>
+                <img src={a.imagen_url ? `${apiUrl}${a.imagen_url}` : '/car-placeholder.jpg'} className="w-full h-44 object-contain mb-6 group-hover:scale-105 transition-transform" alt={a.modelo} />
                 <div className="flex items-center gap-3 mb-4"><div className="w-4 h-4 rounded-full border shadow-inner" style={{backgroundColor: a.color}} /><h4 className="text-xl font-black uppercase italic text-slate-900 leading-none">{a.modelo}</h4></div>
                 <div className="flex justify-between border-t border-slate-50 pt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest"><span>{a.patente}</span><span className="text-blue-500">USD {a.precio_base_usd}/DÍA</span></div>
               </div>
@@ -1015,7 +1032,7 @@ export default function AdminDashboard() {
               <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-6 md:p-8 space-y-4">
                 <div className="border-b border-slate-100 pb-4 mb-2">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">
-                    📝 Modificación de Valores para el Período: {mesesNom[selectedMes - 1]} / {selectedAnio}
+                    Base de Datos Activa para: {mesesNom[selectedMes - 1]} / {selectedAnio}
                   </p>
                 </div>
                 
@@ -1025,42 +1042,42 @@ export default function AdminDashboard() {
                     label="VALOR ALQUILER POR DÍA (ARS)" 
                     val={datosMesActual.precio_dia} 
                     icon="💰"
-                    onSave={(v) => handleAction('post', 'http://localhost:3001/api/admin/update-precio-mensual', { mes: selectedMes, anio: selectedAnio, campo: 'precio_dia', valor: v })} 
+                    onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'precio_dia', valor: v })} 
                   />
 
                   <PriceBox 
                     label="COTIZACIÓN DEL DÓLAR BLUE DE REFERENCIA" 
                     val={datosMesActual.cotizacion_dolar} 
                     icon="💵"
-                    onSave={(v) => handleAction('post', 'http://localhost:3001/api/admin/update-precio-mensual', { mes: selectedMes, anio: selectedAnio, campo: 'cotizacion_dolar', valor: v })} 
+                    onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'cotizacion_dolar', valor: v })} 
                   />
 
                   <PriceBox 
                     label="OPCIONAL SILLITA DE BEBÉ POR DÍA (ARS)" 
                     val={datosMesActual.precio_sillita} 
                     icon="👶"
-                    onSave={(v) => handleAction('post', 'http://localhost:3001/api/admin/update-precio-mensual', { mes: selectedMes, anio: selectedAnio, campo: 'precio_sillita', valor: v })} 
+                    onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'precio_sillita', valor: v })} 
                   />
 
                   <PriceBox 
                     label="CARGO LOGÍSTICO POR ENTREGA/DEVOLUCIÓN EN AEROPUERTO (ARS)" 
                     val={datosMesActual.cargo_aeropuerto} 
                     icon="✈️"
-                    onSave={(v) => handleAction('post', 'http://localhost:3001/api/admin/update-precio-mensual', { mes: selectedMes, anio: selectedAnio, campo: 'cargo_aeropuerto', valor: v })} 
+                    onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'cargo_aeropuerto', valor: v })} 
                   />
 
                   <PriceBox 
                     label="FRANQUICIA / GARANTÍA DE RESGUARDO EN PESOS (ARS)" 
                     val={datosMesActual.garantia_ars} 
                     icon="🛡️"
-                    onSave={(v) => handleAction('post', 'http://localhost:3001/api/admin/update-precio-mensual', { mes: selectedMes, anio: selectedAnio, campo: 'garantia_ars', valor: v })} 
+                    onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'garantia_ars', valor: v })} 
                   />
 
                   <PriceBox 
                     label="FRANQUICIA / GARANTÍA DE RESGUARDO EN DÓLARES (USD)" 
                     val={datosMesActual.garantia_usd} 
                     icon="🇺🇸"
-                    onSave={(v) => handleAction('post', 'http://localhost:3001/api/admin/update-precio-mensual', { mes: selectedMes, anio: selectedAnio, campo: 'garantia_usd', valor: v })} 
+                    onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'garantia_usd', valor: v })} 
                   />
 
                 </div>
@@ -1078,7 +1095,7 @@ export default function AdminDashboard() {
               <div className="space-y-4">
                 <input placeholder="Nombre" className={inputStyle} value={newAdmin.nombre} onChange={e => setNewAdmin({...newAdmin, nombre: e.target.value})} />
                 <input placeholder="Email" className={inputStyle} value={newAdmin.email} onChange={e => setNewAdmin({...newAdmin, email: e.target.value})} />
-                <button onClick={() => handleAction('post', 'http://localhost:3001/api/admin/invite', newAdmin)} className="w-full bg-slate-900 text-white p-5 rounded-[2rem] font-black text-lg hover:bg-yellow-500 hover:text-slate-900 transition-all flex items-center justify-center gap-3"><UserPlus size={20}/> Enviar Invitación</button>
+                <button onClick={() => handleAction('post', `${apiUrl}/api/admin/invite`, newAdmin)} className="w-full bg-slate-900 text-white p-5 rounded-[2rem] font-black text-lg hover:bg-yellow-500 hover:text-slate-900 transition-all flex items-center justify-center gap-3 cursor-pointer"><UserPlus size={20}/> Enviar Invitación</button>
               </div>
             </div>
             <div className="space-y-4">
@@ -1089,7 +1106,7 @@ export default function AdminDashboard() {
                     <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-black text-slate-400 uppercase">{adm.nombre?.charAt(0)}</div>
                     <div><p className="font-black text-slate-900 uppercase italic text-sm">{adm.nombre}</p><p className="text-[9px] font-bold text-slate-400 lowercase">{adm.email}</p></div>
                   </div>
-                  <button onClick={() => handleAction('delete', `http://localhost:3001/api/admin/users/${adm.id}`)} className="text-slate-200 hover:text-red-500 transition-colors"><Trash2 size={20}/></button>
+                  <button onClick={() => handleAction('delete', `${apiUrl}/api/admin/users/${adm.id}`)} className="text-slate-200 hover:text-red-500 transition-colors cursor-pointer"><Trash2 size={20}/></button>
                 </div>
               ))}
             </div>
@@ -1103,7 +1120,7 @@ export default function AdminDashboard() {
 
 // COMPONENTES AUXILIARES MAESTROS
 function NavBtn({active, label, icon, onClick}) {
-  return <button onClick={onClick} className={`w-full flex items-center gap-4 px-7 py-4 rounded-[1.2rem] transition-all font-black text-[10px] uppercase tracking-wider ${active ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}>{icon} {label}</button>;
+  return <button onClick={onClick} className={`w-full flex items-center gap-4 px-7 py-4 rounded-[1.2rem] transition-all font-black text-[10px] uppercase tracking-wider cursor-pointer ${active ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}>{icon} {label}</button>;
 }
 
 function StatCard({label, val, icon}) {

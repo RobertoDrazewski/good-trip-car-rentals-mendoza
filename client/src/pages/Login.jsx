@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Lock, User, Key, ArrowLeft, Sparkles, ShieldCheck } from 'lucide-react';
+// 🛠️ IMPORTACIÓN ARREGLADA: Agregamos "Loader2" para que React no rompa la pantalla
+import { Lock, User, Key, ArrowLeft, Sparkles, ShieldCheck, Loader2 } from 'lucide-react';
 
 /**
  * Componente Login
@@ -16,10 +17,14 @@ export default function Login({ onLoginSuccess }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:3001/api/auth/login', {
+      // 🔌 URL INTELIGENTE: Lee la variable de Render en producción, o usa localhost si estás en la Mac
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      
+      const res = await axios.post(`${apiUrl}/api/auth/login`, {
         username: formData.username,
         password: formData.password
       });
+      
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('adminUser', res.data.username);
       onLoginSuccess();

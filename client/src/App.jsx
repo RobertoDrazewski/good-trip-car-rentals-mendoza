@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Activity } from 'lucide-react'; 
 
@@ -19,6 +19,12 @@ import Requirements from './components/Requirements';
 import AdminDashboard from './pages/AdminDashboard';
 import SetupPassword from './pages/SetupPassword';
 import Login from './pages/Login';
+
+// Componente auxiliar para manejar el login con el ruteo interno de React
+function LoginWrapper() {
+  const navigate = useNavigate();
+  return <Login onLoginSuccess={() => navigate('/admin')} />;
+}
 
 function App() {
   const { t } = useTranslation();
@@ -121,6 +127,10 @@ function App() {
                   <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.5em]">
                     © 2026 {t('footer_rights')}
                   </p>
+                  <div className="flex justify-center gap-4 text-[10px] tracking-wider font-bold">
+                    {/* ENLACE "SECRETO" AL ACCESO ADMIN EN EL FOOTER */}
+                    <a href="/login" className="text-slate-600 hover:text-yellow-500/60 transition-colors uppercase">Acceso Staff</a>
+                  </div>
                   <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-600">
                     Developed by <span className="text-yellow-500/40 font-black">Puma Code</span>
                   </p>
@@ -130,12 +140,12 @@ function App() {
           </div>
         } />
 
-        {/* INTERFAZ DE RUTAS ADMINISTRATIVAS - CORREGIDAS */}
-        <Route path="/login" element={<Login onLoginSuccess={() => { window.location.href = '/admin'; }} />} />
+        {/* INTERFAZ DE RUTAS ADMINISTRATIVAS - OPTIMIZADAS */}
+        <Route path="/login" element={<LoginWrapper />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/setup-password" element={<SetupPassword />} />
 
-        {/* REDIRECCIÓN DE SEGURIDAD POR SI ESCRIBEN MAL LA URL */}
+        {/* REDIRECCIÓN DE SEGURIDAD */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

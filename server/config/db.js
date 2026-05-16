@@ -1,17 +1,19 @@
-require('dotenv').config(); // 🔥 SIEMPRE EN LA LÍNEA 1, antes de cualquier otra lógica
+require('dotenv').config(); // 🔥 SIEMPRE EN LA LÍNEA 1
 const mysql = require('mysql2');
 
-// Ahora sí process.env.DB_HOST tiene el valor de la nube al evaluar esta línea
-const isCloud = process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.DB_HOST !== '127.0.0.1';
+// 🔍 Identificamos dinámicamente a dónde nos estamos conectando
+const host = process.env.DB_HOST || 'localhost';
+const isRailway = host.includes('rlwy.net');
+const isCloud = host !== 'localhost' && host !== '127.0.0.1';
 
 const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
+    host: host,
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || process.env.DB_PASS || '', 
-    database: process.env.DB_NAME || 'mendoza_rentacar',
+    password: process.env.DB_PASSWORD || '', 
+    database: process.env.DB_NAME || 'railway',
     
-    // 🔌 CONTROL DINÁMICO DE PUERTO
-    port: parseInt(process.env.DB_PORT || (isCloud ? '4000' : '3306')),
+    // 🔌 PUERTO DINÁMICO: Lee el del .env (42374), si no el de Railway por defecto (3306)
+    port: parseInt(process.env.DB_PORT || '3306'),
     
     waitForConnections: true,
     connectionLimit: 10,
@@ -19,16 +21,24 @@ const pool = mysql.createPool({
     enableKeepAlive: true,
     keepAliveInitialDelay: 0,
     
-    // 🛡️ CONTROL DINÁMICO DE SSL
-    ssl: isCloud ? { rejectUnauthorized: false } : false
+    // 🛡️ CONTROL DE SSL: Railway NO requiere SSL obligatorio como TiDB.
+    // Esto evita bloqueos de conexión innecesarios desde Render.
+    ssl: isRailway ? false : (isCloud ? { rejectUnauthorized: false } : false)
 });
 
-// Verificación inicial con un log limpio
+// Verificación inicial con diagnóstico preciso
 pool.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Error conectando a MySQL:', err.message);
     } else {
-        const destino = isCloud ? 'NUBE (TiDB Cloud)' : 'LOCAL (XAMPP / Laragon)';
+        // Genera el cartel correcto de manera inteligente
+        let destino = 'LOCAL (MacBook Air)';
+        if (isRailway) {
+            destino = 'NUBE (Railway)';
+        } else if (isCloud) {
+            destino = 'NUBE (Remota)';
+        }
+        
         console.log(`✅ Conexión establecida con éxito hacia: ${destino}`);
         connection.release();
     }

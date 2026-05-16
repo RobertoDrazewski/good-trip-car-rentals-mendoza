@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-// CORRECCIÓN: Se eliminó el duplicado y se corrigió la mayúscula de ShieldCheck
+// Se mantiene la importación limpia y corregida
 import { Lock, CheckCircle, Loader2, Sparkles, Key, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -28,7 +28,10 @@ const SetupPassword = () => {
 
         setLoading(true);
         try {
-            await axios.post('http://localhost:3001/api/admin/complete-setup', {
+            // 🔌 URL DINÁMICA: Lee la variable de Render en producción, o usa localhost en tu Mac
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+            await axios.post(`${apiUrl}/api/admin/complete-setup`, {
                 email,
                 password
             });

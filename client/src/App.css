@@ -2,6 +2,8 @@
 .animate-in {
   animation-fill-mode: forwards;
   will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden; /* 🔥 Optimiza el renderizado en celulares para evitar parpadeos */
 }
 
 .fade-in {
@@ -23,13 +25,21 @@
 }
 
 /* PERSONALIZACIÓN DE LA BARRA DE DESPLAZAMIENTO (ESTILO MENDOZA RENT) */
-::-webkit-scrollbar {
-  width: 10px;
-}
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-::-webkit-scrollbar-thumb {
-  background: #fbbf24; /* brandYellow definido en tailwind.config.js */
-  border-radius: 10px;
+/* 🔥 Encapsulado en Media Query para que solo afecte a computadoras. 
+   En celulares dejamos el scroll nativo táctil que es mucho más cómodo */
+@media (min-width: 769px) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px; /* Para scroll horizontal si hiciese falta */
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #fbbf24; /* brandYellow definido en tailwind.config.js */
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d97706; /* Un tono más oscuro cuando pasás el mouse */
+  }
 }

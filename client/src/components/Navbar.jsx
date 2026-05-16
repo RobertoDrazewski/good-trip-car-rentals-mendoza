@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Menu, X, Globe } from 'lucide-react';
 
+// 🛠️ REPARADO: Se corrigió la ruta de importación relativa con "../"
+// Esto permite que Vite encuentre el logo en 'src/assets' saliendo desde 'src/components'
+import logoMendozaRent from '../assets/logo.png'; 
+
 export default function Navbar() {
   const { t, i18n } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,7 +25,7 @@ export default function Navbar() {
   const navLinks = [
     { href: '#reservas', label: t('nav_reserva') },
     { href: '#flota', label: t('nav_flota') },
-    { href: '#requisitos', label: 'Requisitos' }, // Nueva sección
+    { href: '#requisitos', label: 'Requisitos' }, 
     { href: '#rutas', label: t('nav_rutas') },
   ];
 
@@ -36,8 +40,9 @@ export default function Navbar() {
         
         <div className="flex-1 flex items-center">
           <a href="/" className="inline-block transition-transform hover:scale-105 active:scale-95">
+            {/* 🚀 Usando la variable modular optimizada para Render */}
             <img 
-              src="/logo.png" 
+              src={logoMendozaRent} 
               alt="Mendoza Rent Logo" 
               className={`transition-all duration-500 object-contain drop-shadow-2xl ${
                 isScrolled 
