@@ -118,14 +118,17 @@ function App() {
   );
 }
 
-// 🎯 COMPONENTE LOCAL DEL FOOTER OPTIMIZADO
+// 🎯 COMPONENTE LOCAL DEL FOOTER OPTIMIZADO PARA PANTALLAS TÁCTILES MÓVILES
 function FooterLocal({ t, logoImg }) {
+  // Inyectamos el enrutador dinámico para controlar la navegación por funciones de hardware nativas
+  const navigate = useNavigate();
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <footer className="relative bg-slate-950 border-t border-white/5 pt-16 pb-8 overflow-hidden w-full text-white">
+    // Se añade relative, un z-index base seguro y pointer-events-auto para blindar todo el bloque del footer
+    <footer className="relative bg-slate-950 border-t border-white/5 pt-16 pb-8 overflow-hidden w-full text-white z-30 pointer-events-auto">
       
-      {/* IMAGEN DE MARCA DE AGUA DE FONDO (PRODUCIDA CON EFECTO DE FUSIÓN DE PANTALLA) */}
+      {/* IMAGEN DE MARCA DE AGUA DE FONDO */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
         <img 
           src={logoImg} 
@@ -149,7 +152,7 @@ function FooterLocal({ t, logoImg }) {
             </p>
           </div>
 
-          {/* COLUMNA 2: NAVEGACIÓN DE ANCLAS DE LA LANDING PAGE */}
+          {/* COLUMNA 2: NAVEGACIÓN DE ANCLAS */}
           <div className="text-left">
             <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-500 mb-4">Navegación</h4>
             <ul className="grid grid-cols-2 gap-3 text-xs font-semibold text-slate-300">
@@ -177,8 +180,8 @@ function FooterLocal({ t, logoImg }) {
         </div>
 
         {/* CONTENEDOR INFERIOR DE REDES, COPYRIGHT Y ACCESO ADMINISTRATIVO */}
-        {/* El uso de 'z-40' e 'isolate' previene problemas de superposición táctil en dispositivos móviles */}
-        <div className="relative mt-8 flex flex-col sm:flex-row justify-between items-center gap-6 w-full z-40 isolate">
+        {/* El uso de 'z-50' e 'isolate' rompe cualquier solapamiento invisible del chat de IA */}
+        <div className="relative mt-8 flex flex-col sm:flex-row justify-between items-center gap-6 w-full z-50 isolate">
           <div className="flex items-center gap-4">
             <a href="https://www.instagram.com/good.triprentals/" target="_blank" rel="noreferrer" className="p-2.5 bg-white/5 hover:bg-yellow-500 hover:text-slate-950 rounded-full transition-all border border-white/5">
               <Instagram size={16} />
@@ -192,13 +195,14 @@ function FooterLocal({ t, logoImg }) {
             </p>
             <div className="flex justify-center sm:justify-start gap-3 text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 items-center">
               
-              {/* Padding incrementado sustancialmente en móviles para facilitar el toque por pulsación dactilar */}
-              <Link 
-                to="/login" 
-                className="hover:text-yellow-500/80 text-slate-500 transition-colors inline-block py-3 px-4 sm:py-1.5 sm:px-2 relative z-55 active:text-yellow-500 touch-manipulation pointer-events-auto"
+              {/* 🛠️ SOLUCIÓN MÓVIL APLICADA: Reemplazado Link por button nativo con disparadores táctiles reactivos */}
+              <button 
+                onClick={() => navigate('/login')}
+                onTouchStart={() => navigate('/login')}
+                className="hover:text-yellow-500/80 text-slate-500 transition-colors inline-block py-3 px-4 sm:py-1.5 sm:px-2 relative z-55 active:text-yellow-500 touch-manipulation pointer-events-auto bg-transparent border-none outline-none appearance-none font-black uppercase tracking-[0.2em] cursor-pointer"
               >
                 Acceso Staff
-              </Link>
+              </button>
 
               <span className="select-none text-slate-800">•</span>
               <span className="text-slate-700 select-none">Dev by Puma Code</span>
