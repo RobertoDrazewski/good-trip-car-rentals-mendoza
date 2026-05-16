@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Loader2, Fuel, Users, Briefcase, Gauge, Star, ChevronRight } from 'lucide-react';
 
+// 🔌 CAPTURA DINÁMICA DE LA API (Detecta Render en la nube, o usa localhost de respaldo)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 export default function CarCarousel() {
   const [autos, setAutos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,7 +12,8 @@ export default function CarCarousel() {
   useEffect(() => {
     const fetchAutos = async () => {
       try {
-        const res = await axios.get('http://localhost:3001/api/admin/dashboard'); 
+        // 🌐 Corregido: Apunta a la API en la nube
+        const res = await axios.get(`${API_BASE_URL}/api/admin/dashboard`); 
         const disponibles = res.data.autos.filter(a => a.estado === 'Disponible');
         setAutos(disponibles);
       } catch (err) {
@@ -43,8 +47,9 @@ export default function CarCarousel() {
 
           {/* CONTENEDOR DE IMAGEN - Fondo suave para resaltar el vehículo */}
           <div className="h-96 bg-slate-50 relative overflow-hidden flex items-center justify-center p-12">
+            {/* 🌐 Corregido: Ruta de la imagen adaptada para producción */}
             <img 
-              src={auto.imagen_url ? `http://localhost:3001${auto.imagen_url}` : '/uploads/autos/default-car.jpg'} 
+              src={auto.imagen_url ? `${API_BASE_URL}${auto.imagen_url}` : '/uploads/autos/default-car.jpg'} 
               alt={auto.modelo}
               className="max-w-full max-h-full object-contain transition-transform duration-1000 group-hover:scale-110 drop-shadow-2xl"
             />

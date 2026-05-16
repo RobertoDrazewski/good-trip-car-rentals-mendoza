@@ -3,6 +3,9 @@ import axios from 'axios';
 import { Navigation, Loader2, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+// 🔌 CAPTURA DINÁMICA DE LA API (Detecta Render en la nube, o usa localhost de respaldo)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 export default function RoutesSection() {
   const { t } = useTranslation();
   const [rutas, setRutas] = useState([]);
@@ -11,7 +14,8 @@ export default function RoutesSection() {
   useEffect(() => {
     const fetchRutas = async () => {
       try {
-        const res = await axios.get('http://localhost:3001/api/routes/all');
+        // 🌐 Corregido: Petición dinámica a la base de datos remota
+        const res = await axios.get(`${API_BASE_URL}/api/routes/all`);
         setRutas(res.data);
       } catch (err) {
         console.error("Error al cargar rutas:", err);
@@ -58,13 +62,14 @@ export default function RoutesSection() {
             className="group relative h-[550px] md:h-[700px] rounded-[4rem] overflow-hidden shadow-2xl cursor-pointer transition-all duration-700 hover:-translate-y-2"
           >
             {/* Imagen de fondo */}
+            {/* 🌐 Corregido: Ruta de imagen dinámica con el servidor de origen */}
             <img 
-              src={r.imagen_url ? `http://localhost:3001${r.imagen_url}` : 'https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&q=80'} 
+              src={r.imagen_url ? `${API_BASE_URL}${r.imagen_url}` : 'https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&q=80'} 
               alt={r.titulo}
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
             />
 
-            {/* Overlay de degradado (más oscuro abajo para legibilidad de la descripción) */}
+            {/* Overlay de degradado */}
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
             
             {/* Icono GPS */}

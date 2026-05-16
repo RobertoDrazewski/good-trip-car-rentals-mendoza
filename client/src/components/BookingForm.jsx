@@ -2,6 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { Car, Loader2, Clock, ChevronDown, ArrowRight, Star, Check, User, Phone, MapPin } from 'lucide-react';
 
+// 🔌 CAPTURA DINÁMICA DE LA API (Detecta Render en la nube, o usa localhost de respaldo)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatOpen }) {
   const [loading, setLoading] = useState(false);
   const [listaAutos, setListaAutos] = useState([]);
@@ -25,7 +28,8 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
   useEffect(() => {
     const fetchAutos = async () => {
       try {
-        const res = await axios.get('http://localhost:3001/api/admin/dashboard'); 
+        // 🌐 Corregido: Apunta a la API dinámica
+        const res = await axios.get(`${API_BASE_URL}/api/admin/dashboard`); 
         const flota = res.data.autos || [];
         setListaAutos(flota);
         if (flota.length > 0) {
@@ -69,7 +73,8 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
 
       let datosCalculados = {};
       try {
-        const resCotizacion = await axios.post('http://localhost:3001/api/prices/quote', payloadCotizacion);
+        // 🌐 Corregido: Apunta a la API dinámica
+        const resCotizacion = await axios.post(`${API_BASE_URL}/api/prices/quote`, payloadCotizacion);
         datosCalculados = resCotizacion.data || {};
       } catch (quoteErr) {
         console.warn("⚠️ Usando estimación de respaldo local.");
@@ -100,12 +105,13 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
       // 3. PERSISTENCIA DIRECTA EN LA BASE DE DATOS
       const token = localStorage.getItem('token');
       try {
-        await axios.post('http://localhost:3001/api/admin/nueva-cotizacion', payloadDB, {
+        // 🌐 Corregido: Apunta a la API dinámica
+        await axios.post(`${API_BASE_URL}/api/admin/nueva-cotizacion`, payloadDB, {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
       } catch (dbErr) {
         // Fallback sin token por si el endpoint es abierto para clientes web
-        await axios.post('http://localhost:3001/api/admin/nueva-cotizacion', payloadDB).catch(() => {});
+        await axios.post(`${API_BASE_URL}/api/admin/nueva-cotizacion`, payloadDB).catch(() => {});
       }
 
       // 4. ENVÍO DE DATOS A QUOTE_RESULT
@@ -177,8 +183,9 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
               >
                 {selectedAuto ? (
                   <>
+                    {/* 🌐 Corregido: Ruta de imagen dinámica */}
                     <div className="w-20 h-14 bg-white rounded-xl flex items-center justify-center p-1 shadow-sm overflow-hidden border border-slate-100 flex-shrink-0">
-                      <img src={`http://localhost:3001${selectedAuto.imagen_url}`} alt={selectedAuto.modelo} className="w-full h-full object-contain" onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=200&auto=format&fit=crop"; }} />
+                      <img src={`${API_BASE_URL}${selectedAuto.imagen_url}`} alt={selectedAuto.modelo} className="w-full h-full object-contain" onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=200&auto=format&fit=crop"; }} />
                     </div>
                     <div className="flex flex-col text-left">
                       <span className="text-[13px] font-black uppercase italic leading-tight text-slate-900">{selectedAuto.modelo}</span>
@@ -195,7 +202,8 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
                   <div className="absolute top-[105%] left-0 w-full bg-white rounded-[2.5rem] shadow-2xl border border-slate-200 z-[110] max-h-[280px] overflow-y-auto p-3 flex flex-col gap-2">
                     {listaAutos.map(auto => (
                       <div key={auto.id} onClick={() => { setFormData({ ...formData, auto_id: auto.id.toString() }); setShowAutoList(false); }} className={`p-3 rounded-[1.8rem] flex items-center gap-4 cursor-pointer transition-all ${formData.auto_id === auto.id.toString() ? 'bg-slate-900 text-white shadow-md' : 'hover:bg-slate-100 bg-slate-50'}`}>
-                        <div className="w-16 h-11 bg-white rounded-xl flex items-center justify-center p-1 shadow-sm overflow-hidden flex-shrink-0 border border-slate-100"><img src={`http://localhost:3001${auto.imagen_url}`} className="w-full h-full object-contain" alt="car" /></div>
+                        {/* 🌐 Corregido: Ruta de imagen dinámica en la lista */}
+                        <div className="w-16 h-11 bg-white rounded-xl flex items-center justify-center p-1 shadow-sm overflow-hidden flex-shrink-0 border border-slate-100"><img src={`${API_BASE_URL}${auto.imagen_url}`} className="w-full h-full object-contain" alt="car" /></div>
                         <p className="text-[12px] font-black uppercase italic truncate">{auto.modelo}</p>
                       </div>
                     ))}
