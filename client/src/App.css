@@ -1,3 +1,7 @@
+/* ==========================================================================
+   PUMA CODE: ANIMACIONES DE INTERFAZ & OPTIMIZACIÓN TÁCTIL (MENDOZA RENT)
+   ========================================================================== */
+
 /* ANIMACIONES PARA LOS RESULTADOS DE COTIZACIÓN */
 .animate-in {
   animation-fill-mode: forwards;
@@ -24,22 +28,50 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-/* PERSONALIZACIÓN DE LA BARRA DE DESPLAZAMIENTO (ESTILO MENDOZA RENT) */
-/* 🔥 Encapsulado en Media Query para que solo afecte a computadoras. 
-   En celulares dejamos el scroll nativo táctil que es mucho más cómodo */
+/* ==========================================================================
+   🚀 SOPORTE PREMIUM PARA CARRUSELES MÓVILES (RESEÑAS, REQUISITOS Y CLIMA)
+   ========================================================================== */
+
+/* Oculta la barra de desplazamiento horizontal nativa en celulares para mantener 
+   la estética de App móvil, pero preserva el deslizamiento táctil con el dedo */
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE y Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari y Opera */
+}
+
+/* Fuerza el desplazamiento suave al hacer clic en los enlaces del Navbar (#reservas, etc.) */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Evita rebotes horizontales raros en Safari Mobile */
+body {
+  overflow-x: hidden;
+  width: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ==========================================================================
+   PERSONALIZACIÓN DE LA BARRA DE DESPLAZAMIENTO (SOLO ESCRITORIO)
+   ========================================================================== */
 @media (min-width: 769px) {
   ::-webkit-scrollbar {
     width: 10px;
-    height: 10px; /* Para scroll horizontal si hiciese falta */
+    height: 10px; 
   }
   ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #f1f5f9; /* Cambiado a un tono slate suave para que combine con el diseño */
   }
   ::-webkit-scrollbar-thumb {
-    background: #fbbf24; /* brandYellow definido en tailwind.config.js */
+    background: #eab308; /* brandYellow nativo de Tailwind para Mendoza Rent */
     border-radius: 10px;
+    border: 2px solid #f1f5f9; /* Agrega un espacio elegante alrededor de la barra */
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #d97706; /* Un tono más oscuro cuando pasás el mouse */
+    background: #ca8a04; /* Un tono ámbar/oro premium al pasar el mouse */
   }
 }

@@ -1,9 +1,12 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Activity } from 'lucide-react'; 
+import { Instagram, Facebook, Phone, MapPin, ArrowUp, Activity } from 'lucide-react';
 
-// Importación de Componentes
+// Importamos el logo de forma modular segura desde tu carpeta assets
+import logoMendozaRent from './assets/logo.png';
+
+// Importación de Componentes Oficiales
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import BookingForm from './components/BookingForm';
@@ -15,7 +18,7 @@ import RoutesSection from './components/RoutesSection';
 import WeatherWidget from './components/WeatherWidget';
 import Requirements from './components/Requirements'; 
 
-// Importación de Páginas
+// Importación de Páginas Administrativas
 import AdminDashboard from './pages/AdminDashboard';
 import SetupPassword from './pages/SetupPassword';
 import Login from './pages/Login';
@@ -37,118 +40,166 @@ function App() {
       <Routes>
         {/* RUTA PÚBLICA PRINCIPAL */}
         <Route path="/" element={
-          <div className="relative min-h-screen bg-gray-50 overflow-x-hidden font-sans text-slate-900">
-            <div className="sticky top-0 z-50 shadow-sm bg-white/90 backdrop-blur-md">
-              <Navbar />
-            </div>
+          <div className="relative min-h-screen bg-gray-50 overflow-x-hidden font-sans text-slate-900 w-full flex flex-col">
+            
+            <Navbar />
             
             <Hero />
             
-            <main className="relative z-10 max-w-6xl mx-auto px-4 py-16 space-y-32 md:space-y-48">
+            <main className="relative z-10 max-w-7xl mx-auto px-4 w-full space-y-16 md:space-y-40 flex-1">
               
-              {/* SECCIÓN 1: RESERVAS */}
-              <section id="reservas" className="scroll-mt-32">
+              {/* SECCIÓN 1: RESERVAS Y PRESUPUESTOS */}
+              <section id="reservas" className="scroll-mt-24 sm:scroll-mt-32 w-full">
                 <BookingForm 
                   onQuoteGenerated={(data) => setQuote(data)} 
                   setAiContext={setAiContext}
                   setIsChatOpen={setIsChatOpen}
                 />
-                {quote && (
-                  <div className="mt-12 animate-in fade-in zoom-in duration-500">
-                    <QuoteResult quote={quote} />
-                  </div>
-                )}
+                {quote && <QuoteResult quote={quote} />}
               </section>
 
-              {/* SECCIÓN 2: TESTIMONIOS */}
-              <section id="testimonios" className="scroll-mt-24">
+              {/* SECCIÓN 2: TESTIMONIOS PREMIUM (GOOGLE REVIEWS) */}
+              <section id="testimonios" className="scroll-mt-24 w-full">
                 <GoogleReviews />
               </section>
 
-              {/* SECCIÓN 3: FLOTA */}
-              <section id="flota" className="scroll-mt-24">
-                <div className="text-center mb-16">
-                  <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter text-slate-900 uppercase">
-                    {t('reviews_section_title')} <span className="text-yellow-500">{t('nav_flota')}</span>
+              {/* SECCIÓN 3: FLOTA VEHICULAR */}
+              <section id="flota" className="scroll-mt-24 w-full">
+                <div className="text-center mb-6 md:mb-12">
+                  <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter text-slate-900 uppercase">
+                    {t('flota_title', 'Nuestra')} <span className="text-yellow-500">{t('nav_flota', 'Flota')}</span>
                   </h2>
-                  <div className="w-24 h-2 bg-yellow-500 mx-auto mt-6 rounded-full shadow-lg shadow-yellow-500/20" />
+                  <div className="w-16 md:w-24 h-1.5 md:h-2 bg-yellow-500 mx-auto mt-4 rounded-full" />
                 </div>
                 <CarCarousel />
               </section>
 
-              {/* SECCIÓN 4: REQUISITOS */}
-              <section id="requisitos" className="scroll-mt-32">
+              {/* SECCIÓN 4: REQUISITOS OBLIGATORIOS */}
+              <section id="requisitos" className="scroll-mt-24 sm:scroll-mt-32 w-full">
                 <Requirements />
               </section>
 
-              {/* SECCIÓN 5: CLIMA */}
-              <section id="clima" className="scroll-mt-24">
-                <div className="text-center mb-12">
-                  <p className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] mb-3">
-                    {t('chat_welcome')}
-                  </p>
-                  <h2 className="text-4xl font-black italic tracking-tighter text-slate-900 uppercase leading-none">
-                    {t('weather_title')} <span className="text-blue-600">Mendoza</span>
-                  </h2>
-                </div>
+              {/* SECCIÓN 5: ESTADO DEL CLIMA EN VIVO */}
+              <section id="clima" className="scroll-mt-24 w-full">
                 <WeatherWidget />
               </section>
 
-              {/* SECCIÓN 6: RUTAS */}
-              <section id="rutas" className="scroll-mt-24">
+              {/* SECCIÓN 6: EXPERIENCIAS Y RUTAS MENDOCINAS */}
+              <section id="rutas" className="scroll-mt-24 w-full">
                 <RoutesSection />
               </section>
 
             </main>
 
-            {/* CHAT INTELIGENTE */}
+            {/* CHAT CON CONSERJE IA FLOTANTE */}
             <ChatIA 
               isOpen={isChatOpen} 
               setIsOpen={setIsChatOpen} 
               context={aiContext} 
             />
 
-            {/* FOOTER CORPORATIVO */}
-            <footer className="bg-[#0f172a] text-white pt-24 pb-12 text-center border-t-[12px] border-yellow-500 relative">
-              <div className="max-w-4xl mx-auto px-6">
-                <div className="flex items-center justify-center gap-3 mb-8">
-                  <div className="bg-yellow-500 p-2 rounded-xl">
-                    <Activity className="text-slate-900" size={28} fill="currentColor"/>
-                  </div>
-                  <span className="text-3xl md:text-4xl font-black italic tracking-tighter uppercase">
-                    MENDOZA<span className="text-yellow-500">RENT</span>
-                  </span>
-                </div>
-                <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed mb-12 font-medium italic">
-                  {t('hero_subtitle')}
-                </p>
-                <div className="h-[1px] bg-gradient-to-r from-transparent via-slate-700 to-transparent w-full mb-10" />
-                <div className="space-y-4">
-                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.5em]">
-                    © 2026 {t('footer_rights')}
-                  </p>
-                  <div className="flex justify-center gap-4 text-[10px] tracking-wider font-bold">
-                    {/* ENLACE "SECRETO" AL ACCESO ADMIN EN EL FOOTER */}
-                    <a href="/login" className="text-slate-600 hover:text-yellow-500/60 transition-colors uppercase">Acceso Staff</a>
-                  </div>
-                  <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-600">
-                    Developed by <span className="text-yellow-500/40 font-black">Puma Code</span>
-                  </p>
-                </div>
-              </div>
-            </footer>
+            {/* FOOTER LOCAL CON RUTA DE ACCESO RESTAURADA */}
+            <FooterLocal t={t} logoImg={logoMendozaRent} />
+
           </div>
         } />
 
-        {/* INTERFAZ DE RUTAS ADMINISTRATIVAS - OPTIMIZADAS */}
+        {/* INTERFAZ DE RUTAS ADMINISTRATIVAS */}
         <Route path="/login" element={<LoginWrapper />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/setup-password" element={<SetupPassword />} />
 
-        {/* REDIRECCIÓN DE SEGURIDAD */}
+        {/* REDIRECCIÓN GLOBAL DE SEGURIDAD */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
+  );
+}
+
+// 🎯 COMPONENTE LOCAL DEL FOOTER REPARADO
+function FooterLocal({ t, logoImg }) {
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  return (
+    <footer className="relative bg-slate-950 border-t border-white/5 pt-16 pb-8 overflow-hidden w-full text-white">
+      
+      {/* LOGO EN MARCA DE AGUA SEGURO */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        <img 
+          src={logoImg} 
+          alt="Good Trip Logo Background" 
+          className="w-56 h-56 md:w-[28rem] md:h-[28rem] object-contain opacity-35 md:opacity-40 select-none mix-blend-screen"
+        />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 z-10 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 border-b border-white/5 pb-12 w-full">
+          
+          {/* COLUMNA 1: LOGO REAL Y EMPRESA */}
+          <div className="space-y-4 text-left">
+            <h2 className="text-xl sm:text-2xl font-black italic uppercase tracking-tighter text-white leading-none">
+              GOOD TRIP <br />
+              <span className="text-yellow-500">CAR RENTALS</span> <br />
+              <span className="text-xs font-bold not-italic tracking-widest text-slate-400 block mt-1">MENDOZA, ARG</span>
+            </h2>
+            <p className="text-xs text-slate-400 leading-relaxed max-w-xs font-medium">
+              {t('footer_desc', 'Alquiler de vehículos sin franquicias ocultas ni sorpresas. Tu mejor experiencia recorriendo las rutas mendocinas.')}
+            </p>
+          </div>
+
+          {/* COLUMNA 2: NAVIGATION */}
+          <div className="text-left">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-500 mb-4">Navegación</h4>
+            <ul className="grid grid-cols-2 gap-3 text-xs font-semibold text-slate-300">
+              <li><a href="#reservas" className="hover:text-yellow-500 transition-colors">Reservas</a></li>
+              <li><a href="#flota" className="hover:text-yellow-500 transition-colors">Vehículos</a></li>
+              <li><a href="#requisitos" className="hover:text-yellow-500 transition-colors">Requisitos</a></li>
+              <li><a href="#rutas" className="hover:text-yellow-500 transition-colors">Rutas</a></li>
+            </ul>
+          </div>
+
+          {/* COLUMNA 3: CONTACT INFORMATION */}
+          <div className="space-y-4 text-left">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-500 mb-2">Atención Directa</h4>
+            <div className="space-y-3 text-xs text-slate-300 font-medium">
+              <div className="flex items-center gap-2">
+                <MapPin size={14} className="text-yellow-500 flex-shrink-0" />
+                <span>Mendoza Capital, Argentina</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone size={14} className="text-yellow-500 flex-shrink-0" />
+                <span>+54 9 261 276-4618</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* REDES, COPYRIGHT Y ENLACE INTERNO DE STAFF */}
+        <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-6 w-full">
+          <div className="flex items-center gap-4">
+            <a href="https://www.instagram.com/good.triprentals/" target="_blank" rel="noreferrer" className="p-2.5 bg-white/5 hover:bg-yellow-500 hover:text-slate-950 rounded-full transition-all border border-white/5">
+              <Instagram size={16} />
+            </a>
+          </div>
+
+          {/* 🛠️ REPARADO: Centralizado el copyright junto al botón "secreto" de acceso al login */}
+          <div className="text-center sm:text-left space-y-2">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+              © 2026 <span className="text-slate-400">Good Trip Car Rentals Mendoza, Arg</span>. Todos los derechos reservados.
+            </p>
+            <div className="flex justify-center sm:justify-start gap-3 text-[9px] font-black uppercase tracking-[0.2em] text-slate-600">
+              <a href="/login" className="hover:text-yellow-500/80 transition-colors">Acceso Staff</a>
+              <span>•</span>
+              <span className="text-slate-700">Dev by Puma Code</span>
+            </div>
+          </div>
+
+          <button onClick={scrollToTop} className="group p-2.5 bg-white/5 hover:bg-slate-900 text-yellow-500 border border-white/10 rounded-full transition-all cursor-pointer">
+            <ArrowUp size={16} className="group-hover:-translate-y-0.5 transition-transform" />
+          </button>
+        </div>
+      </div>
+    </footer>
   );
 }
 

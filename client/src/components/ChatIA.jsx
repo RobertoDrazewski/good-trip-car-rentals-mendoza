@@ -3,6 +3,12 @@ import axios from 'axios';
 import { X, Send, ShieldCheck, Crown, MessageCircle, Headphones } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+// 🛠️ REPARADO: Importamos el logo de forma modular segura para que Render no lo rompa
+import logoMendozaRent from '../assets/logo.png';
+
+// 🔌 URL INTELIGENTE: Lee la variable de Render en producción, o usa localhost en tu Mac
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
   const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState([]);
@@ -33,7 +39,7 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
     if (!context) return;
     if (context.status === 'no_availability') {
       const suggestions = {
-        es: `Estimado cliente, le informo amablemente que para las fechas solicitadas nuestra flota se encuentra reservada. No obstante, disponemos de una unidad premium libre a partir del día ${context.sugerencia}. ¿Desea que gestionemos su reserva para dicha fecha?`,
+        es: `Estimado cliente, le informo amavelmente que para las fechas solicitadas nuestra flota se encuentra reservada. No obstante, disponemos de una unidad premium libre a partir del día ${context.sugerencia}. ¿Desea que gestionemos su reserva para dicha fecha?`,
         en: `Dear customer, I kindly inform you that our fleet is fully booked for the requested dates. However, we have a premium unit available starting on ${context.sugerencia}. Would you like us to manage your reservation for that date?`,
         pt: `Prezado cliente, informo que nossa frota está reservada para as datas solicitadas. No entanto, temos uma unidade premium disponível a partir do dia ${context.sugerencia}. Deseja que organizemos sua reserva para esta data?`
       };
@@ -56,7 +62,8 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:3001/api/chat', { 
+      // 🛠️ REPARADO: Reemplazado localhost fijo por la variable inteligente apiUrl
+      const res = await axios.post(`${apiUrl}/api/chat`, { 
         message: userMessage.content,
         lang: i18n.language,
         userData: userData
@@ -78,7 +85,8 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
   const ui = uiTexts[i18n.language] || uiTexts['es'];
 
   return (
-    <div className="fixed bottom-8 right-8 z-[1000] font-sans flex flex-col items-end gap-4">
+    /* 📱 RESPONSIVE: En celular reduce márgenes para no flotar incómodamente */
+    <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-[1000] font-sans flex flex-col items-end gap-4 max-sm:w-full max-sm:left-0 max-sm:px-4">
       
       {/* BOTÓN WHATSAPP FLOTANTE */}
       {!isOpen && (
@@ -102,14 +110,16 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
           <Crown size={28} className="text-yellow-500" />
         </button>
       ) : (
-        <div className="bg-white w-[400px] h-[650px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.4)] rounded-[2.5rem] flex flex-col border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+        /* 📱 RESPONSIVE MAESTRO: En compu mantiene w-[400px] h-[650px], pero en celulares se expande 
+           a pantalla completa ocupando todo el marco táctil de forma ergonómica */
+        <div className="bg-white w-full sm:w-[400px] h-[85vh] sm:h-[650px] max-sm:fixed max-sm:inset-0 max-sm:h-full max-sm:w-full shadow-[0_40px_100px_-20px_rgba(0,0,0,0.4)] rounded-[2.5rem] max-sm:rounded-none flex flex-col border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
           
           {/* HEADER DEL CONSERJE */}
-          <div className="bg-slate-900 p-6 text-white flex justify-between items-center relative">
+          <div className="bg-slate-900 p-6 text-white flex justify-between items-center relative max-sm:pt-10">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center overflow-hidden shadow-lg p-1">
-                {/* Cargando el logo.png de la carpeta public de forma segura */}
-                <img src="/logo.png" alt="Good Trip Logo" className="w-full h-full object-contain" />
+                {/* 🛠️ REPARADO: Cambiado src string por la variable importada segura */}
+                <img src={logoMendozaRent} alt="Good Trip Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-[11px] uppercase tracking-[0.15em] text-slate-100">Good Trip Car Rentals</span>
@@ -147,8 +157,8 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
             </button>
           </div>
 
-          {/* ENTRADA DE TEXTO */}
-          <div className="p-5 bg-white flex gap-3 items-center border-t border-slate-100">
+          {/* ENTRADA DE TEXTO (Ajustado con padding extra para teclados móviles) */}
+          <div className="p-5 bg-white flex gap-3 items-center border-t border-slate-100 max-sm:pb-8">
             <input 
               value={input} 
               onChange={e => setInput(e.target.value)} 

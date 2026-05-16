@@ -1,24 +1,39 @@
-/* PUMA CODE: FULL SCREEN LAYOUT FINAL */
+/* PUMA CODE: FULL SCREEN LAYOUT FINAL + MOBILE PROTECTION */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box !important;
 }
 
+/* En escritorio se clava a la pantalla; en celulares se adapta de forma fluida */
 body, html, #root {
-  width: 100vw !important;
-  height: 100vh !important;
+  width: 100%;
+  height: 100vh;
   background-color: #f1f5f9;
-  overflow: hidden;
 }
 
+@media (max-width: 1024px) {
+  body, html, #root {
+    height: auto;
+    overflow-y: auto; /* Permite scroll natural en el celular */
+  }
+}
+
+/* El contenedor principal */
 .flex.min-h-screen {
   display: flex;
-  width: 100vw !important;
-  height: 100vh !important;
+  width: 100%;
+  height: 100vh;
 }
 
-/* SIDEBAR ANCHO Y AZUL OSCURO */
+@media (max-width: 1024px) {
+  .flex.min-h-screen {
+    flex-direction: column; /* Apila el menú arriba y el contenido abajo en celulares */
+    height: auto;
+  }
+}
+
+/* SIDEBAR ANCHO Y AZUL OSCURO (RESPONSIVE) */
 aside {
   width: 300px !important;
   min-width: 300px !important;
@@ -31,6 +46,34 @@ aside {
   flex-direction: column;
 }
 
+@media (max-width: 1024px) {
+  aside {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: auto !important; /* Libera los 100vh en el celular */
+    padding: 20px !important;
+    position: sticky;
+    top: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Distribución fluida para tus NavBtn auxiliares en celulares */
+  aside nav {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto; /* Permite deslizar los botones hacia los costados con el dedo */
+    gap: 8px !important;
+    padding-bottom: 5px;
+    
+    /* Oculta la barra de scroll nativa para mantenerlo premium */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  aside nav::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* CONTENIDO PRINCIPAL: OCUPA TODO EL RESTO */
 main {
   flex-grow: 1 !important;
@@ -40,7 +83,15 @@ main {
   background-color: #f8fafc;
 }
 
-/* CALENDARIO GIGANTE */
+@media (max-width: 1024px) {
+  main {
+    height: auto !important;
+    padding: 20px !important; /* Menos margen en celular para ganar espacio útil */
+    overflow-y: visible !important;
+  }
+}
+
+/* CALENDARIO GIGANTE COMPACTADO */
 .react-calendar {
   width: 100% !important;
   max-width: none !important;
@@ -51,14 +102,24 @@ main {
 }
 
 .react-calendar__tile {
-  height: 100px !important;
+  height: 125px !important; /* Mantenemos tus 125px óptimos para ver patentes en pc */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
-/* TARIFAS: FILAS RECTANGULARES LARGAS */
+@media (max-width: 640px) {
+  .react-calendar {
+    border-radius: 20px !important;
+    padding: 10px !important;
+  }
+  .react-calendar__tile {
+    height: 75px !important; /* Más petiso en celulares para que entre el mes completo */
+  }
+}
+
+/* TARIFAS: FILAS RECTANGULARES LARGAS ADAPTABLES */
 .price-row-full {
   background: white;
   padding: 30px 45px;
@@ -69,4 +130,14 @@ main {
   margin-bottom: 20px;
   border: 1px solid #e2e8f0;
   width: 100%;
+}
+
+@media (max-width: 640px) {
+  .price-row-full {
+    flex-direction: column; /* Se apila en formato tarjeta: texto arriba, entrada abajo */
+    gap: 15px;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+  }
 }
