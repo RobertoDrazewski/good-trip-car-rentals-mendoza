@@ -40,13 +40,13 @@ export default function CarCarousel() {
   };
 
   if (loading) return (
-    <div className="flex justify-center py-20">
-      <Loader2 className="animate-spin text-sky-500" size={40} />
+    <div className="flex justify-center py-10">
+      <Loader2 className="animate-spin text-sky-500" size={32} />
     </div>
   );
 
   if (autos.length === 0) return (
-    <div className="text-center py-12 text-slate-400 font-medium italic">
+    <div className="text-center py-8 text-slate-400 font-medium italic text-sm">
       No hay vehículos disponibles en este momento.
     </div>
   );
@@ -54,140 +54,136 @@ export default function CarCarousel() {
   const auto = autos[currentIndex];
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 py-12 md:py-20 flex flex-col items-center">
+    <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
       
-      {/* CONTENEDOR PRINCIPAL DE LA TARJETA */}
-      <div className="w-full bg-white rounded-[2rem] md:rounded-[3.5rem] border border-slate-100 shadow-[0_30px_60px_-15px_rgba(148,163,184,0.12)] overflow-hidden flex flex-col relative animate-in fade-in duration-500">
+      {/* 🛠️ CONVIVENCIA BI-COLUMNA EN PC: Flex en móvil, Grid 2 columnas en Desktop para aplastar el scroll */}
+      <div className="w-full bg-slate-50/50 rounded-3xl border border-slate-100 overflow-hidden flex flex-col md:grid md:grid-cols-12 relative animate-in fade-in duration-300">
         
-        {/* BADGE DE VALORACIÓN - ELIMINADO AMARILLO (Pasado a Celeste Soft) */}
-        <div className="absolute top-4 left-4 sm:top-8 sm:left-8 z-10">
-          <span className="bg-sky-50 text-sky-600 border border-sky-100 text-[9px] sm:text-[10px] font-black uppercase px-3 py-1.5 sm:px-4 sm:py-2 rounded-full tracking-[0.12em] sm:tracking-[0.15em] flex items-center gap-1.5 sm:gap-2 shadow-sm">
-            <Star size={11} fill="currentColor" stroke="none" /> 5.0 Google Reviews
+        {/* BADGE DE VALORACIÓN COMPACTO */}
+        <div className="absolute top-3 left-3 z-10">
+          <span className="bg-white/90 backdrop-blur-sm text-sky-600 border border-sky-100 text-[8px] sm:text-[9px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider flex items-center gap-1 shadow-sm">
+            <Star size={9} fill="currentColor" stroke="none" /> 5.0 Google
           </span>
         </div>
 
-        {/* CONTENEDOR DE IMAGEN */}
-        <div className="h-64 sm:h-96 bg-slate-50 relative overflow-hidden flex items-center justify-center p-6 sm:p-12">
+        {/* COLUMNA IZQUIERDA: CONTENEDOR DE IMAGEN (Ocupa 5/12 del ancho en PC) */}
+        <div className="h-48 sm:h-64 md:h-full md:col-span-5 bg-slate-100/60 relative flex items-center justify-center p-4 md:p-8 border-b md:border-b-0 md:border-r border-slate-100">
           <img 
             src={auto.imagen_url ? `${API_BASE_URL}${auto.imagen_url}` : '/uploads/autos/default-car.jpg'} 
             alt={auto.modelo}
-            className="max-w-full max-h-full object-contain transition-transform duration-700 drop-shadow-md"
+            className="max-w-full max-h-[140px] sm:max-h-[200px] md:max-h-[260px] object-contain transition-transform duration-700 drop-shadow-sm group-hover:scale-105"
           />
-          
-          <div className="absolute bottom-4 right-6 sm:bottom-6 sm:right-10 opacity-30">
-            <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 italic">
-              Mendoza • 2026
-            </p>
-          </div>
         </div>
 
-        {/* CUERPO DE LA TARJETA */}
-        <div className="p-6 sm:p-10 md:p-14 flex-1 flex flex-col">
+        {/* COLUMNA DERECHA: CUERPO DE DETALLES Y DATOS TÉCNICOS (Ocupa 7/12 del ancho en PC) */}
+        <div className="p-4 sm:p-6 md:p-8 md:col-span-7 flex flex-col justify-between text-left bg-white">
           
-          {/* Título y Precio */}
-          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-6 mb-8 sm:mb-10">
-            <div className="flex-1 w-full">
-              <h3 className="text-3xl sm:text-5xl font-black uppercase tracking-tighter text-slate-800 leading-none mb-3 sm:mb-4 break-words">
-                {auto.modelo}
-              </h3>
-              <div className="flex flex-wrap gap-1.5">
-                {/* De negro absoluto a Gris Pizarra */}
-                <span className="bg-slate-800 text-white text-[8px] sm:text-[9px] font-black uppercase px-3 py-1 sm:px-4 sm:py-1.5 rounded-full tracking-widest">
-                  {auto.transmision}
-                </span>
-                <span className="bg-slate-100 text-slate-500 text-[8px] sm:text-[9px] font-black uppercase px-3 py-1 sm:px-4 sm:py-1.5 rounded-full tracking-widest border border-slate-200/50">
-                  {auto.color || 'Gris Plata'}
-                </span>
+          {/* Fila superior: Título, Atributos y Precio */}
+          <div>
+            <div className="flex justify-between items-start gap-4 mb-3">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tighter text-slate-800 leading-none truncate mb-1.5">
+                  {auto.modelo}
+                </h3>
+                <div className="flex flex-wrap gap-1">
+                  <span className="bg-slate-800 text-white text-[7px] sm:text-[8px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest">
+                    {auto.transmision}
+                  </span>
+                  <span className="bg-slate-100 text-slate-500 text-[7px] sm:text-[8px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest border border-slate-200/50">
+                    {auto.color || 'Gris Plata'}
+                  </span>
+                </div>
+              </div>
+              
+              {/* Bloque Precio sutil */}
+              <div className="text-right flex-shrink-0 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Por Día</p>
+                <p className="text-lg sm:text-2xl font-black text-slate-800 leading-none">
+                  <span className="text-[10px] font-bold text-slate-400 mr-0.5">$</span>{auto.precio_base_usd}
+                </p>
               </div>
             </div>
-            
-            <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t border-slate-100 sm:border-none">
-              <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest sm:mb-1">Por Día</p>
-              <p className="text-3xl sm:text-5xl font-black text-slate-800 leading-none">
-                <span className="text-xs sm:text-sm font-light text-slate-400 mr-0.5">$</span>{auto.precio_base_usd}
-              </p>
+
+            {/* Descripción Estilo Editorial Compacta */}
+            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-4 font-medium italic border-l-2 border-sky-500 pl-3 py-0.5">
+              {auto.descripcion_larga || "Un vehículo seleccionado por nuestra familia para garantizar tu confort en las rutas mendocinas."}
+            </p>
+          </div>
+
+          {/* GRILLA TÉCNICA REESCALADA Y LIMPIA */}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3 pt-3 border-t border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-slate-50 rounded-xl text-slate-700">
+                <Users size={14} className="text-sky-600" />
+              </div>
+              <div>
+                <p className="text-[7px] text-slate-400 font-black uppercase tracking-wider">Pasajeros</p>
+                <p className="text-[10px] font-black text-slate-800 uppercase">5 Adultos</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-slate-50 rounded-xl text-slate-700">
+                <Briefcase size={14} className="text-sky-600" />
+              </div>
+              <div>
+                <p className="text-[7px] text-slate-400 font-black uppercase tracking-wider">Equipaje</p>
+                <p className="text-[10px] font-black text-slate-800 uppercase">2 Grandes</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-slate-50 rounded-xl text-slate-700">
+                <Fuel size={14} className="text-sky-600" />
+              </div>
+              <div>
+                <p className="text-[7px] text-slate-400 font-black uppercase tracking-wider">Motor</p>
+                <p className="text-[10px] font-black text-slate-800 uppercase">Eficiente</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-slate-50 rounded-xl text-slate-700">
+                <Gauge size={14} className="text-sky-600" />
+              </div>
+              <div>
+                <p className="text-[7px] text-slate-400 font-black uppercase tracking-wider">Clima</p>
+                <p className="text-[10px] font-black text-slate-800 uppercase">Full A/C</p>
+              </div>
             </div>
           </div>
 
-          {/* Descripción Estilo Editorial - Borde cambiado a Celeste */}
-          <p className="text-slate-500 text-sm sm:text-base leading-relaxed mb-8 sm:mb-10 font-medium italic border-l-4 border-sky-500 pl-4 sm:pl-6 py-1">
-            {auto.descripcion_larga || "Un vehículo seleccionado por nuestra familia para garantizar tu confort en las rutas mendocinas."}
-          </p>
-
-          {/* GRILLA TÉCNICA */}
-          <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:gap-y-10 pt-8 sm:pt-10 border-t border-slate-100">
-            <div className="flex items-center gap-3 sm:gap-5">
-              <div className="p-2.5 sm:p-3.5 bg-slate-100 rounded-xl sm:rounded-2xl text-slate-700">
-                <Users size={18} className="sm:w-[22px] sm:h-[22px] text-sky-600" />
-              </div>
-              <div>
-                <p className="text-[8px] sm:text-[9px] text-slate-400 font-black uppercase tracking-widest">Pasajeros</p>
-                <p className="text-[11px] sm:text-xs font-black text-slate-800 uppercase">5 Adultos</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 sm:gap-5">
-              <div className="p-2.5 sm:p-3.5 bg-slate-100 rounded-xl sm:rounded-2xl text-slate-700">
-                <Briefcase size={18} className="sm:w-[22px] sm:h-[22px] text-sky-600" />
-              </div>
-              <div>
-                <p className="text-[8px] sm:text-[9px] text-slate-400 font-black uppercase tracking-widest">Equipaje</p>
-                <p className="text-[11px] sm:text-xs font-black text-slate-800 uppercase">2 Grandes</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 sm:gap-5">
-              <div className="p-2.5 sm:p-3.5 bg-slate-100 rounded-xl sm:rounded-2xl text-slate-700">
-                <Fuel size={18} className="sm:w-[22px] sm:h-[22px] text-sky-600" />
-              </div>
-              <div>
-                <p className="text-[8px] sm:text-[9px] text-slate-400 font-black uppercase tracking-widest">Motor</p>
-                <p className="text-[11px] sm:text-xs font-black text-slate-800 uppercase">Eficiente</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 sm:gap-5">
-              <div className="p-2.5 sm:p-3.5 bg-slate-100 rounded-xl sm:rounded-2xl text-slate-700">
-                <Gauge size={18} className="sm:w-[22px] sm:h-[22px] text-sky-600" />
-              </div>
-              <div>
-                <p className="text-[8px] sm:text-[9px] text-slate-400 font-black uppercase tracking-widest">Clima</p>
-                <p className="text-[11px] sm:text-xs font-black text-slate-800 uppercase">Full A/C</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Botón de Acción Principal - Pasado a Gris Pizarra y Celeste Hover */}
+          {/* Botón de Acción integrado que scrollea suave hacia arriba */}
           <button 
-            onClick={() => document.getElementById('reservas')?.scrollIntoView({ behavior: 'smooth' })}
-            className="mt-8 sm:mt-12 w-full py-4 sm:py-5 bg-slate-800 text-white rounded-[1.5rem] sm:rounded-[2rem] font-black uppercase tracking-widest text-[10px] sm:text-[11px] flex items-center justify-center gap-3 hover:bg-sky-500 hover:text-white transition-all duration-300 group/btn cursor-pointer shadow-md"
+            onClick={() => window.scrollTo({ top: 150, behavior: 'smooth' })}
+            className="mt-4 w-full py-2.5 bg-slate-800 text-white rounded-xl font-black uppercase tracking-wider text-[9px] flex items-center justify-center gap-2 hover:bg-sky-500 hover:text-white transition-all duration-300 group/btn cursor-pointer shadow-sm"
           >
             Seleccionar este vehículo
-            <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+            <ChevronRight size={12} className="group-hover/btn:translate-x-0.5 transition-transform" />
           </button>
         </div>
       </div>
 
-      {/* CONTROLES DE DIRECCIÓN */}
-      <div className="flex items-center justify-center gap-6 mt-8 w-full">
+      {/* CONTROLES DE DIRECCIÓN COMPACTADOS */}
+      <div className="flex items-center justify-center gap-4 mt-4 w-full">
         <button
           onClick={prevSlide}
-          className="p-4 bg-slate-800 hover:bg-sky-500 text-white rounded-full shadow-lg active:scale-90 transition-all cursor-pointer border border-slate-700"
+          className="p-2 bg-slate-800 hover:bg-sky-500 text-white rounded-full shadow-md active:scale-90 transition-all cursor-pointer border border-slate-700"
           aria-label="Vehículo Anterior"
         >
-          <ChevronLeft size={24} />
+          <ChevronLeft size={16} />
         </button>
 
-        <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 bg-slate-100 px-4 py-2 rounded-full border border-slate-200 select-none">
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 select-none">
           {currentIndex + 1} <span className="text-slate-300 mx-1">/</span> {autos.length}
         </span>
 
         <button
           onClick={nextSlide}
-          className="p-4 bg-slate-800 hover:bg-sky-500 text-white rounded-full shadow-lg active:scale-90 transition-all cursor-pointer border border-slate-700"
+          className="p-2 bg-slate-800 hover:bg-sky-500 text-white rounded-full shadow-md active:scale-90 transition-all cursor-pointer border border-slate-700"
           aria-label="Vehículo Siguiente"
         >
-          <ChevronRight size={24} />
+          <ChevronRight size={16} />
         </button>
       </div>
 

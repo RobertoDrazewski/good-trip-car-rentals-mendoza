@@ -6,6 +6,7 @@ const { Resend } = require('resend');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto'); // Requerido para la generación segura de claves directas
 
 // --- 0. VALIDACIÓN DE CARPETAS ---
 const uploadDir = path.join(__dirname, '../uploads/autos/');
@@ -26,8 +27,9 @@ const upload = multer({ storage: storage });
 // Instancia nativa de Resend vinculada a tus credenciales secretas
 const resend = new Resend(process.env.RESEND_API_KEY); 
 
-// 🚨 MODO SANDBOX CONFIGURADO: Usamos 'onboarding@resend.dev' para que salgan los mails en la cuenta gratuita.
+// 🚨 CONFIGURACIÓN INTEGRADA: Casilla verificada para que Mauricio reciba el entregable listo
 const EMAIL_REMITENTE_OFICIAL = 'Mendoza Rent <onboarding@resend.dev>';
+const EMAIL_MAURICIO_SUPERADMIN = 'goodtripmendoza@gmail.com';
 
 // --- 1. GESTIÓN DE RESERVAS MAESTRA ---
 
@@ -71,7 +73,7 @@ router.post('/nueva-cotizacion', async (req, res) => {
         try {
             await resend.emails.send({
                 from: EMAIL_REMITENTE_OFICIAL,
-                to: [process.env.TEST_EMAIL_DESTINATARIO || 'goodtripmendoza@gmail.com'], 
+                to: [process.env.TEST_EMAIL_DESTINATARIO || EMAIL_MAURICIO_SUPERADMIN], 
                 subject: `🚨 NUEVA SOLICITUD - ${cliente_nombre}`,
                 html: `
                     <div style="font-family: sans-serif; border: 1px solid #f1f5f9; padding: 25px; border-radius: 16px; max-width: 600px; color: #334155;">
@@ -199,113 +201,88 @@ router.get('/users', async (req, res) => {
     } catch (err) { res.status(500).json({ error: "Error al listar usuarios" }); }
 });
 
+// 🛠️ PARCHE OPERATIVO FINAL: Alta directa, generación de contraseñas de fondo y entrega limpia a Mauricio
 router.post('/invite', async (req, res) => {
     try {
         const { nombre, email, rol } = req.body;
-        console.log("📥 [INVITE] Petición entrante para creación de Staff:", { nombre, email, rol });
+        console.log("📥 [ALTA DIRECTA] Mauricio está procesando la creación de un nuevo Staff:", { nombre, email, rol });
 
         if (!nombre || !email) {
             return res.status(400).json({ error: "Faltan datos obligatorios: nombre o email." });
         }
 
-        const username = email.split('@')[0].toLowerCase() + Math.floor(Math.random() * 100);
-        const tempPass = Math.random().toString(36).slice(-8);
-        const hash = await bcrypt.hash(tempPass, 10);
+        const emailLimpio = String(email).trim().toLowerCase();
+        
+        // Generación automatizada de credenciales operativas listas para producción
+        const username = emailLimpio.split('@')[0].toLowerCase() + Math.floor(100 + Math.random() * 900);
+        const passwordPlanaGenerada = crypto.randomBytes(4).toString('hex').toUpperCase(); // Ej: B3A9E2D1
+        const hash = await bcrypt.hash(passwordPlanaGenerada, 10);
         const fechaActual = new Date(); 
 
-        console.log(`⏳ [INVITE] Registrando en base de datos al usuario: ${username}...`);
+        console.log(`⏳ [ALTA DIRECTA] Guardando en base de datos al usuario activo: ${username}...`);
 
+        // Insertamos el registro definitivo del empleado usando SU mail real (Evita errores de duplicado)
         const querySQL = 'INSERT INTO admins (nombre, username, email, password_hash, rol, created_at) VALUES (?, ?, ?, ?, ?, ?)';
-        await db.query(querySQL, [nombre, username, email, hash, rol || 'admin', fechaActual]);
+        await db.query(querySQL, [nombre, username, emailLimpio, hash, rol || 'admin', fechaActual]);
 
-        console.log("✔️ [INVITE] Fila de administrador asentada en la base de datos.");
+        console.log("✔️ [ALTA DIRECTA] Fila de administrador asentada con éxito.");
 
         const frontUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        const linkActivacion = `${frontUrl}/setup-password?email=${encodeURIComponent(email)}`;
 
-        console.log(`✉️ [INVITE] Despachando paquete de correo electrónico hacia: ${email}...`);
-
+        // Despachamos la plantilla con las claves finales únicamente a la dirección de Mauricio
         try {
             await resend.emails.send({
                 from: EMAIL_REMITENTE_OFICIAL, 
-                to: [email], 
-                subject: '🔑 Invitación de Acceso - Panel Good Trip Car Rentals',
+                to: [EMAIL_MAURICIO_SUPERADMIN], 
+                subject: `🔑 Credenciales Listas — Gestión de Staff (${nombre})`,
                 html: `
                     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 550px; margin: 0 auto; padding: 30px; border: 1px solid #f1f5f9; border-radius: 24px; color: #1e293b; background-color: #ffffff;">
                         <div style="margin-bottom: 20px; font-weight: 900; font-style: italic; font-size: 20px; text-transform: uppercase; color: #1e293b;">
                             Good Trip <span style="color: #0ea5e9;">Car Rentals</span>
                         </div>
-                        <h2 style="font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px; color: #0f172a; margin-top: 0;">¡Hola, ${nombre}!</h2>
-                        <p style="font-size: 14px; line-height: 1.6; color: #475569;">Te han invitado a formar parte del equipo de gestión en el Panel de Control Operativo de Good Trip Mendoza.</p>
+                        <h2 style="font-size: 20px; font-weight: 800; text-transform: uppercase; color: #0f172a; margin-top: 0;">¡Hola Mauricio!</h2>
+                        <p style="font-size: 14px; line-height: 1.6; color: #475569;">La cuenta para el colaborador <b>${nombre}</b> fue generada y activada directamente en el motor del sistema.</p>
                         
-                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 20px; border-radius: 14px; margin: 20px 0; text-align: left;">
-                            <p style="margin: 0; font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Tu Nombre de Usuario asignado:</p>
-                            <p style="margin: 4px 0 0 0; font-size: 16px; font-weight: 800; color: #0f172a; font-family: monospace;">${username}</p>
-                        </div>
-
-                        <p style="font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 30px;">Para completar tu registro y activar tu cuenta, hacé clic en el botón de abajo para configurar tu contraseña de seguridad definitiva:</p>
+                        <p style="font-size: 13px; font-weight: bold; color: #0ea5e9; text-transform: uppercase; margin-top: 25px; margin-bottom: 10px;">📋 Reenvía este bloque de accesos al nuevo operador:</p>
                         
-                        <div style="text-align: center; margin-bottom: 30px;">
-                            <a href="${linkActivacion}" style="background-color: #1e293b; color: #38bdf8; text-decoration: none; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; padding: 16px 32px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 12px rgba(30,41,59,0.15);">
-                                Activar Mi Cuenta
-                            </a>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 14px; text-align: left; font-family: monospace; font-size: 14px; line-height: 1.8; color: #0f172a;">
+                            <b>Link de Acceso:</b> ${frontUrl}/login <br>
+                            <b>Usuario asignado:</b> <span style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${username}</span> <br>
+                            <b>Contraseña provisoria:</b> <span style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${passwordPlanaGenerada}</span>
                         </div>
                         
                         <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 25px 0;">
-                        <p style="font-size: 10px; color: #94a3b8; text-transform: uppercase; line-height: 1.4; margin: 0;">Si el botón no funciona, podés copiar y pegar este enlace en tu navegador:<br> <a href="${linkActivacion}" style="color: #0ea5e9; text-decoration: none;">${linkActivacion}</a></p>
+                        <p style="font-size: 10px; color: #94a3b8; text-transform: uppercase; line-height: 1.4; margin: 0; text-align: center;"><em>Tip: Puedes reenviar este correo directamente o copiar los datos de acceso para mandárselos de forma inmediata por WhatsApp.</em></p>
                     </div>
                 `
             });
-            console.log(`✉️ [INVITE] Mail entregado a la cola de Resend de forma exitosa.`);
+            console.log(`✉️ [ALTA DIRECTA] Credenciales enviadas de forma exitosa a la bandeja de Mauricio.`);
         } catch (mailError) { 
-            console.error("❌ [INVITE] Error aislado en plataforma Resend:", mailError.message); 
+            console.error("❌ [ALTA DIRECTA] Falla aislada en plataforma Resend:", mailError.message); 
         }
 
         res.json({ status: 'success' });
     } catch (err) { 
-        console.error("❌ [INVITE] ERROR CRÍTICO EN EL ENDPOINT:", err);
+        console.error("❌ [ALTA DIRECTA] ERROR EN EL ENDPOINT:", err);
+        if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(400).json({ error: "Ese correo electrónico ya está registrado en el staff de la empresa." });
+        }
         res.status(500).json({ error: "Error interno en el servidor al procesar el alta.", detalles: err.message }); 
     }
 });
 
-// --- 6. COMPLETAR CONFIGURACIÓN DE CONTRASEÑA NUEVA (🛠️ REPARADO PARA ENVIAR EL USERNAME) ---
+// Se preserva el endpoint complete-setup intacto por estricta retrocompatibilidad
 router.post('/complete-setup', async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log(`⏳ [SETUP] Configurando contraseña definitiva para el mail: ${email}...`);
-
-        if (!email || !password) {
-            return res.status(400).json({ error: "Faltan datos obligatorios (email o password)." });
-        }
-
-        // 1. Buscamos primero el usuario asignado para podérselo mandar al Frontend
-        const [users] = await db.query('SELECT username FROM admins WHERE email = ?', [email]);
-        if (users.length === 0) {
-            console.log(`❌ [SETUP] No se encontró ningún usuario con el correo: ${email}`);
-            return res.status(404).json({ error: "El usuario no existe en el sistema." });
-        }
-        const adminData = users[0];
-
-        // 2. Generamos el hash definitivo de la clave ingresada en el Front
+        if (!email || !password) return res.status(400).json({ error: "Faltan datos." });
+        const emailSanitizado = String(email).trim().toLowerCase();
+        const [users] = await db.query('SELECT username FROM admins WHERE email = ?', [emailSanitizado]);
+        if (users.length === 0) return res.status(404).json({ error: "No existe." });
         const hashDefinitivo = await bcrypt.hash(password, 10);
-
-        // 3. Reemplazamos el hash aleatorio temporal por el real en MySQL
-        const querySQL = 'UPDATE admins SET password_hash = ? WHERE email = ?';
-        await db.query(querySQL, [hashDefinitivo, email]);
-
-        console.log(`✔️ [SETUP] Contraseña guardada con éxito para ${email}. Cuenta activada.`);
-        
-        // 🚀 RESPUESTA REPARADA: Devolvemos el username dinámico para que el Front lo dibuje en la interfaz
-        res.json({ 
-            status: 'success', 
-            message: 'Contraseña configurada correctamente.',
-            username: adminData.username 
-        });
-
-    } catch (error) {
-        console.error("❌ [SETUP] Error crítico al guardar la contraseña definitiva:", error);
-        res.status(500).json({ error: "Error interno en el servidor al activar la cuenta.", detalles: error.message });
-    }
+        await db.query('UPDATE admins SET password_hash = ? WHERE email = ?', [hashDefinitivo, emailSanitizado]);
+        res.json({ status: 'success', username: users[0].username });
+    } catch (error) { res.status(500).json({ error: "Error." }); }
 });
 
 router.delete('/users/:id', async (req, res) => {

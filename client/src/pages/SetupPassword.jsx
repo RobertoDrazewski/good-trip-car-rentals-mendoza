@@ -6,25 +6,33 @@ import { useTranslation } from 'react-i18next';
 
 /**
  * Componente SetupPassword
- * Permite a los nuevos administradores configurar su contraseña inicial.
+ * Permite a los nuevos administradores configurar su contraseña inicial de forma segura.
  */
 const SetupPassword = () => {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
-    const email = searchParams.get('email');
+    
+    // Captura el email de la URL y le limpia espacios ocultos o mayúsculas molestas
+    const emailRaw = searchParams.get('email') || '';
+    const email = emailRaw.trim().toLowerCase();
+
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [status, setStatus] = useState('');
-    
-    // 🚨 ESTADO ADICIONADO: Almacena el username devuelto por el Backend
     const [generatedUsername, setGeneratedUsername] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
         if (password !== confirmPassword) {
             alert(t('error_passwords_match', 'Las contraseñas no coinciden'));
+            return;
+        }
+
+        if (password.length < 6) {
+            alert(t('error_password_short', 'La contraseña debe tener al menos 6 caracteres'));
             return;
         }
 
@@ -32,52 +40,57 @@ const SetupPassword = () => {
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-            // 🚀 CAPTURA REMODELADA: Leemos la respuesta con el username de la base de datos
+            // Despachamos la petición al endpoint unificado del Backend
             const response = await axios.post(`${apiUrl}/api/admin/complete-setup`, {
-                email,
-                password
+                email: email,
+                password: password
             });
 
-            // Extraemos el username del payload o fallback con el prefijo del mail
-            const usernameAsignado = response.data.username || email.split('@')[0].toLowerCase();
-            setGeneratedUsername(usernameAsignado);
-            
-            setStatus('success');
-            
-            // Damos 6 segundos físicos para que puedan copiar el usuario antes del redireccionamiento
-            setTimeout(() => navigate('/login'), 6000);
+            if (response.data && response.data.status === 'success') {
+                // Capturamos el username real devuelto por la consulta select de MySQL
+                const usernameAsignado = response.data.username || email.split('@')[0];
+                setGeneratedUsername(usernameAsignado);
+                setStatus('success');
+                
+                // Damos 6 segundos físicos para que el operador copie su usuario de la tarjeta verde
+                setTimeout(() => {
+                    navigate('/login');
+                }, 6000);
+            } else {
+                alert("El servidor no devolvió una respuesta de éxito confirmada.");
+            }
         } catch (error) {
-            console.error(error);
-            // Muestra el error exacto del backend en lugar de un alert genérico
-            const errorMsg = error.response?.data?.error || 'Error al configurar la contraseña';
-            alert(t('chat_error', errorMsg));
+            console.error("❌ Error detectado en el submit de SetupPassword:", error);
+            // REPARADO: Captura el mensaje real descriptivo del Backend para no disparar alertas ciegas de ayuda
+            const errorServer = error.response?.data?.error || 'No se pudo conectar con el servidor central.';
+            alert(`${t('chat_error', 'Fallo estructural al activar:')} ${errorServer}`);
         } finally {
             setLoading(false);
         }
     };
 
-    // PANTALLA DE ÉXITO TRAS CONFIGURACIÓN (🛠️ RENDERIZA EL USUARIO ASIGNADO)
+    // PANTALLA DE ÉXITO PREMIUM (Muestra el usuario real recuperado de la Base de Datos)
     if (status === 'success') {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 flex items-center justify-center p-6 text-center">
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 flex items-center justify-center p-6 text-center animate-fade-in">
                 <div className="bg-white p-10 sm:p-16 rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(15,23,42,0.3)] animate-in zoom-in-95 duration-500 w-full max-w-xl">
                     <div className="w-20 h-20 bg-emerald-500/10 border border-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600 shadow-inner">
                         <CheckCircle size={40} strokeWidth={2.5} />
                     </div>
                     <h1 className="text-3xl sm:text-4xl font-black italic text-slate-800 mb-2 uppercase tracking-tighter">
-                        {t('setup_success_title', '¡Cuenta Activada!')}
+                        ¡Cuenta Activada!
                     </h1>
                     <p className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em] mb-6">
-                        {t('setup_success_sub', 'Tu credencial operativa quedó registrada con éxito')}
+                        Tu credencial operativa quedó registrada con éxito en el sistema
                     </p>
 
-                    {/* 🛡️ RECUADRO DE IDENTIDAD OPERATIVA DE GOOD TRIP */}
+                    {/* RECUADRO DE USUARIO OPERATIVO ASIGNADO */}
                     <div className="bg-slate-50 border-2 border-slate-100 p-5 rounded-2xl max-w-sm mx-auto mb-6 text-left flex items-center gap-4 shadow-inner">
                         <div className="bg-slate-800 p-2.5 rounded-xl text-sky-400 flex-shrink-0">
                             <User size={18} />
                         </div>
                         <div>
-                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Tu Usuario para ingresar:</p>
+                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-wider">Tu Usuario oficial para ingresar:</p>
                             <p className="text-base font-mono font-black text-slate-800 mt-0.5 tracking-tight selection:bg-sky-200">{generatedUsername}</p>
                         </div>
                     </div>
@@ -85,7 +98,7 @@ const SetupPassword = () => {
                     <div className="flex items-center justify-center gap-2 text-slate-400">
                         <Loader2 className="animate-spin text-sky-500" size={14} />
                         <p className="font-bold uppercase text-[9px] tracking-[0.3em]">
-                            Redirigiendo al login en unos instantes...
+                            Redirigiendo al panel de inicio de sesión...
                         </p>
                     </div>
                 </div>
@@ -117,7 +130,6 @@ const SetupPassword = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* CAMPO: NUEVA CONTRASEÑA */}
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4 italic">
                             {t('label_new_password', 'Nueva Contraseña')}
@@ -134,7 +146,6 @@ const SetupPassword = () => {
                         </div>
                     </div>
 
-                    {/* CAMPO: CONFIRMAR CONTRASEÑA */}
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4 italic">
                             {t('label_confirm_password', 'Confirmar')}

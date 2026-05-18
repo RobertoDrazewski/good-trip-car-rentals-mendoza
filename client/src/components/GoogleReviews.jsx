@@ -3,10 +3,10 @@ import { Star, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 /**
- * Componente utilitario interno: Estrellas ahora en Celeste Premium
+ * Componente utilitario interno: Estrellas en Celeste Premium Compactas
  */
-const RatingStars = ({ size = 14 }) => (
-  <div className="flex text-sky-500 gap-0.5 sm:gap-1" aria-label="5 estrellas de calificación">
+const RatingStars = ({ size = 11 }) => (
+  <div className="flex text-sky-500 gap-0.5" aria-label="5 estrellas de calificación">
     {[1, 2, 3, 4, 5].map((star) => (
       <Star key={star} size={size} fill="currentColor" stroke="none" />
     ))}
@@ -16,7 +16,7 @@ const RatingStars = ({ size = 14 }) => (
 /**
  * Icono de Instagram manual adaptado
  */
-const InstagramIcon = ({ size = 16 }) => (
+const InstagramIcon = ({ size = 12 }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     width={size} 
@@ -24,7 +24,7 @@ const InstagramIcon = ({ size = 16 }) => (
     viewBox="0 0 24 24" 
     fill="none" 
     stroke="currentColor" 
-    strokeWidth="2" 
+    strokeWidth="2.5" 
     strokeLinecap="round" 
     strokeLinejoin="round"
     className="flex-shrink-0"
@@ -37,111 +37,96 @@ export default function GoogleReviews() {
   const { t } = useTranslation();
 
   const reviews = [
-    { id: 1, name: "Cesar Osores", rating: 5, text: t('rev_1_text'), date: t('rev_1_date'), img: "C" },
-    { id: 2, name: "Mariana Zapata", rating: 5, text: t('rev_2_text'), date: t('rev_2_date'), img: "M" },
-    { id: 3, name: "Nicolas Martinez", rating: 5, text: t('rev_3_text'), date: t('rev_3_date'), img: "N" },
+    { id: 1, name: "Cesar Osores", rating: 5, text: t('rev_1_text', 'Excelente atención de primera...'), date: t('rev_1_date', 'Hace 1 semana'), img: "C" },
+    { id: 2, name: "Mariana Zapata", rating: 5, text: t('rev_2_text', 'El auto impecable, súper puntuales...'), date: t('rev_2_date', 'Hace 2 semanas'), img: "M" },
+    { id: 3, name: "Nicolas Martinez", rating: 5, text: t('rev_3_text', 'La mejor opción en Mendoza sin dudas.'), date: t('rev_3_date', 'Hace 1 mes'), img: "N" },
   ];
 
   const GOOGLE_MAPS_LINK = "https://share.google/VoJKuZ1dSUgMybMvA";
   const INSTAGRAM_LINK = "https://www.instagram.com/good.triprentals/";
 
   return (
-    <section className="py-12 md:py-32 bg-white relative overflow-hidden w-full">
-      {/* Luz ambiental difuminada en Celeste Sky en lugar de Amarillo */}
-      <div className="absolute top-0 left-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-sky-400/10 blur-[100px] sm:blur-[120px] rounded-full -z-10" />
+    <div className="w-full h-full flex flex-col justify-between gap-4 text-slate-800">
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 w-full">
-        
-        {/* CABECERA */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-10 md:mb-20 gap-6 md:gap-12 w-full">
-          <div className="max-w-2xl text-left w-full">
-            <p className="text-sky-600 font-black uppercase text-[8px] sm:text-[10px] tracking-[0.25em] sm:tracking-[0.4em] mb-2 sm:mb-4 italic">
-              {t('reviews_badge_tag')}
-            </p>
-            <h2 className="text-3xl sm:text-6xl md:text-8xl font-black tracking-tighter text-slate-800 leading-none uppercase break-words">
-              {t('reviews_section_title')} <br />
-              <span className="text-sky-500 italic">{t('reviews_section_subtitle')}</span>
-            </h2>
-          </div>
-
-          {/* BADGE GLOBAL DE GOOGLE REVIEWS - ELIMINADO EL NEGRO */}
-          <div className="bg-slate-100 p-5 sm:p-8 rounded-[1.8rem] sm:rounded-[3rem] shadow-sm flex items-center gap-4 sm:gap-8 border border-slate-200/60 relative overflow-hidden group w-full lg:w-auto flex-shrink-0">
-            <div className="absolute -top-10 -right-10 w-24 h-24 bg-sky-500/10 blur-2xl rounded-full group-hover:bg-sky-500/20 transition-colors" />
-            
-            <div className="text-center relative z-10 flex-shrink-0">
-              <p className="text-4xl sm:text-6xl font-black text-slate-800 leading-none tracking-tighter">5.0</p>
-              <div className="mt-1 flex justify-center"><RatingStars size={10} /></div>
-            </div>
-            
-            <div className="h-10 sm:h-16 w-[1px] bg-slate-300 flex-shrink-0" />
-            
-            <div className="flex flex-col gap-1 sm:gap-3 relative z-10 w-full sm:w-auto">
-              <p className="text-slate-800 font-black text-[10px] sm:text-sm uppercase tracking-widest leading-tight whitespace-nowrap">
-                Google Verified
-              </p>
-              <a href={GOOGLE_MAPS_LINK} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-sky-600 hover:text-sky-800 transition-colors w-fit touch-manipulation">
-                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest underline decoration-2 underline-offset-4">Read All</span>
-                <ExternalLink size={10} className="flex-shrink-0" />
-              </a>
-            </div>
-          </div>
+      {/* 🛠️ CABECERA COMPACTADA PARA CONVIVIR CON EL BOOKING */}
+      <div className="flex items-center justify-between border-b border-slate-50 pb-3 w-full gap-2">
+        <div className="text-left min-w-0">
+          <p className="text-sky-600 font-black uppercase text-[8px] tracking-widest italic mb-0.5">
+            {t('reviews_badge_tag', 'Experiencias Reales')}
+          </p>
+          <h2 className="text-lg font-black tracking-tight text-slate-800 uppercase leading-tight truncate">
+            {t('reviews_section_title', 'Opiniones de')} <span className="text-sky-500 italic">{t('reviews_section_subtitle', 'Clientes')}</span>
+          </h2>
         </div>
 
-        {/* GRID DE RESEÑAS */}
-        <div className="flex overflow-x-auto pb-6 gap-5 snap-x snap-mandatory scrollbar-none md:grid md:grid-cols-3 md:gap-10 md:mb-20 md:pb-0 w-full">
-          {reviews.map((rev) => (
-            <div 
-              key={rev.id} 
-              className="bg-slate-50 p-5 sm:p-8 md:p-12 rounded-[1.8rem] md:rounded-[3.5rem] border border-transparent hover:border-sky-200 hover:bg-white hover:shadow-[0_40px_80px_-20px_rgba(14,165,233,0.1)] transition-all duration-500 group flex-shrink-0 w-[82vw] sm:w-[340px] md:w-auto snap-center flex flex-col justify-between overflow-hidden"
-            >
-              <div>
-                <div className="flex items-center gap-3 sm:gap-5 mb-4 sm:mb-6 w-full">
-                  {/* Avatar: Pasado de Negro a Gris Oscuro y Celeste al interactuar */}
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 bg-slate-800 rounded-full flex items-center justify-center font-black text-white text-base sm:text-lg shadow-md group-hover:bg-sky-500 group-hover:text-white transition-colors flex-shrink-0">
-                    {rev.img}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className="font-black text-slate-800 uppercase text-xs sm:text-sm tracking-tight truncate">
-                      {rev.name}
-                    </h4>
-                    <p className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{rev.date}</p>
-                  </div>
+        {/* mini badge global premium */}
+        <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 flex-shrink-0">
+          <span className="text-base font-black text-slate-800 tracking-tighter leading-none">5.0</span>
+          <div className="flex flex-col items-start">
+            <RatingStars size={8} />
+            <a href={GOOGLE_MAPS_LINK} target="_blank" rel="noreferrer" className="text-[8px] font-black text-sky-600 uppercase tracking-tighter hover:underline flex items-center gap-0.5 mt-0.5">
+              <span>ver todas</span>
+              <ExternalLink size={6} />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* 🛠️ FEED VERTICAL COMPACTO: En vez de un grid masivo, un listado sutil, estético y scannable */}
+      <div className="flex flex-col gap-2.5 w-full max-h-[300px] overflow-y-auto pr-1 scrollbar-none">
+        {reviews.map((rev) => (
+          <div 
+            key={rev.id} 
+            className="bg-slate-50/70 p-3 sm:p-4 rounded-xl border border-transparent hover:border-sky-200 hover:bg-white hover:shadow-sm transition-all duration-300 group text-left w-full"
+          >
+            <div className="flex items-start gap-3 w-full">
+              {/* Avatar ultra-compacto */}
+              <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center font-black text-white text-xs shadow-sm group-hover:bg-sky-500 transition-colors flex-shrink-0">
+                {rev.img}
+              </div>
+              
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2 w-full">
+                  <h4 className="font-black text-slate-800 uppercase text-[11px] tracking-tight truncate">
+                    {rev.name}
+                  </h4>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider flex-shrink-0">{rev.date}</span>
                 </div>
-
-                <RatingStars size={11} />
-
-                <p className="text-slate-600 italic text-sm md:text-lg leading-relaxed font-medium mt-4 sm:mt-6 line-clamp-6 md:line-clamp-none break-words">
+                
+                <div className="mt-0.5"><RatingStars size={9} /></div>
+                
+                <p className="text-slate-600 italic text-[11px] sm:text-xs leading-relaxed font-medium mt-1.5 line-clamp-2">
                   "{rev.text}"
                 </p>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* BOTONES DE REDES - CERO AMARILLO O NEGRO ABSOLUTO */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mt-4 md:mt-0 w-full">
-          <a 
-            href={GOOGLE_MAPS_LINK}
-            target="_blank" 
-            rel="noreferrer" 
-            className="group flex items-center justify-center gap-3 bg-slate-800 text-white w-full sm:w-auto px-4 sm:px-12 py-4 sm:py-6 rounded-xl sm:rounded-[2.5rem] font-black uppercase text-[10px] sm:text-xs tracking-[0.1em] sm:tracking-[0.25em] hover:bg-sky-500 hover:text-white transition-all shadow-lg hover:-translate-y-1 active:scale-95 text-center touch-manipulation whitespace-normal min-h-[52px]"
-          >
-            <span className="break-words">{t('reviews_btn_google')}</span> 
-            <ExternalLink size={14} className="group-hover:rotate-45 transition-transform flex-shrink-0" />
-          </a>
-
-          <a 
-            href={INSTAGRAM_LINK}
-            target="_blank" 
-            rel="noreferrer" 
-            className="group flex items-center justify-center gap-3 bg-white border-2 border-slate-800 text-slate-800 w-full sm:w-auto px-4 sm:px-12 py-4 sm:py-6 rounded-xl sm:rounded-[2.5rem] font-black uppercase text-[10px] sm:text-xs tracking-[0.1em] sm:tracking-[0.25em] hover:bg-sky-500 hover:text-white hover:border-sky-500 transition-all shadow-md hover:-translate-y-1 active:scale-95 text-center touch-manipulation whitespace-normal min-h-[52px]"
-          >
-            <InstagramIcon size={14} /> 
-            <span className="break-words">{t('reviews_btn_insta')}</span>
-          </a>
-        </div>
-
+          </div>
+        ))}
       </div>
-    </section>
+
+      {/* 🛠️ ACCIONES INTEGRADAS: Botones sutiles que calzan simétricamente abajo del Booking */}
+      <div className="grid grid-cols-2 gap-2 w-full pt-2 border-t border-slate-50">
+        <a 
+          href={GOOGLE_MAPS_LINK}
+          target="_blank" 
+          rel="noreferrer" 
+          className="group flex items-center justify-center gap-1.5 bg-slate-800 text-white py-3 px-2 rounded-xl font-black uppercase text-[9px] tracking-wider hover:bg-sky-500 transition-all text-center shadow-sm active:scale-95 duration-100 cursor-pointer min-h-[38px]"
+        >
+          <span>{t('reviews_btn_google', 'Google Maps')}</span> 
+          <ExternalLink size={10} className="group-hover:rotate-45 transition-transform flex-shrink-0" />
+        </a>
+
+        <a 
+          href={INSTAGRAM_LINK}
+          target="_blank" 
+          rel="noreferrer" 
+          className="group flex items-center justify-center gap-1.5 bg-white border border-slate-300 text-slate-700 py-3 px-2 rounded-xl font-black uppercase text-[9px] tracking-wider hover:bg-sky-500 hover:text-white hover:border-sky-500 transition-all text-center shadow-sm active:scale-95 duration-100 cursor-pointer min-h-[38px]"
+        >
+          <InstagramIcon size={10} /> 
+          <span>{t('reviews_btn_insta', 'Instagram')}</span>
+        </a>
+      </div>
+
+    </div>
   );
 }

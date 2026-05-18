@@ -3,14 +3,10 @@ import axios from 'axios';
 import { MapPin, Wind, Loader2, Droplets, Calendar, Sunrise, Sunset, Clock, CloudRain } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
 export default function WeatherWidget() {
   const { t, i18n } = useTranslation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  
-  // Reloj local en tiempo real de la aplicación
   const [localTime, setLocalTime] = useState(new Date());
 
   const API_KEY = '6dc99f87e40b4e919c324409261405'; 
@@ -37,7 +33,6 @@ export default function WeatherWidget() {
     fetchWeather();
   }, [i18n.language]);
 
-  // 🎯 CÁLCULO DE LA ESTACIÓN EN EL HEMISFERIO SUR - TRADUCIDO
   const getSouthernSeason = () => {
     const now = new Date();
     const month = now.getMonth() + 1; 
@@ -54,7 +49,6 @@ export default function WeatherWidget() {
     }
   };
 
-  // 🎯 SISTEMA DE ESTILOS DINÁMICOS DÍA / NOCHE (Estilo Apple iOS)
   const getWeatherStyle = () => {
     if (!data) return {};
     const code = data.current.condition.code;
@@ -128,8 +122,8 @@ export default function WeatherWidget() {
   };
 
   if (loading) return (
-    <div className="flex justify-center py-20">
-      <Loader2 className="animate-spin text-yellow-500" size={40} />
+    <div className="flex justify-center py-10">
+      <Loader2 className="animate-spin text-sky-500" size={32} />
     </div>
   );
 
@@ -139,128 +133,128 @@ export default function WeatherWidget() {
   const hoyForecast = data.forecast.forecastday[0];
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto px-2 sm:px-4 py-6 md:py-10">
-      {/* CONTENEDOR PRINCIPAL INTERACTIVO */}
-      <div className={`relative ${style.bg} ${style.text} p-5 sm:p-12 md:p-16 rounded-[2rem] md:rounded-[4rem] shadow-2xl border border-white/10 overflow-hidden w-full transition-all duration-1000`}>
+    /**
+     * 🛠专 AJUSTADO: Eliminados paddings externos e h-s para embutirse de forma premium
+     * dentro de la solapa dinámica sin romper el scroll del sitio.
+     */
+    <div className={`relative ${style.bg} ${style.text} p-4 sm:p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] shadow-md border border-white/10 overflow-hidden w-full transition-all duration-1000 text-slate-800 animate-in fade-in duration-300`}>
+      
+      {/* Capas Ambientales */}
+      <div className={`absolute -top-24 -right-24 w-60 h-60 ${style.ambientTop} blur-[80px] rounded-full pointer-events-none transition-all duration-1000`} />
+      <div className={`absolute -bottom-24 -left-24 w-60 h-60 ${style.ambientBottom} blur-[80px] rounded-full pointer-events-none transition-all duration-1000`} />
+
+      <div className="relative z-10 w-full flex flex-col gap-4">
         
-        {/* Capas Ambientales */}
-        <div className={`absolute -top-24 -right-24 w-80 h-80 ${style.ambientTop} blur-[100px] rounded-full pointer-events-none transition-all duration-1000`} />
-        <div className={`absolute -bottom-24 -left-24 w-80 h-80 ${style.ambientBottom} blur-[100px] rounded-full pointer-events-none transition-all duration-1000`} />
-
-        <div className="relative z-10 w-full">
-          
-          {/* SECCIÓN SUPERIOR */}
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 md:gap-10 mb-10 md:mb-16 w-full">
-            <div className="space-y-3 md:space-y-4 text-left w-full lg:w-auto">
-              
-              <div className="flex flex-wrap gap-2 items-center">
-                <div className={`flex items-center gap-2 ${style.badge} px-3 py-1.5 rounded-full border`}>
-                  <MapPin size={14} className="text-yellow-500 animate-pulse" />
-                  <span className="font-black uppercase text-[9px] tracking-[0.15em]">Mendoza, AR</span>
-                </div>
-                
-                {/* RELOJ DIGITAL Y ESTACIÓN INTERNACIONALIZADA */}
-                <div className={`flex items-center gap-2 ${style.badge} px-3 py-1.5 rounded-full border font-mono font-bold text-[10px]`}>
-                  <Clock size={12} className="text-yellow-500" />
-                  <span>{localTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-                  <span className="opacity-40">•</span>
-                  <span>{getSouthernSeason()}</span>
-                </div>
+        {/* SECCIÓN SUPERIOR COMPACTADA */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 w-full border-b border-white/10 pb-3">
+          <div className="space-y-1.5 text-left w-full sm:w-auto">
+            
+            <div className="flex flex-wrap gap-1.5 items-center">
+              <div className={`flex items-center gap-1 ${style.badge} px-2.5 py-1 rounded-xl border`}>
+                <MapPin size={11} className="text-yellow-500 animate-pulse" />
+                <span className="font-black uppercase text-[8px] tracking-wider">Mendoza, AR</span>
               </div>
               
-              <h3 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.95] sm:leading-none italic break-words">
-                {t('weather_title')} <br/>
-                <span className={style.subtitle}>{t('weather_subtitle')}</span>
-              </h3>
-            </div>
-
-            {/* CLIMA ACTUAL */}
-            <div className="w-full lg:w-auto bg-white/10 backdrop-blur-md p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] flex items-center justify-between lg:justify-start gap-4 sm:gap-8 border border-white/20 shadow-xl">
-              <img src={data.current.condition.icon} alt="icon" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 drop-shadow-2xl flex-shrink-0" />
-              <div className="text-left">
-                <div className="flex items-start">
-                  <p className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-none">{Math.round(data.current.temp_c)}</p>
-                  <span className="text-xl sm:text-2xl font-black text-yellow-500 mt-1 sm:mt-2">°C</span>
-                </div>
-                <p className="text-[10px] sm:text-xs font-black text-yellow-500 uppercase tracking-[0.15em] sm:tracking-[0.2em] mt-1 sm:mt-2">{data.current.condition.text}</p>
+              <div className={`flex items-center gap-1.5 ${style.badge} px-2.5 py-1 rounded-xl border font-mono font-bold text-[8px]`}>
+                <Clock size={10} className="text-yellow-500" />
+                <span>{localTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                <span className="opacity-40">•</span>
+                <span>{getSouthernSeason()}</span>
               </div>
-            </div>
-          </div>
-
-          {/* PANEL DE DATOS AVANZADOS (INTERNACIONALIZADO) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 pt-6 border-t border-white/10 w-full text-left">
-            <div className="bg-white/5 backdrop-blur-sm p-4 rounded-2xl border border-white/5 flex items-center gap-3">
-              <Sunrise className="text-yellow-500 flex-shrink-0" size={24} />
-              <div>
-                <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest opacity-40">{t('weather_sunrise', 'Salida del Sol')}</p>
-                <p className="text-sm font-black italic">{hoyForecast.astro.sunrise}</p>
-              </div>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-sm p-4 rounded-2xl border border-white/5 flex items-center gap-3">
-              <Sunset className="text-orange-500 flex-shrink-0" size={24} />
-              <div>
-                <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest opacity-40">{t('weather_sunset', 'Puesta del Sol')}</p>
-                <p className="text-sm font-black italic">{hoyForecast.astro.sunset}</p>
-              </div>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-sm p-4 rounded-2xl border border-white/5 flex items-center gap-3">
-              <CloudRain className="text-cyan-400 flex-shrink-0" size={24} />
-              <div>
-                <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest opacity-40">{t('weather_rain_chance', 'Prob. Lluvia')}</p>
-                <p className="text-sm font-black italic">{hoyForecast.day.daily_chance_of_rain}%</p>
-              </div>
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-sm p-4 rounded-2xl border border-white/5 flex items-center gap-3">
-              <Wind className="text-teal-400 flex-shrink-0" size={24} />
-              <div>
-                <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest opacity-40">{t('weather_wind_speed', 'Viento Actual')}</p>
-                <p className="text-sm font-black italic">{data.current.wind_kph} km/h</p>
-              </div>
-            </div>
-          </div>
-
-          {/* GRID PRONÓSTICO 7 DÍAS */}
-          <div className="flex overflow-x-auto pb-4 gap-3 snap-x snap-mandatory scrollbar-none md:grid md:grid-cols-7 md:gap-4 md:pb-0 w-full">
-            {data.forecast.forecastday.map((day, idx) => (
-              <div 
-                key={idx} 
-                className={`min-w-[115px] w-[30vw] md:w-auto md:min-w-0 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2.5rem] text-center border transition-all duration-500 snap-center flex-shrink-0 ${
-                  idx === 0 
-                  ? 'bg-yellow-500 border-yellow-400 text-slate-950 shadow-xl shadow-yellow-500/20' 
-                  : 'bg-white/10 border-white/5 text-inherit'
-                }`}
-              >
-                <p className={`text-[9px] sm:text-[10px] font-black uppercase mb-3 sm:mb-4 tracking-widest ${idx === 0 ? 'text-slate-900 font-black' : 'opacity-60'}`}>
-                  {idx === 0 ? t('weather_today', 'Hoy') : new Date(day.date + "T00:00:00").toLocaleDateString(i18n.language, { weekday: 'short' })}
-                </p>
-                <img src={day.day.condition.icon} alt="icon" className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4" />
-                <p className="text-xl sm:text-2xl font-black italic">{Math.round(day.day.maxtemp_c)}°</p>
-                <p className={`text-[8px] sm:text-[9px] font-black uppercase ${idx === 0 ? 'text-slate-900 opacity-60' : 'text-sky-300'}`}>
-                   Min {Math.round(day.day.mintemp_c)}°
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* RECOMENDACIÓN FINAL */}
-          <div className="mt-8 md:mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 w-full">
-            <div className="flex items-center gap-2.5 opacity-80">
-              <Droplets size={16} className="text-yellow-500" />
-              <span className="text-[10px] font-black uppercase tracking-widest">{t('weather_humidity', 'Humedad')}: {data.current.humidity}%</span>
             </div>
             
-            <div className="bg-white/10 px-4 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center gap-3 border border-white/5 w-full md:w-auto justify-center backdrop-blur-sm">
-              <Calendar size={14} className="text-yellow-500 flex-shrink-0" />
-              <p className={`text-[9px] sm:text-[10px] font-bold italic text-center md:text-left leading-tight ${style.textInverted}`}>
-                {t('weather_planning_text', 'Planificá tus rutas turísticas con datos en tiempo real.')}
-              </p>
+            {/* Título Reducido sutilmente */}
+            <h3 className="text-lg md:text-2xl font-black uppercase tracking-tighter leading-tight italic">
+              {t('weather_title', 'Pronóstico')} <span className={style.subtitle}>{t('weather_subtitle', 'En Vivo')}</span>
+            </h3>
+          </div>
+
+          {/* CLIMA ACTUAL COMPACTO */}
+          <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl flex items-center gap-3 border border-white/20 shadow-sm max-sm:w-full max-sm:justify-between">
+            <img src={data.current.condition.icon} alt="icon" className="w-12 h-12 md:w-14 md:h-14 drop-shadow-md flex-shrink-0" />
+            <div className="text-left">
+              <div className="flex items-start">
+                <p className="text-2xl md:text-3xl font-black tracking-tighter leading-none">{Math.round(data.current.temp_c)}</p>
+                <span className="text-[10px] font-black text-yellow-500 mt-0.5">°C</span>
+              </div>
+              <p className="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-0.5">{data.current.condition.text}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* PANEL DE DATOS AVANZADOS COMPACTADOS */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full text-left">
+          <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-xl border border-white/5 flex items-center gap-2">
+            <Sunrise className="text-yellow-500 flex-shrink-0" size={16} />
+            <div>
+              <p className="text-[7px] font-black uppercase tracking-wider opacity-40">{t('weather_sunrise', 'Salida')}</p>
+              <p className="text-xs font-black italic">{hoyForecast.astro.sunrise}</p>
             </div>
           </div>
 
+          <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-xl border border-white/5 flex items-center gap-2">
+            <Sunset className="text-orange-500 flex-shrink-0" size={16} />
+            <div>
+              <p className="text-[7px] font-black uppercase tracking-wider opacity-40">{t('weather_sunset', 'Puesta')}</p>
+              <p className="text-xs font-black italic">{hoyForecast.astro.sunset}</p>
+            </div>
+          </div>
+
+          <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-xl border border-white/5 flex items-center gap-2">
+            <CloudRain className="text-cyan-400 flex-shrink-0" size={16} />
+            <div>
+              <p className="text-[7px] font-black uppercase tracking-wider opacity-40">{t('weather_rain_chance', 'Prob. Lluvia')}</p>
+              <p className="text-xs font-black italic">{hoyForecast.day.daily_chance_of_rain}%</p>
+            </div>
+          </div>
+
+          <div className="bg-white/5 backdrop-blur-sm p-2.5 rounded-xl border border-white/5 flex items-center gap-2">
+            <Wind className="text-teal-400 flex-shrink-0" size={16} />
+            <div>
+              <p className="text-[7px] font-black uppercase tracking-wider opacity-40">{t('weather_wind_speed', 'Viento')}</p>
+              <p className="text-xs font-black italic">{data.current.wind_kph} km/h</p>
+            </div>
+          </div>
         </div>
+
+        {/* GRID PRONÓSTICO 7 DÍAS ULTRA COMPACTO */}
+        <div className="flex overflow-x-auto pb-2 gap-2 snap-x snap-mandatory scrollbar-none md:grid md:grid-cols-7 md:pb-0 w-full">
+          {data.forecast.forecastday.map((day, idx) => (
+            <div 
+              key={idx} 
+              className={`min-w-[85px] md:min-w-0 p-2.5 rounded-xl text-center border transition-all duration-300 snap-center flex-shrink-0 flex-1 ${
+                idx === 0 
+                ? 'bg-yellow-500 border-yellow-400 text-slate-950 shadow-sm' 
+                : 'bg-white/5 border-white/5 text-inherit'
+              }`}
+            >
+              <p className={`text-[8px] font-black uppercase mb-1 tracking-wider ${idx === 0 ? 'text-slate-900 font-black' : 'opacity-60'}`}>
+                {idx === 0 ? t('weather_today', 'Hoy') : new Date(day.date + "T00:00:00").toLocaleDateString(i18n.language, { weekday: 'short' })}
+              </p>
+              <img src={day.day.condition.icon} alt="icon" className="w-7 h-7 mx-auto mb-1" />
+              <p className="text-sm font-black italic">{Math.round(day.day.maxtemp_c)}°</p>
+              <p className={`text-[7px] font-black uppercase ${idx === 0 ? 'text-slate-900 opacity-50' : 'text-sky-300'}`}>
+                 Min {Math.round(day.day.mintemp_c)}°
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* RECOMENDACIÓN FINAL INTEGRADISIMA */}
+        <div className="pt-2.5 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-2 w-full text-[9px]">
+          <div className="flex items-center gap-1.5 opacity-80 max-sm:w-full max-sm:justify-center">
+            <Droplets size={12} className="text-yellow-500" />
+            <span className="font-black uppercase tracking-wider">{t('weather_humidity', 'Humedad')}: {data.current.humidity}%</span>
+          </div>
+          
+          <div className="bg-white/5 px-3 py-1.5 rounded-lg flex items-center gap-2 border border-white/5 w-full sm:w-auto justify-center backdrop-blur-sm">
+            <Calendar size={11} className="text-yellow-500 flex-shrink-0" />
+            <p className={`font-bold italic text-center leading-tight ${style.textInverted}`}>
+              {t('weather_planning_text', 'Planificá tus rutas turísticas con datos en tiempo real.')}
+            </p>
+          </div>
+        </div>
+
       </div>
     </div>
   );

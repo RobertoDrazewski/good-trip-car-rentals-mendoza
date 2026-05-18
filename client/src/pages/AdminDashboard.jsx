@@ -152,23 +152,33 @@ export default function AdminDashboard() {
     try {
       const destinoLimpio = encodeURIComponent(ruta.titulo + ", Mendoza, Argentina");
       const origenLimpio = encodeURIComponent(origenDireccion);
-      return `https://maps.google.com/maps?q=${origenLimpio}&daddr=${destinoLimpio}&noheader=true&z=11&output=embed`;
+      return `https://maps.google.com/maps?q=${origenLlimpio}&daddr=${destinoLimpio}&noheader=true&z=11&output=embed`;
     } catch (error) {
       return "http://maps.google.com/0";
     }
   };
 
+  // 🛠️ REPARADO: Mapeo exacto y robusto de las variables cronológicas y de locación para el PDF
   const descargarTicketPresupuesto = (reserva) => {
     try {
-      const f1 = new Date(String(reserva.fecha_inicio).substring(0, 10));
-      const f2 = new Date(String(reserva.fecha_fin).substring(0, 10));
+      const fechaInicioRaw = reserva.fecha_inicio || reserva.desde || '';
+      const fechaFinRaw = reserva.fecha_fin || reserva.hasta || '';
+      
+      const f1 = new Date(String(fechaInicioRaw).substring(0, 10));
+      const f2 = new Date(String(fechaFinRaw).substring(0, 10));
       const diasCalculados = Math.ceil(Math.abs(f2 - f1) / (1000 * 60 * 60 * 24)) || 1;
+      
+      const fechaInicioFormateada = String(fechaInicioRaw).substring(0, 10);
+      const fechaFinFormateada = String(fechaFinRaw).substring(0, 10);
+
       const totalARS = parseFloat(reserva.monto_total_ars || 0).toLocaleString('es-AR');
       const cotizacionDolar = parseFloat(reserva.tasa_dolar_usada || 1400).toLocaleString('es-AR');
       const garantiaUSD = parseFloat(reserva.garantia_usd || 300);
       const garantiaARS = (garantiaUSD * parseFloat(reserva.tasa_dolar_usada || 1400)).toLocaleString('es-AR');
-      const isAeropuertoEntrega = String(reserva.lugar_retiro || '').toLowerCase().includes('aeropuerto');
-      const isAeropuertoDevolucion = String(reserva.lugar_devolucion || '').toLowerCase().includes('aeropuerto');
+      
+      const lugarRetiroOficial = reserva.lugar_retiro || reserva.entrega || 'Mendoza Ciudad';
+      const lugarDevolucionOficial = reserva.lugar_devolucion || reserva.devolucion || 'Mendoza Ciudad';
+
       const tieneSillita = reserva.sillita === 1 || reserva.sillita === true || String(reserva.sillita) === '1' || String(reserva.sillita) === 'true';
 
       const printWindow = window.open('', '_blank');
@@ -197,15 +207,13 @@ export default function AdminDashboard() {
               .grid-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
               .info-card { background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; display: flex; gap: 10px; align-items: flex-start; }
               .info-card .label { font-size: 8.5px; font-weight: 900; text-transform: uppercase; color: #94a3b8; }
-              .info-card .value { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #0f172a; }
+              .info-card .value { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #0f172a; margin-top: 2px; }
               .full-width { grid-column: span 2; }
               .garantia-card { border-left: 4px solid #0ea5e9; background-color: #f0f9ff; }
               .garantia-card .label { color: #0284c7; }
               .total-box { background-color: #1e293b; color: #ffffff; padding: 18px; border-radius: 14px; text-align: center; margin-top: 15px; }
               .total-box .total-label { font-size: 9px; font-weight: 900; text-transform: uppercase; color: #0ea5e9; }
               .total-box .total-amount { font-size: 28px; font-weight: 900; font-style: italic; }
-              .requisitos-section { margin-top: 25px; border-top: 1px dashed #e2e8f0; padding-top: 20px; }
-              .requisitos-title { font-size: 11px; font-weight: 900; text-transform: uppercase; font-style: italic; text-align: center; margin-bottom: 15px; }
               .footer-ticket { margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 15px; text-align: center; font-size: 9.5px; font-weight: 900; color: #94a3b8; text-transform: uppercase; }
               @media print { .no-print-bar { display: none !important; } body { background: #ffffff; padding: 0; } .ticket-container { box-shadow: none !important; border: none !important; padding: 0 !important; } }
             </style>
@@ -221,16 +229,22 @@ export default function AdminDashboard() {
               </div>
               <div class="tag-status">✨ Cotización Oficial Reservada</div>
               <h3 class="title-main">Tu Resumen de <span>Viaje</span></h3>
-              <p class="subtitle">Hola ${reserva.cliente_nombre || 'Cliente'},...</p>
+              <p class="subtitle">Resumen de Cotización para la gestión interna de Good Trip</p>
+              
               <div class="grid-details">
+                <div class="info-card">👤 <div><p class="label">Titular de Reserva</p><p class="value">${reserva.cliente_nombre || 'Cliente'}</p></div></div>
                 <div class="info-card">🚗 <div><p class="label">Vehículo solicitado</p><p class="value">${reserva.auto_modelo || 'Vehículo de Flota'}</p></div></div>
+                
+                <div class="info-card">🛫 <div><p class="label">Retiro / Entrega</p><p class="value">${fechaInicioFormateada} — ${reserva.hora_inicio || '10:00'} hs</p><p style="font-size: 10px; color: #0ea5e9; font-weight: 700; margin-top: 4px; text-transform: uppercase;">📍 ${lugarRetiroOficial}</p></div></div>
+                <div class="info-card">🛬 <div><p class="label">Devolución</p><p class="value">${fechaFinFormateada} — ${reserva.hora_fin || '10:00'} hs</p><p style="font-size: 10px; color: #64748b; font-weight: 700; margin-top: 4px; text-transform: uppercase;">📍 ${lugarDevolucionOficial}</p></div></div>
+                
+                <div class="info-card">⏱️ <div><p class="label">Tiempo Total</p><p class="value">${diasCalculados} ${diasCalculados === 1 ? 'Día' : 'Días'} de Alquiler</p></div></div>
                 <div class="info-card">👶 <div><p class="label">Opcional Sillita de Bebé</p><p class="value">${tieneSillita ? '✔️ Adicionada' : '❌ No Solicitada'}</p></div></div>
-                <div class="info-card">🏢 <div><p class="label">Lugar de Entrega</p><p class="value">${reserva.lugar_retiro || 'Mendoza Ciudad'}</p></div></div>
-                <div class="info-card">🏢 <div><p class="label">Lugar de Devolución</p><p class="value">${reserva.lugar_devolucion || 'Mendoza Ciudad'}</p></div></div>
-                <div class="info-card full-width garantia-card">🛡️ <div><p class="label">Franquicia de Garantía Reembolsable</p><p class="value">$ ${garantiaARS} ARS</p></div></div>
+                <div class="info-card full-width garantia-card">🛡️ <div><p class="label">Franquicia de Garantía Reembolsable</p><p class="value">$ ${garantiaARS} ARS <span style="font-size: 10px; font-weight: normal; color: #64748b;">(${garantiaUSD} USD a tasa de $${cotizacionDolar})</span></p></div></div>
               </div>
+
               <div class="total-box">
-                <p class="total-label">Total Final</p>
+                <p class="total-label">Total Final Alquiler</p>
                 <p class="total-amount">$ ${totalARS} ARS</p>
               </div>
               <div class="footer-ticket">Good Trip Car Rentals Mendoza</div>
@@ -285,7 +299,7 @@ export default function AdminDashboard() {
       <aside className="w-80 bg-slate-800 p-6 flex flex-col sticky top-0 h-screen border-r border-slate-700 z-40 max-lg:w-full max-lg:h-auto max-lg:p-5 max-lg:border-b">
         <div className="flex flex-col gap-1 mb-6 max-lg:mb-3 text-left">
           <div className="flex items-center gap-3">
-            <div className="bg-sky-500 p-2 rounded-xl"><Activity className="text-white" size={20} /></div>
+            <div className="bg-sky-50 p-2 rounded-xl"><Activity className="text-white" size={20} /></div>
             <span className="text-white font-black italic text-lg tracking-tighter uppercase leading-none">Good Trip</span>
           </div>
           <span className="text-[10px] font-black uppercase tracking-widest text-sky-400 mt-1 pl-1">Panel de control</span>
@@ -474,7 +488,7 @@ export default function AdminDashboard() {
                         <span className="text-[10px] font-mono bg-slate-800 text-sky-400 px-2 py-0.5 rounded font-black">{r.patente || 'SIN PAT'}</span>
                         <div className="flex gap-2">
                           <select 
-                            value={r.estado || 'pendiente'} 
+                            value={r.indigo || r.estado || 'pendiente'} 
                             onChange={(e) => handleAction('post', `${apiUrl}/api/admin/cambiar-estado`, {id: r.id, estado: e.target.value})} 
                             className="bg-sky-50 text-sky-700 font-black text-[9px] px-2.5 py-1.5 uppercase rounded-lg border-none outline-none"
                           >
@@ -760,10 +774,10 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between bg-slate-700 p-1 rounded-xl border border-slate-600 w-full sm:w-auto">
                     <button onClick={() => setSelectedMes(m => m > 1 ? m - 1 : 12)} className="w-8 h-8 bg-slate-600 rounded-lg flex items-center justify-center font-bold text-white"><ChevronLeft size={14}/></button>
                     <span className="text-xs font-black px-4 uppercase text-sky-400 text-center min-w-[90px]">{mesesNom[selectedMes - 1].substring(0,3)}</span>
-                    <button onClick={() => setSelectedMes(m => m < 12 ? m + 1 : 1)} className="w-8 h-8 bg-slate-600 rounded-lg flex items-center justify-center font-bold text-white"><ChevronRight size={14}/></button>
+                    <button onClick={() => setSelectedMes(m => m < 12 ? m + 1 : 1)} className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center font-bold text-white"><ChevronRight size={14}/></button>
                   </div>
                   <div className="flex items-center justify-between bg-slate-700 p-1 rounded-xl border border-slate-600 w-full sm:w-auto">
-                    <button onClick={() => setSelectedAnio(a => a - 1)} className="w-8 h-8 bg-slate-600 rounded-lg flex items-center justify-center font-bold text-white"><ChevronLeft size={14}/></button>
+                    <button onClick={() => setSelectedAnio(a => a - 1)} className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center font-bold text-white"><ChevronLeft size={14}/></button>
                     <span className="text-xs font-black px-4 font-mono text-white text-center min-w-[60px]">{selectedAnio}</span>
                     <button onClick={() => setSelectedAnio(a => a + 1)} className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center font-bold text-white"><ChevronRight size={14}/></button>
                   </div>
@@ -803,11 +817,13 @@ export default function AdminDashboard() {
                       const authHeader = getAuthConfig();
                       await axios.post(`${apiUrl}/api/admin/invite`, newAdmin, authHeader);
                       setNewAdmin({ nombre: '', email: '' });
-                      alert("¡Invitación procesada y enviada con éxito mediante Resend!");
+                      alert("¡Alta directa procesada! Las credenciales fueron enviadas a la casilla de Mauricio.");
                       fetchData();
                     } catch (err) {
-                      console.error(err);
-                      alert("Error de autenticación o de red al despachar la invitación.");
+                      console.error("❌ Error en el Front al invitar staff:", err);
+                      // 🚀 REPARADO: Captura el string exacto de error que manda el Backend en res.status(400)
+                      const serverMessage = err.response?.data?.error || "Error de conexión con el servidor de producción.";
+                      alert(`No se pudo procesar: ${serverMessage}`);
                     } finally {
                       setIsInviting(false);
                     }

@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-// Manejo eficiente de rutas del lado del cliente sin recargas forzadas de navegador
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
-// SOLUCIONADO: Importación dirigida al paquete correcto que provee el hook para React
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'; 
-import { Instagram, Facebook, Phone, MapPin, ArrowUp, Activity } from 'lucide-react';
+import { Instagram, MapPin, Phone, ArrowUp, Star } from 'lucide-react';
 
-// Importación modular del logotipo oficial
+// Importación de Activos de Marca
 import logoMendozaRent from './assets/logo.png';
 
 // Importación de Componentes de Interfaz
@@ -20,12 +18,11 @@ import RoutesSection from './components/RoutesSection';
 import WeatherWidget from './components/WeatherWidget';
 import Requirements from './components/Requirements'; 
 
-// Importación de Páginas del Módulo Administrativo
+// Importación de Páginas Administrativas
 import AdminDashboard from './pages/AdminDashboard';
 import SetupPassword from './pages/SetupPassword';
 import Login from './pages/Login';
 
-// Componente Wrapper para inyectar el hook de navegación dentro del callback de Login
 function LoginWrapper() {
   const navigate = useNavigate();
   return <Login onLoginSuccess={() => navigate('/admin')} />;
@@ -40,7 +37,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* RUTA PÚBLICA PRINCIPAL (LANDING PAGE) */}
+        {/* RUTA PÚBLICA PRINCIPAL (COMPACT LANDING - SIN PANEL DE PESTAÑAS) */}
         <Route path="/" element={
           <div className="relative min-h-screen bg-gray-50 overflow-x-hidden font-sans text-slate-800 w-full flex flex-col">
             
@@ -48,97 +45,107 @@ function App() {
             
             <Hero />
             
-            <main className="relative z-10 max-w-7xl mx-auto px-4 w-full space-y-16 md:space-y-40 flex-1">
+            {/* MAIN CONTAINER: Flujo vertical limpio con separación equilibrada (space-y-12) */}
+            <main className="relative z-10 max-w-7xl mx-auto px-4 w-full space-y-12 md:space-y-16 flex-1 -mt-6 sm:-mt-12 md:-mt-16">
               
-              {/* SECCIÓN 1: RESERVAS Y PRESUPUESTOS */}
-              <section id="reservas" className="scroll-mt-24 sm:scroll-mt-32 w-full">
-                <BookingForm 
-                  onQuoteGenerated={(data) => setQuote(data)} 
-                  setAiContext={setAiContext}
-                  setIsChatOpen={setIsChatOpen}
-                />
-                {quote && <QuoteResult quote={quote} />}
-              </section>
+              {/* BLOQUE DE CONVERSIÓN: Reservas + Cotización o Testimonios Lado a Lado */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full">
+                
+                {/* Columna Izquierda: Formulario de Booking Principal */}
+                <div id="reservas" className="scroll-mt-24 lg:col-span-7 bg-white p-2 rounded-[2rem] shadow-xl border border-slate-100">
+                  <BookingForm 
+                    onQuoteGenerated={(data) => setQuote(data)} 
+                    setAiContext={setAiContext}
+                    setIsChatOpen={setIsChatOpen}
+                  />
+                </div>
 
-              {/* SECCIÓN 2: TESTIMONIOS PREMIUM (GOOGLE REVIEWS) */}
-              <section id="testimonios" className="scroll-mt-24 w-full">
-                <GoogleReviews />
-              </section>
+                {/* Columna Derecha Dinámica: Cotización o Testimonios de Google */}
+                <div className="lg:col-span-5 h-full flex flex-col justify-stretch">
+                  {quote ? (
+                    <QuoteResult quote={quote} />
+                  ) : (
+                    <div id="testimonios" className="scroll-mt-24 bg-white p-5 sm:p-6 rounded-[2rem] shadow-md border border-slate-100 flex-1 flex flex-col justify-between">
+                      <div className="flex items-center gap-2 mb-3 bg-slate-100 text-slate-700 px-3 py-1 rounded-full w-fit text-[10px] font-black uppercase tracking-wider border border-slate-200/40">
+                        <Star size={11} className="fill-sky-500 text-sky-500" /> Google Verified
+                      </div>
+                      <GoogleReviews />
+                    </div>
+                  )}
+                </div>
+              </div>
 
-              {/* SECCIÓN 3: FLOTA VEHICULAR (🛠️ CAMBIADO AMARILLO A CELESTE) */}
-              <section id="flota" className="scroll-mt-24 w-full">
-                <div className="text-center mb-6 md:mb-12">
-                  <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter text-slate-800 uppercase">
+              {/* SECCIÓN: FLOTA VEHICULAR (Integrado directamente) */}
+              <div id="flota" className="scroll-mt-24 bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-xl border border-slate-100 p-4 sm:p-6 text-center">
+                <div className="mb-4">
+                  <h2 className="text-xl md:text-3xl font-black italic tracking-tighter text-slate-800 uppercase">
                     {t('flota_title', 'Nuestra')} <span className="text-sky-500">{t('nav_flota', 'Flota')}</span>
                   </h2>
-                  <div className="w-16 md:w-24 h-1.5 md:h-2 bg-sky-500 mx-auto mt-4 rounded-full" />
                 </div>
                 <CarCarousel />
-              </section>
+              </div>
 
-              {/* SECCIÓN 4: REQUISITOS OBLIGATORIOS */}
-              <section id="requisitos" className="scroll-mt-24 sm:scroll-mt-32 w-full">
+              {/* SECCIÓN: REQUISITOS OBLIGATORIOS */}
+              <div id="requisitos" className="scroll-mt-24 bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-xl border border-slate-100 p-4 sm:p-6">
+                <div className="text-center mb-4 border-b border-slate-50 pb-2">
+                  <h2 className="text-xl md:text-2xl font-black italic tracking-tighter text-slate-800 uppercase">
+                    {t('req_section_title', 'Requisitos de')} <span className="text-sky-500">{t('req_section_subtitle', 'Alquiler')}</span>
+                  </h2>
+                </div>
                 <Requirements />
-              </section>
+              </div>
 
-              {/* SECCIÓN 5: ESTADO DEL CLIMA EN VIVO */}
-              <section id="clima" className="scroll-mt-24 w-full">
+              {/* SECCIÓN: ESTADO DEL CLIMA EN VIVO */}
+              <div id="clima" className="scroll-mt-24 bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-xl border border-slate-100 p-4 sm:p-6">
                 <WeatherWidget />
-              </section>
+              </div>
 
-              {/* SECCIÓN 6: EXPERIENCIAS Y RUTAS MENDOCINAS */}
-              <section id="rutas" className="scroll-mt-24 w-full">
+              {/* SECCIÓN: EXPERIENCIAS Y RUTAS MENDOCINAS */}
+              <div id="rutas" className="scroll-mt-24 bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-xl border border-slate-100 p-4 sm:p-6 text-center">
+                <div className="mb-4">
+                  <h2 className="text-xl md:text-2xl font-black italic tracking-tighter text-slate-800 uppercase">
+                    {t('routes_title', 'Rutas')} <span className="text-sky-500">{t('routes_subtitle', 'Mendocinas')}</span>
+                  </h2>
+                </div>
                 <RoutesSection />
-              </section>
+              </div>
 
             </main>
 
             {/* ASISTENTE CONSERJE IA FLOTANTE */}
-            <ChatIA 
-              isOpen={isChatOpen} 
-              setIsOpen={setIsChatOpen} 
-              context={aiContext} 
-            />
+            <ChatIA isOpen={isChatOpen} setIsOpen={setIsChatOpen} context={aiContext} />
 
-            {/* COMPONENTE LOCAL DEL FOOTER CON INTERNACIONALIZACIÓN */}
+            {/* FOOTER LOCAL */}
             <FooterLocal t={t} logoImg={logoMendozaRent} />
 
           </div>
         } />
 
-        {/* INTERFAZ DE RUTAS ADMINISTRATIVAS */}
+        {/* INTERFAZ ADMINISTRATIVA */}
         <Route path="/login" element={<LoginWrapper />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/setup-password" element={<SetupPassword />} />
 
-        {/* REDIRECCIÓN DE RESGUARDO PARA RUTAS INEXISTENTES */}
+        {/* ROUTE BACK RESGUARDO */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
 }
 
-// 🎯 COMPONENTE LOCAL DEL FOOTER OPTIMIZADO - PASADO A GRIS PIZARRA Y CELESTE
+// 🎯 COMPONENTE LOCAL DEL FOOTER (Mantenido intacto de producción)
 function FooterLocal({ t, logoImg }) {
   const navigate = useNavigate();
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <footer className="relative bg-slate-900 border-t border-slate-800 pt-16 pb-8 overflow-hidden w-full text-white z-30 pointer-events-auto">
-      
-      {/* IMAGEN DE MARCA DE AGUA DE FONDO */}
+    <footer className="relative bg-slate-900 border-t border-slate-800 pt-12 pb-8 overflow-hidden w-full text-white z-30 pointer-events-auto mt-12">
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-        <img 
-          src={logoImg} 
-          alt="Good Trip Logo Background" 
-          className="w-56 h-56 md:w-[28rem] md:h-[28rem] object-contain opacity-20 select-none mix-blend-screen"
-        />
+        <img src={logoImg} alt="Watermark" className="w-56 h-56 md:w-[28rem] md:h-[28rem] object-contain opacity-20 select-none mix-blend-screen" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 z-10 w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 border-b border-slate-800 pb-12 w-full">
-          
-          {/* COLUMNA 1: IDENTIDAD DE LA EMPRESA */}
           <div className="space-y-4 text-left">
             <h2 className="text-xl sm:text-2xl font-black italic uppercase tracking-tighter text-white leading-none">
               GOOD TRIP <br />
@@ -150,11 +157,8 @@ function FooterLocal({ t, logoImg }) {
             </p>
           </div>
 
-          {/* COLUMNA 2: NAVEGACIÓN (CAMBIADOS HOVERS A CELESTE) */}
           <div className="text-left">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-sky-400 mb-4">
-              {t('footer_nav_title', 'Navegación')}
-            </h4>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-sky-400 mb-4">{t('footer_nav_title', 'Navegación')}</h4>
             <ul className="grid grid-cols-2 gap-3 text-xs font-semibold text-slate-300">
               <li><a href="#reservas" className="hover:text-sky-400 transition-colors">{t('nav_reserva', 'Reservas')}</a></li>
               <li><a href="#flota" className="hover:text-sky-400 transition-colors">{t('nav_flota', 'Vehículos')}</a></li>
@@ -163,62 +167,35 @@ function FooterLocal({ t, logoImg }) {
             </ul>
           </div>
 
-          {/* COLUMNA 3: CANALES DE CONTACTO */}
           <div className="space-y-4 text-left">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-sky-400 mb-2">
-              {t('footer_contact_title', 'Atención Directa')}
-            </h4>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-sky-400 mb-2">{t('footer_contact_title', 'Atención Directa')}</h4>
             <div className="space-y-3 text-xs text-slate-300 font-medium">
-              <div className="flex items-center gap-2">
-                <MapPin size={14} className="text-sky-400 flex-shrink-0" />
-                <span>Mendoza Capital, Argentina</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone size={14} className="text-sky-400 flex-shrink-0" />
-                <span>+54 9 261 276-4618</span>
-              </div>
+              <div className="flex items-center gap-2"><MapPin size={14} className="text-sky-400 flex-shrink-0" /><span>Mendoza Capital, Argentina</span></div>
+              <div className="flex items-center gap-2"><Phone size={14} className="text-sky-400 flex-shrink-0" /><span>+54 9 261 276-4618</span></div>
             </div>
           </div>
         </div>
 
-        {/* CONTENEDOR INFERIOR DE REDES, COPYRIGHT Y CREDITOS DE AGENCIA */}
         <div className="relative mt-8 flex flex-col sm:flex-row justify-between items-center gap-6 w-full z-50 isolate">
           <div className="flex items-center gap-4">
-            <a href="https://www.instagram.com/good.triprentals/" target="_blank" rel="noreferrer" className="p-2.5 bg-white/5 hover:bg-sky-500 hover:text-white rounded-full transition-all border border-slate-800">
-              <Instagram size={16} />
-            </a>
+            <a href="https://www.instagram.com/good.triprentals/" target="_blank" rel="noreferrer" className="p-2.5 bg-white/5 hover:bg-sky-500 hover:text-white rounded-full transition-all border border-slate-800"><Instagram size={16} /></a>
           </div>
 
-          {/* Bloque de Copyright y Firma de Puma Code */}
           <div className="text-center sm:text-left space-y-2 relative z-50">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
               © 2026 <span className="text-slate-400">Good Trip Car Rentals Mendoza, Arg</span>. {t('footer_rights', 'Todos los derechos reservados.')}
             </p>
             <div className="flex justify-center sm:justify-start gap-3 text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 items-center">
-              
-              <button 
-                onClick={() => navigate('/login')}
-                onTouchStart={() => navigate('/login')}
-                className="hover:text-sky-400 text-slate-500 transition-colors inline-block py-3 px-4 sm:py-1.5 sm:px-2 relative z-55 active:text-sky-500 touch-manipulation pointer-events-auto bg-transparent border-none outline-none appearance-none font-black uppercase tracking-[0.2em] cursor-pointer"
-              >
+              <button onClick={() => navigate('/login')} className="hover:text-sky-400 text-slate-500 transition-colors bg-transparent border-none outline-none font-black uppercase tracking-[0.2em] cursor-pointer">
                 {t('nav_staff', 'Acceso Staff')}
               </button>
-
               <span className="select-none text-slate-800">•</span>
-
-              {/* Crédito Oficial de Agencia Adaptado */}
-              <a 
-                href="https://www.puma-code.com" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-slate-600 hover:text-sky-400 font-black transition-colors active:text-sky-500 touch-manipulation cursor-pointer pointer-events-auto lowercase tracking-normal"
-              >
+              <a href="https://www.puma-code.com" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-sky-400 font-black transition-colors lowercase tracking-normal">
                 Dev by Puma Code
               </a>
             </div>
           </div>
 
-          {/* Botón flotante para scroll ascendente suave */}
           <button onClick={scrollToTop} className="group p-2.5 bg-white/5 hover:bg-slate-800 text-sky-400 border border-slate-800 rounded-full transition-all cursor-pointer relative z-30">
             <ArrowUp size={16} className="group-hover:-translate-y-0.5 transition-transform" />
           </button>

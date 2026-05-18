@@ -8,23 +8,24 @@
   will-change: transform, opacity;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden; /* 🔥 Optimiza el renderizado en celulares para evitar parpadeos */
+  transform: translateZ(0); /* Acciona la aceleración por hardware en iOS y Android */
 }
 
 .fade-in {
-  animation: fadeIn 0.6s ease-out;
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .zoom-in {
-  animation: zoomIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes zoomIn {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.97); }
   to { opacity: 1; transform: scale(1); }
 }
 
@@ -43,16 +44,39 @@
   display: none; /* Chrome, Safari y Opera */
 }
 
-/* Fuerza el desplazamiento suave al hacer clic en los enlaces del Navbar (#reservas, etc.) */
+/* Fuerza el desplazamiento suave pero calcula el margen superior para que el Navbar no tape los títulos */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 90px; /* 🛠️ PARCHE: Evita que el Navbar tape el contenido al hacer clic en un enlace */
 }
 
-/* Evita rebotes horizontales raros en Safari Mobile */
+/* Evita rebotes horizontales raros en Safari Mobile y mejora renderizado de fuentes */
 body {
   overflow-x: hidden;
   width: 100%;
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8fafc; /* Garantiza contraste total con las tarjetas blancas */
+}
+
+/* ==========================================================================
+   🛠️ PARCHE DE FIJACIÓN STICKY PARA LA CONSOLA MODULAR (PC & CELU)
+   ========================================================================== */
+
+/* Fuerza que las pestañas queden pegadas de forma sólida arriba sin dejar ver 
+   el contenido que pasa por detrás, solucionando el problema de casilleros rotos */
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+}
+
+/* Corrige el contraste nativo de los selectores HTML y casilleros de fecha en móviles */
+input[type="date"], input[type="time"], select {
+  color-scheme: light; /* Evita que los teléfonos en Modo Oscuro fuercen letras blancas sobre fondo blanco */
+  -webkit-appearance: none; /* Elimina estilos heredados raros de iOS */
 }
 
 /* ==========================================================================
@@ -60,18 +84,18 @@ body {
    ========================================================================== */
 @media (min-width: 769px) {
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px; 
+    width: 8px; /* Reducida un poco de 10px a 8px para una estética más fina */
+    height: 8px; 
   }
   ::-webkit-scrollbar-track {
     background: #f1f5f9; /* Tono slate suave para que combine con el diseño */
   }
   ::-webkit-scrollbar-thumb {
-    background: #0ea5e9; /* 🛠️ CAMBIADO: Celeste Sky 500 para la nueva paleta de Mendoza Rent */
+    background: #0ea5e9; /* Celeste Sky 500 para la nueva paleta de Mendoza Rent */
     border-radius: 10px;
     border: 2px solid #f1f5f9; /* Agrega un espacio elegante alrededor de la barra */
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #0284c7; /* 🛠️ CAMBIADO: Celeste Sky 600 premium al pasar el mouse */
+    background: #0284c7; /* Celeste Sky 600 premium al pasar el mouse */
   }
 }
