@@ -1,4 +1,6 @@
-/* PUMA CODE: FULL SCREEN LAYOUT FINAL + MOBILE PROTECTION */
+/* ==========================================================================
+   PUMA CODE: FULL SCREEN LAYOUT FINAL + MOBILE PROTECTION
+   ========================================================================== */
 * {
   margin: 0;
   padding: 0;
@@ -33,7 +35,9 @@ body, html, #root {
   }
 }
 
-/* SIDEBAR ANCHO Y AZUL OSCURO (RESPONSIVE) */
+/* ==========================================================================
+   SIDEBAR ANCHO Y AZUL OSCURO (RESPONSIVE)
+   ========================================================================== */
 aside {
   width: 300px !important;
   min-width: 300px !important;
@@ -74,7 +78,9 @@ aside {
   }
 }
 
-/* CONTENIDO PRINCIPAL: OCUPA TODO EL RESTO */
+/* ==========================================================================
+   CONTENIDO PRINCIPAL: OCUPA TODO EL RESTO
+   ========================================================================== */
 main {
   flex-grow: 1 !important;
   height: 100vh;
@@ -91,35 +97,132 @@ main {
   }
 }
 
-/* CALENDARIO GIGANTE COMPACTADO */
+/* ==========================================================================
+   🛡️ REPARADO: CALENDARIO GIGANTE PREMIUM (DURANTE EL ALQUILER EN TIEMPO REAL)
+   ========================================================================== */
 .react-calendar {
   width: 100% !important;
   max-width: none !important;
   border: none !important;
   border-radius: 40px !important;
   padding: 30px !important;
-  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+  background-color: #ffffff !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  font-family: inherit !important;
 }
 
+/* Estructura y altura de cada día de la grilla */
 .react-calendar__tile {
-  height: 125px !important; /* Mantenemos tus 125px óptimos para ver patentes en pc */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  height: 125px !important; /* Altura óptima corporativa para PC */
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 8px 4px !important;
+  border: 1px solid #f1f5f9 !important;
+  background: none;
+  transition: all 0.15s ease-in-out;
+  font-weight: 700 !important;
+  color: #334155 !important;
 }
 
+.react-calendar__tile:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Día seleccionado o activo */
+.react-calendar__tile--active {
+  background-color: #f0f9ff !important;
+  border: 2px solid #0ea5e9 !important;
+  color: #0369a1 !important;
+}
+
+/* Estilización de las cabeceras de los días (Lu, Ma, Mi...) */
+.react-calendar__month-view__weekdays {
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: 1px !important;
+  color: #94a3b8 !important;
+  padding-bottom: 12px !important;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none !important;
+}
+
+/* Botones de navegación del mes (atrás, adelante) */
+.react-calendar__navigation {
+  display: flex !important;
+  height: 48px !important;
+  margin-bottom: 20px !important;
+}
+
+.react-calendar__navigation button {
+  min-width: 44px !important;
+  background: none !important;
+  border: none !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  color: #1e293b !important;
+  cursor: pointer !important;
+  border-radius: 12px !important;
+}
+
+.react-calendar__navigation button:hover {
+  background-color: #f1f5f9 !important;
+}
+
+/* Etiquetas internas de patentes (Mini Tags flotantes de tus autos ocupados) */
+.patente-tag {
+  font-size: 7.5px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase;
+  background-color: #1e293b !important;
+  color: #0ea5e9 !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
+  width: 100% !important;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.calendar-car-thumb {
+  width: 100%;
+  height: 40px;
+  object-fit: contain;
+  margin-top: auto;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.04));
+}
+
+/* Adaptación táctil y responsiva del calendario en celulares */
 @media (max-width: 640px) {
   .react-calendar {
-    border-radius: 20px !important;
-    padding: 10px !important;
+    border-radius: 24px !important;
+    padding: 15px !important;
   }
   .react-calendar__tile {
-    height: 75px !important; /* Más petiso en celulares para que entre el mes completo */
+    height: 80px !important; /* Más petiso para que entre el mes completo sin scroll */
+    padding: 4px 2px !important;
+    font-size: 12px !important;
+  }
+  .calendar-car-thumb {
+    height: 22px;
+  }
+  .patente-tag {
+    font-size: 6px !important;
+    padding: 1px 2px !important;
   }
 }
 
-/* TARIFAS: FILAS RECTANGULARES LARGAS ADAPTABLES */
+/* ==========================================================================
+   TARIFAS: FILAS RECTANGULARES LARGAS ADAPTABLES
+   ========================================================================== */
 .price-row-full {
   background: white;
   padding: 30px 45px;

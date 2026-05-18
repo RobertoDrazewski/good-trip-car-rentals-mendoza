@@ -33,8 +33,6 @@
    🚀 SOPORTE PREMIUM PARA CARRUSELES MÓVILES (RESEÑAS, REQUISITOS Y CLIMA)
    ========================================================================== */
 
-/* Oculta la barra de desplazamiento horizontal nativa en celulares para mantener 
-   la estética de App móvil, pero preserva el deslizamiento táctil con el dedo */
 .scrollbar-none {
   -ms-overflow-style: none;  /* IE y Edge */
   scrollbar-width: none;  /* Firefox */
@@ -44,28 +42,43 @@
   display: none; /* Chrome, Safari y Opera */
 }
 
-/* Fuerza el desplazamiento suave pero calcula el margen superior para que el Navbar no tape los títulos */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 90px; /* 🛠️ PARCHE: Evita que el Navbar tape el contenido al hacer clic en un enlace */
+  scroll-padding-top: 90px; 
 }
 
-/* Evita rebotes horizontales raros en Safari Mobile y mejora renderizado de fuentes */
 body {
   overflow-x: hidden;
   width: 100%;
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f8fafc; /* Garantiza contraste total con las tarjetas blancas */
+}
+
+/* 🛡️ PARCHE CRÍTICO PUMA CODE: Forzar opacidad sólida y contraste absoluto 
+   en las tarjetas del main para que NINGÚN texto de requisitos se pierda con el fondo */
+main .bg-white, 
+#requisitos, 
+#flota, 
+#testimonios, 
+#reservas {
+  background-color: rgba(255, 255, 255, 0.98) !important; /* 98% blanco puro para blindar las letras */
+  backdrop-blur: md;
+  color: #0f172a !important; /* Fuerza Slate-900 (Letras ultra oscuras de alta visibilidad) */
+}
+
+/* Forzar que los textos secundarios de los requisitos no se laven con el fondo */
+#requisitos p, 
+#requisitos li, 
+#requisitos span {
+  color: #334155 !important; /* Slate-700 para máxima lectura */
+  font-weight: 600; /* Le da un poquito más de cuerpo a la tipografía */
 }
 
 /* ==========================================================================
    🛠️ PARCHE DE FIJACIÓN STICKY PARA LA CONSOLA MODULAR (PC & CELU)
    ========================================================================== */
 
-/* Fuerza que las pestañas queden pegadas de forma sólida arriba sin dejar ver 
-   el contenido que pasa por detrás, solucionando el problema de casilleros rotos */
 .sticky {
   position: -webkit-sticky;
   position: sticky;
@@ -73,10 +86,9 @@ body {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
 }
 
-/* Corrige el contraste nativo de los selectores HTML y casilleros de fecha en móviles */
 input[type="date"], input[type="time"], select {
-  color-scheme: light; /* Evita que los teléfonos en Modo Oscuro fuercen letras blancas sobre fondo blanco */
-  -webkit-appearance: none; /* Elimina estilos heredados raros de iOS */
+  color-scheme: light; 
+  -webkit-appearance: none; 
 }
 
 /* ==========================================================================
@@ -84,18 +96,18 @@ input[type="date"], input[type="time"], select {
    ========================================================================== */
 @media (min-width: 769px) {
   ::-webkit-scrollbar {
-    width: 8px; /* Reducida un poco de 10px a 8px para una estética más fina */
+    width: 8px; 
     height: 8px; 
   }
   ::-webkit-scrollbar-track {
-    background: #f1f5f9; /* Tono slate suave para que combine con el diseño */
+    background: #f1f5f9; 
   }
   ::-webkit-scrollbar-thumb {
-    background: #0ea5e9; /* Celeste Sky 500 para la nueva paleta de Mendoza Rent */
+    background: #0ea5e9; 
     border-radius: 10px;
-    border: 2px solid #f1f5f9; /* Agrega un espacio elegante alrededor de la barra */
+    border: 2px solid #f1f5f9; 
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #0284c7; /* Celeste Sky 600 premium al pasar el mouse */
+    background: #0284c7; 
   }
 }

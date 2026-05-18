@@ -9,62 +9,63 @@ export default function Requirements() {
 
   const reqs = [
     {
-      title: t('req_age_title', "Edad Mínima"),
-      text: t('req_age_text', "Para conducir nuestras unidades es necesario ser mayor de 23 años."),
-      icon: <Users className="text-sky-500 group-hover:text-white transition-colors" size={16} />
+      /* 🛠️ MODIFICADO: Agrupado de Edad Mínima + Días de Alquiler Mínimos para mantener la simetría de 6 tarjetas */
+      title: t('req_conditions_title', "Condiciones Mínimas"),
+      text: t('req_conditions_text', "Ser mayor de 23 años para conducir nuestras unidades. El período mínimo de alquiler es de 3 días."),
+      icon: <Users className="text-sky-500 group-hover:text-white transition-colors" size={15} />
     },
     {
       title: t('req_doc_title', "Documentación"),
       text: t('req_doc_text', "Licencia de conducir física, vigente y habilitante para vehículos particulares."),
-      icon: <ShieldCheck className="text-sky-500 group-hover:text-white transition-colors" size={16} />
+      icon: <ShieldCheck className="text-sky-500 group-hover:text-white transition-colors" size={15} />
     },
     {
       title: t('req_km_title', "Kilometraje Libre"),
       text: t('req_km_text', "Kilómetros ilimitados en todas las unidades y sin cargo por conductor adicional."),
-      icon: <Fuel className="text-sky-500 group-hover:text-white transition-colors" size={16} />
+      icon: <Fuel className="text-sky-500 group-hover:text-white transition-colors" size={15} />
     },
     {
       title: t('req_card_title', "Sin Tarjeta"),
       text: t('req_card_text', "No solicitamos garantía de tarjeta de crédito para concretar el alquiler."),
-      icon: <CreditCard className="text-sky-500 group-hover:text-white transition-colors" size={16} />
+      icon: <CreditCard className="text-sky-500 group-hover:text-white transition-colors" size={15} />
     },
     {
-      title: t('req_warranty_title', "Garantía"),
+      title: t('req_warranty_title', "Garantía Reembolsable"),
       text: t('req_warranty_text', "Depósito de $450.000 ARS o USD 300 (Reembolsable íntegramente al finalizar el contrato)."),
-      icon: <DollarSign className="text-sky-500 group-hover:text-white transition-colors" size={16} />
+      icon: <DollarSign className="text-sky-500 group-hover:text-white transition-colors" size={15} />
     },
     {
       title: t('req_guide_title', "Guía Turística"),
       text: t('req_guide_text', "Le obsequiamos una guía exclusiva para aprovechar sus rutas en Mendoza."),
-      icon: <BookOpen className="text-sky-500 group-hover:text-white transition-colors" size={16} />
+      icon: <BookOpen className="text-sky-500 group-hover:text-white transition-colors" size={15} />
     }
   ];
 
   return (
-    /**
-     * 🛠️ AJUSTADO: Se eliminaron los paddings pesados (py-24), el fondo blanco duplicado y el título
-     * para calzar de forma nativa e inmediata dentro del layout por pestañas.
-     */
     <div className="w-full animate-in fade-in duration-300">
       
-      {/* CONTENEDOR DE TARJETAS OPTIMIZADO */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 w-full">
+      {/* 🛠️ REPARADO: En celulares usa 1 col, en tablets 2 cols, y en PC (lg) se clava en 1 sola columna 
+          para estirarse de forma vertical y emparejar de forma simétrica la altura con el CarCarousel de la derecha */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5 w-full">
         {reqs.map((item, idx) => (
           <div 
             key={idx} 
-            className="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-100 hover:border-sky-200 hover:bg-white hover:shadow-sm transition-all duration-300 group flex flex-col text-left w-full"
+            className="p-3 sm:p-4 rounded-xl bg-white border border-slate-100 hover:border-sky-300/50 hover:shadow-md transition-all duration-200 group flex flex-col text-left w-full"
           >
-            <div className="flex items-center gap-3 mb-2.5 w-full">
-              {/* Contenedor Icono Reescalado */}
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:bg-slate-800 transition-colors flex-shrink-0 border border-slate-100">
+            <div className="flex items-center gap-2.5 w-full mb-1.5">
+              {/* Contenedor Icono Compacto */}
+              <div className="w-7 h-7 bg-slate-50 rounded-lg flex items-center justify-center shadow-inner group-hover:bg-slate-800 transition-colors flex-shrink-0 border border-slate-100">
                 {item.icon}
               </div>
-              <h3 className="text-xs sm:text-sm font-black uppercase italic tracking-tight text-slate-800 truncate">
+              
+              {/* 🛠️ REPARADO: Se eliminó el 'truncate' molesto para evitar textos cortados y se bajó el tracking */}
+              <h3 className="text-[11px] sm:text-xs font-black uppercase italic tracking-tight text-slate-800 leading-tight flex-1">
                 {item.title}
               </h3>
             </div>
             
-            <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-relaxed pl-0.5">
+            {/* Texto descriptivo de alto contraste */}
+            <p className="text-[10px] sm:text-[11px] text-slate-600 font-bold leading-relaxed pl-0.5">
               {item.text}
             </p>
           </div>

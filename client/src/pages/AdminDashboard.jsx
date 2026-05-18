@@ -158,7 +158,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // 🛠️ REPARADO: Mapeo exacto y robusto de las variables cronológicas y de locación para el PDF
+  // 🛠️ REPARADO CON TOTAL FIDELIDAD: HTML e inyección Premium idéntica a QuoteResult + Lavado + Requisitos
   const descargarTicketPresupuesto = (reserva) => {
     try {
       const fechaInicioRaw = reserva.fecha_inicio || reserva.desde || '';
@@ -176,6 +176,9 @@ export default function AdminDashboard() {
       const garantiaUSD = parseFloat(reserva.garantia_usd || 300);
       const garantiaARS = (garantiaUSD * parseFloat(reserva.tasa_dolar_usada || 1400)).toLocaleString('es-AR');
       
+      // 🧼 Captura dinámica del valor del lavado configurado
+      const lavadoARS = parseFloat(reserva.precio_lavado_aplicado || 16000).toLocaleString('es-AR');
+
       const lugarRetiroOficial = reserva.lugar_retiro || reserva.entrega || 'Mendoza Ciudad';
       const lugarDevolucionOficial = reserva.lugar_devolucion || reserva.devolucion || 'Mendoza Ciudad';
 
@@ -189,71 +192,107 @@ export default function AdminDashboard() {
             <meta charset="utf-8">
             <title>Presupuesto_${reserva.cliente_nombre ? reserva.cliente_nombre.replace(/\\s+/g, '_') : 'Reserva'}</title>
             <style>
-              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
               * { box-sizing: border-box; margin: 0; padding: 0; }
-              body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-              .no-print-bar { margin-bottom: 20px; display: flex; gap: 15px; }
-              .btn-print { background-color: #0ea5e9; color: #ffffff; font-weight: 900; border: none; padding: 12px 30px; border-radius: 50px; cursor: pointer; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(14,165,233,0.3); transition: all 0.2s; }
-              .btn-print:hover { background-color: #0f172a; }
-              .btn-close { background-color: #e2e8f0; color: #475569; font-weight: 700; border: none; padding: 12px 20px; border-radius: 50px; cursor: pointer; text-transform: uppercase; font-size: 11px; }
-              .ticket-container { width: 100%; max-w: 700px; background: #ffffff; padding: 40px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-              .logo-container { text-align: center; margin-bottom: 15px; }
-              .logo-alt { font-weight: 900; font-size: 22px; font-style: italic; letter-spacing: -1px; text-transform: uppercase; }
+              body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+              .no-print-bar { margin-bottom: 25px; display: flex; gap: 15px; }
+              .btn-print { background-color: #0ea5e9; color: #ffffff; font-weight: 900; border: none; padding: 14px 35px; border-radius: 50px; cursor: pointer; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; box-shadow: 0 10px 15px -3px rgba(14,165,233,0.3); transition: all 0.2s; }
+              .btn-print:hover { background-color: #0f172a; transform: translateY(-1px); }
+              .btn-close { background-color: #e2e8f0; color: #475569; font-weight: 700; border: none; padding: 14px 25px; border-radius: 50px; cursor: pointer; text-transform: uppercase; font-size: 11px; }
+              
+              .ticket-container { width: 100%; max-w: 680px; background: #ffffff; padding: 40px; border-radius: 2.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+              .logo-container { text-align: center; margin-bottom: 20px; }
+              .logo-alt { font-weight: 900; font-size: 24px; font-style: italic; letter-spacing: -1.5px; text-transform: uppercase; color: #0f172a; }
               .logo-alt span { color: #0ea5e9; }
-              .tag-status { background-color: rgba(14, 165, 233, 0.1); color: #0369a1; font-weight: 900; text-transform: uppercase; font-size: 9px; letter-spacing: 1px; padding: 5px 14px; border-radius: 50px; width: max-content; margin: 0 auto 15px auto; }
-              .title-main { font-size: 22px; font-weight: 900; text-transform: uppercase; font-style: italic; text-align: center; margin-bottom: 4px; }
+              .tag-status { background-color: #f0f9ff; color: #0369a1; font-weight: 900; text-transform: uppercase; font-size: 9px; letter-spacing: 1.5px; padding: 6px 16px; border-radius: 50px; width: max-content; margin: 0 auto 20px auto; border: 1px solid #e0f2fe; }
+              
+              .title-main { font-size: 24px; font-weight: 900; text-transform: uppercase; font-style: italic; text-align: center; margin-bottom: 6px; color: #0f172a; }
               .title-main span { color: #0ea5e9; }
-              .subtitle { color: #94a3b8; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; text-align: center; margin-bottom: 25px; }
-              .grid-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-              .info-card { background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; display: flex; gap: 10px; align-items: flex-start; }
-              .info-card .label { font-size: 8.5px; font-weight: 900; text-transform: uppercase; color: #94a3b8; }
-              .info-card .value { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #0f172a; margin-top: 2px; }
+              .subtitle { color: #94a3b8; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; text-align: center; margin-bottom: 30px; }
+              
+              .grid-details { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+              .info-card { background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 16px; padding: 16px; display: flex; gap: 12px; align-items: flex-start; text-align: left; }
+              .info-card .icon-box { font-size: 16px; width: 32px; height: 32px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; flex-shrink: 0; }
+              .info-card .content-box { flex-grow: 1; }
+              .info-card .label { font-size: 8.5px; font-weight: 900; text-transform: uppercase; color: #94a3b8; tracking-wider: 0.5px; }
+              .info-card .value { font-size: 13px; font-weight: 900; text-transform: uppercase; color: #1e293b; margin-top: 2px; }
+              .info-card .subvalue { font-size: 10.5px; color: #0ea5e9; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
+              .info-card .subvalue.gray { color: #64748b; }
+              
               .full-width { grid-column: span 2; }
               .garantia-card { border-left: 4px solid #0ea5e9; background-color: #f0f9ff; }
               .garantia-card .label { color: #0284c7; }
-              .total-box { background-color: #1e293b; color: #ffffff; padding: 18px; border-radius: 14px; text-align: center; margin-top: 15px; }
-              .total-box .total-label { font-size: 9px; font-weight: 900; text-transform: uppercase; color: #0ea5e9; }
-              .total-box .total-amount { font-size: 28px; font-weight: 900; font-style: italic; }
-              .footer-ticket { margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 15px; text-align: center; font-size: 9.5px; font-weight: 900; color: #94a3b8; text-transform: uppercase; }
+              
+              .total-box { background-color: #0f172a; color: #ffffff; padding: 22px; border-radius: 20px; text-align: center; margin-top: 10px; margin-bottom: 30px; }
+              .total-box .total-label { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #0ea5e9; letter-spacing: 1.5px; margin-bottom: 2px; }
+              .total-box .total-amount { font-size: 32px; font-weight: 900; font-style: italic; }
+              
+              .req-section-ticket { border-top: 2px dashed #e2e8f0; padding-top: 25px; text-align: left; }
+              .req-title-ticket { font-size: 14px; font-weight: 900; text-transform: uppercase; font-style: italic; color: #0f172a; margin-bottom: 16px; }
+              .req-title-ticket span { color: #0ea5e9; }
+              .req-grid-ticket { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+              .req-item-ticket { background: #ffffff; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+              .req-item-header { display: flex; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 900; text-transform: uppercase; font-style: italic; color: #1e293b; }
+              .req-item-header span { color: #0ea5e9; font-size: 12px; }
+              .req-item-desc { font-size: 10px; color: #475569; font-weight: 600; line-height: 1.4; }
+              
+              .footer-ticket { margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px; text-align: center; font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; }
               @media print { .no-print-bar { display: none !important; } body { background: #ffffff; padding: 0; } .ticket-container { box-shadow: none !important; border: none !important; padding: 0 !important; } }
             </style>
           </head>
           <body>
             <div class="no-print-bar">
-              <button onclick="window.print()" class="btn-print">🖨️ Imprimir Presupuesto</button>
+              <button onclick="window.print()" class="btn-print">🖨️ Imprimir Presupuesto Premium</button>
               <button onclick="window.close()" class="btn-close">Cerrar</button>
             </div>
             <div class="ticket-container">
               <div class="logo-container">
-                <div id="alt-logo-text" class="logo-alt">Good Trip <span>Car Rentals Mendoza</span></div>
+                <div class="logo-alt">Good Trip <span>Car Rentals</span></div>
               </div>
               <div class="tag-status">✨ Cotización Oficial Reservada</div>
               <h3 class="title-main">Tu Resumen de <span>Viaje</span></h3>
               <p class="subtitle">Resumen de Cotización para la gestión interna de Good Trip</p>
               
               <div class="grid-details">
-                <div class="info-card">👤 <div><p class="label">Titular de Reserva</p><p class="value">${reserva.cliente_nombre || 'Cliente'}</p></div></div>
-                <div class="info-card">🚗 <div><p class="label">Vehículo solicitado</p><p class="value">${reserva.auto_modelo || 'Vehículo de Flota'}</p></div></div>
+                <div class="info-card"><div class="icon-box">👤</div><div class="content-box"><p class="label">Titular de Reserva</p><p class="value">${reserva.cliente_nombre || 'Cliente'}</p></div></div>
+                <div class="info-card"><div class="icon-box">🚗</div><div class="content-box"><p class="label">Vehículo solicitado</p><p class="value">${reserva.auto_modelo || 'Vehículo de Flota'}</p></div></div>
                 
-                <div class="info-card">🛫 <div><p class="label">Retiro / Entrega</p><p class="value">${fechaInicioFormateada} — ${reserva.hora_inicio || '10:00'} hs</p><p style="font-size: 10px; color: #0ea5e9; font-weight: 700; margin-top: 4px; text-transform: uppercase;">📍 ${lugarRetiroOficial}</p></div></div>
-                <div class="info-card">🛬 <div><p class="label">Devolución</p><p class="value">${fechaFinFormateada} — ${reserva.hora_fin || '10:00'} hs</p><p style="font-size: 10px; color: #64748b; font-weight: 700; margin-top: 4px; text-transform: uppercase;">📍 ${lugarDevolucionOficial}</p></div></div>
+                <div class="info-card"><div class="icon-box">🛫</div><div class="content-box"><p class="label">Retiro / Entrega</p><p class="value">${fechaInicioFormateada} — ${reserva.hora_inicio || '10:00'} hs</p><p class="subvalue">📍 ${lugarRetiroOficial}</p></div></div>
+                <div class="info-card"><div class="icon-box">🛬</div><div class="content-box"><p class="label">Devolución</p><p class="value">${fechaFinFormateada} — ${reserva.hora_fin || '10:00'} hs</p><p class="subvalue gray">📍 ${lugarDevolucionOficial}</p></div></div>
                 
-                <div class="info-card">⏱️ <div><p class="label">Tiempo Total</p><p class="value">${diasCalculados} ${diasCalculados === 1 ? 'Día' : 'Días'} de Alquiler</p></div></div>
-                <div class="info-card">👶 <div><p class="label">Opcional Sillita de Bebé</p><p class="value">${tieneSillita ? '✔️ Adicionada' : '❌ No Solicitada'}</p></div></div>
-                <div class="info-card full-width garantia-card">🛡️ <div><p class="label">Franquicia de Garantía Reembolsable</p><p class="value">$ ${garantiaARS} ARS <span style="font-size: 10px; font-weight: normal; color: #64748b;">(${garantiaUSD} USD a tasa de $${cotizacionDolar})</span></p></div></div>
+                <div class="info-card"><div class="icon-box">⏱️</div><div class="content-box"><p class="label">Tiempo Total</p><p class="value">${diasCalculados} ${diasCalculados === 1 ? 'Día' : 'Días'} de Alquiler</p></div></div>
+                <div class="info-card"><div class="icon-box">👶</div><div class="content-box"><p class="label">Opcional Sillita de Bebé</p><p class="value">${tieneSillita ? '✔️ Adicionada' : '❌ No Solicitada'}</p></div></div>
+                
+                <div class="info-card"><div class="icon-box">🧼</div><div class="content-box"><p class="label">Servicio de Lavado Obligatorio</p><p class="value">$ ${lavadoARS} ARS</p></div></div>
+                <div class="info-card"><div class="icon-box">💵</div><div class="content-box"><p class="label">Tasa Cambio Base</p><p class="value">1 USD = $ ${cotizacionDolar} ARS</p></div></div>
+                
+                <div class="info-card full-width garantia-card"><div class="icon-box">🛡️</div><div class="content-box"><p class="label">Franquicia de Garantía Reembolsable</p><p class="value">$ ${garantiaARS} ARS <span style="font-size: 11px; font-weight: 500; color: #64748b;">(${garantiaUSD} USD)</span></p></div></div>
               </div>
 
               <div class="total-box">
-                <p class="total-label">Total Final Alquiler</p>
+                <p class="total-label">VALOR TOTAL NETO DE CONTRATO</p>
                 <p class="total-amount">$ ${totalARS} ARS</p>
               </div>
-              <div class="footer-ticket">Good Trip Car Rentals Mendoza</div>
+              
+              <div class="req-section-ticket">
+                <h4 class="req-title-ticket">📋 Requisitos de <span>Alquiler Obligatorios</span></h4>
+                <div class="req-grid-ticket">
+                  <div class="req-item-ticket"><div class="req-item-header"><span>👥</span> Condiciones Mínimas</div><p class="req-item-desc">Ser mayor de 23 años para conducir nuestras unidades. El período mínimo de alquiler es de 3 días.</p></div>
+                  <div class="req-item-ticket"><div class="req-item-header"><span>🛡️</span> Documentación</div><p class="req-item-desc">Licencia de conducir física, vigente y habilitante para vehículos particulares.</p></div>
+                  <div class="req-item-ticket"><div class="req-item-header"><span>⛽</span> Kilometraje Libre</div><p class="req-item-desc">Kilómetros ilimitados en todas las unidades y sin cargo por conductor adicional.</p></div>
+                  <div class="req-item-ticket"><div class="req-item-header"><span>💳</span> Sin Tarjeta</div><p class="req-item-desc">No solicitamos garantía de tarjeta de crédito para concretar el alquiler.</p></div>
+                  <div class="req-item-ticket"><div class="req-item-header"><span>💰</span> Garantía Reembolsable</div><p class="req-item-desc">Depósito de $450.000 ARS o USD 300 (Reembolsable íntegramente al finalizar).</p></div>
+                  <div class="req-item-ticket"><div class="req-item-header"><span>📖</span> Guía Turística</div><p class="req-item-desc">Le obsequiamos una guía exclusiva para aprovechar sus rutas en Mendoza.</p></div>
+                </div>
+              </div>
+              
+              <div class="footer-ticket">Good Trip Car Rentals Mendoza • Dev by Puma Code</div>
             </div>
           </body>
         </html>
       `);
       printWindow.document.close();
-    } catch (err) { alert("No se pudo abrir el visor."); }
+    } catch (err) { alert("No se pudo abrir el visor de impresión."); }
   };
 
   const enviarTicketPorWhatsApp = (reserva) => {
@@ -275,45 +314,38 @@ export default function AdminDashboard() {
     <div className="flex min-h-screen w-full bg-[#f8fafc] font-sans text-slate-800 max-lg:flex-col relative">
       
       {/* ALERTA DE NUEVO LEAD - FIJO, VERDE ESMERALDA Y CERRADO SEGURO */}
-{newLeadAlert && (
-  <div 
-    /**
-     * 🛠️ REPARADO: Cambiado 'cotizaciones' por 'ventas' para coincidir exactamente 
-     * con la pestaña modular de tu AdminDashboard y evitar la pantalla en blanco.
-     */
-    onClick={() => {
-      if (typeof setActiveTab === 'function') {
-        setActiveTab('ventas'); // 👈 Sincronizado con tu herramienta de Ventas
-      }
-      setNewLeadAlert(false);
-    }}
-    className="fixed top-6 right-6 left-6 sm:left-auto sm:w-96 bg-emerald-600 hover:bg-emerald-500 text-white p-5 rounded-2xl shadow-[0_20px_50px_rgba(16,185,129,0.35)] z-[9999] border border-emerald-500 flex gap-4 items-center animate-in fade-in duration-300 cursor-pointer transition-colors select-none"
-  >
-    <div className="bg-white/20 p-2.5 rounded-xl flex-shrink-0">
-      <BellRing size={22} className="text-white animate-pulse" />
-    </div>
-    
-    <div className="flex-1 text-left min-w-0">
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200">¡Nueva Venta Inbound!</p>
-      <h4 className="text-sm font-black uppercase tracking-tight truncate mt-0.5">{recentLeadName}</h4>
-      <p className="text-xs text-emerald-100 font-medium leading-tight mt-0.5">Ingresó una nueva solicitud de cotización desde el sitio web.</p>
-    </div>
+      {newLeadAlert && (
+        <div 
+          onClick={() => {
+            if (typeof setActiveTab === 'function') {
+              setActiveTab('ventas');
+            }
+            setNewLeadAlert(false);
+          }}
+          className="fixed top-6 right-6 left-6 sm:left-auto sm:w-96 bg-emerald-600 hover:bg-emerald-500 text-white p-5 rounded-2xl shadow-[0_20px_50px_rgba(16,185,129,0.35)] z-[9999] border border-emerald-500 flex gap-4 items-center animate-in fade-in duration-300 cursor-pointer transition-colors select-none"
+        >
+          <div className="bg-white/20 p-2.5 rounded-xl flex-shrink-0">
+            <BellRing size={22} className="text-white animate-pulse" />
+          </div>
+          
+          <div className="flex-1 text-left min-w-0">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200">¡Nueva Venta Inbound!</p>
+            <h4 className="text-sm font-black uppercase tracking-tight truncate mt-0.5">{recentLeadName}</h4>
+            <p className="text-xs text-emerald-100 font-medium leading-tight mt-0.5">Ingresó una nueva solicitud de cotización desde el sitio web.</p>
+          </div>
 
-    <button 
-      /**
-       * 🛠️ EVITA PROPAGACIÓN: Mantiene el resguardo para que la X no dispare el click de la pestaña
-       */
-      onClick={(e) => {
-        e.stopPropagation(); 
-        setNewLeadAlert(false);
-      }} 
-      className="p-2 text-white/80 hover:text-white rounded-xl transition-all cursor-pointer bg-white/10 hover:bg-white/20 flex items-center justify-center relative z-10"
-      title="Cerrar Alerta"
-    >
-      <X size={20} strokeWidth={2.5} />
-    </button>
-  </div>
-)}
+          <button 
+            onClick={(e) => {
+              e.stopPropagation(); 
+              setNewLeadAlert(false);
+            }} 
+            className="p-2 text-white/80 hover:text-white rounded-xl transition-all cursor-pointer bg-white/10 hover:bg-white/20 flex items-center justify-center relative z-10"
+            title="Cerrar Alerta"
+          >
+            <X size={20} strokeWidth={2.5} />
+          </button>
+        </div>
+      )}
 
       {/* SIDEBAR CON BRANDING ACTUALIZADO Y LOGOUT EN CORPORATIVO */}
       <aside className="w-80 bg-slate-800 p-6 flex flex-col sticky top-0 h-screen border-r border-slate-700 z-40 max-lg:w-full max-lg:h-auto max-lg:p-5 max-lg:border-b">
@@ -755,7 +787,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="space-y-4">
                   <input type="number" placeholder="Precio USD x Día" className={inputStyle} value={newAuto.precio_base_usd} onChange={e => setNewAuto({...newAuto, precio_base_usd: e.target.value})} />
-                  <textarea placeholder="Descripción..." className={`${inputStyle} h-24 resize-none`} value={newAuto.descripcion_larga} onChange={e => setNewAuto({...newAuto, precio_base_usd: e.target.value})} />
+                  <textarea placeholder="Descripción..." className={`${inputStyle} h-24 resize-none`} value={newAuto.descripcion_larga} onChange={e => setNewAuto({...newAuto, descripcion_larga: e.target.value})} />
                   <button onClick={async () => {
                     const authHeader = getAuthConfig();
                     const fd = new FormData(); fd.append('modelo', newAuto.modelo); fd.append('patente', newAuto.patente); fd.append('color', newAuto.color); fd.append('transmision', newAuto.transmision || 'Manual'); fd.append('precio_base_usd', newAuto.precio_base_usd); fd.append('descripcion_larga', newAuto.descripcion_larga);
@@ -809,7 +841,7 @@ export default function AdminDashboard() {
                 <PriceBox label="COTIZACIÓN DEL DÓLAR BLUE" val={datosMesActual.cotizacion_dolar} icon="💵" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'cotizacion_dolar', valor: v })} />
                 <PriceBox label="SILLITA DE BEBÉ POR DÍA (ARS)" val={datosMesActual.precio_sillita} icon="👶" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'precio_sillita', valor: v })} />
                 
-                {/* 🧼 NUEVO: Tarifa de lavado de auto agregada de forma integrada al panel de Mauricio */}
+                {/* 🧼 INTEGRADO: Sincronización transparente de la tarifa de lavado */}
                 <PriceBox label="TARIFA DE LAVADO DEL AUTO (ARS)" val={datosMesActual.precio_lavado || 0} icon="🧼" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'precio_lavado', valor: v })} />
                 
                 <PriceBox label="CARGO LOGÍSTICO AEROPUERTO (ARS)" val={datosMesActual.cargo_aeropuerto} icon="✈️" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'cargo_aeropuerto', valor: v })} />
@@ -845,7 +877,6 @@ export default function AdminDashboard() {
                       fetchData();
                     } catch (err) {
                       console.error("❌ Error en el Front al invitar staff:", err);
-                      // 🚀 REPARADO: Captura el string exacto de error que manda el Backend en res.status(400)
                       const serverMessage = err.response?.data?.error || "Error de conexión con el servidor de producción.";
                       alert(`No se pudo procesar: ${serverMessage}`);
                     } finally {
