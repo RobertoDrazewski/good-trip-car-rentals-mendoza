@@ -64,14 +64,14 @@ body {
     height: 10px; 
   }
   ::-webkit-scrollbar-track {
-    background: #f1f5f9; /* Cambiado a un tono slate suave para que combine con el diseño */
+    background: #f1f5f9; /* Tono slate suave para que combine con el diseño */
   }
   ::-webkit-scrollbar-thumb {
-    background: #eab308; /* brandYellow nativo de Tailwind para Mendoza Rent */
+    background: #0ea5e9; /* 🛠️ CAMBIADO: Celeste Sky 500 para la nueva paleta de Mendoza Rent */
     border-radius: 10px;
     border: 2px solid #f1f5f9; /* Agrega un espacio elegante alrededor de la barra */
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #ca8a04; /* Un tono ámbar/oro premium al pasar el mouse */
+    background: #0284c7; /* 🛠️ CAMBIADO: Celeste Sky 600 premium al pasar el mouse */
   }
 }

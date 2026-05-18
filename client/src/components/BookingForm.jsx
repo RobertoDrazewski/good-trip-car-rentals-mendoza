@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Car, Loader2, Clock, ChevronDown, ArrowRight, Star, Check, User, Phone, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-// 🔌 CAPTURA DINÁMICA DE LA API (Detecta Render en la nube, o usa localhost de respaldo)
+// 🔌 CAPTURA DINÁMICA DE LA API
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatOpen }) {
@@ -51,7 +51,6 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.cliente_nombre || !formData.cliente_whatsapp || !formData.desde || !formData.hasta) {
-      // 🛠️ TRADUCIDO: Alerta de validación obligatoria
       alert(t('error_calc', 'Por favor completá todos los campos obligatorios.'));
       return;
     }
@@ -149,16 +148,16 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
     }
   };
 
-  /* Estilos responsivos reutilizables */
+  /* Estilos responsivos limpios en Gris y Celeste */
   const cardLabel = "text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-1.5 sm:mb-2 block ml-2 sm:ml-4 flex items-center gap-2";
-  const bigInput = "w-full bg-slate-50 p-4 sm:p-6 rounded-xl sm:rounded-[2rem] font-black text-sm sm:text-base text-slate-800 border-2 border-transparent focus:border-yellow-500 focus:bg-white outline-none transition-all shadow-inner";
+  const bigInput = "w-full bg-slate-50 p-4 sm:p-6 rounded-xl sm:rounded-[2rem] font-black text-sm sm:text-base text-slate-800 border-2 border-transparent focus:border-sky-500 focus:bg-white outline-none transition-all shadow-inner";
 
   return (
     <div className="relative w-full max-w-7xl mx-auto px-2 sm:px-4">
       
-      {/* BADGE FLOTANTE DE PRESENTACIÓN */}
-      <div className="absolute -top-5 sm:-top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-2.5 sm:px-10 sm:py-4 rounded-full shadow-2xl z-40 flex items-center gap-2 sm:gap-3 border-2 border-yellow-500/20 whitespace-nowrap">
-        <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />
+      {/* --- BADGE FLOTANTE CAMBIADO A SLATE & CELESTE --- */}
+      <div className="absolute -top-5 sm:-top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-2.5 sm:px-10 sm:py-4 rounded-full shadow-2xl z-40 flex items-center gap-2 sm:gap-3 border-2 border-sky-500/20 whitespace-nowrap">
+        <Star size={14} className="text-sky-400 fill-sky-400 flex-shrink-0" /> {/* Celeste */}
         <span className="text-[9px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] italic text-white">
           {t('vip_badge', 'Solicitar Presupuesto VIP')}
         </span>
@@ -167,26 +166,26 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
       {/* CONTENEDOR DEL FORMULARIO */}
       <form 
         onSubmit={handleSubmit} 
-        className="bg-white/95 backdrop-blur-3xl p-4 sm:p-10 md:p-16 rounded-[2rem] sm:rounded-[4rem] shadow-2xl border border-slate-100 relative -mt-16 sm:-mt-24 md:-mt-32 z-30 text-slate-900"
+        className="bg-white/95 backdrop-blur-3xl p-4 sm:p-10 md:p-16 rounded-[2rem] sm:rounded-[4rem] shadow-2xl border border-slate-100 relative -mt-16 sm:-mt-24 md:-mt-32 z-30 text-slate-800"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-12 w-full">
           
           {/* BLOQUE 1: DATOS GENERALES Y AUTO */}
           <div className="space-y-4 sm:space-y-6">
             <div>
-              <label className={cardLabel}><User size={13}/> {t('placeholder_nombre', 'Nombre Completo')}</label>
+              <label className={cardLabel}><User size={13} className="text-sky-500"/> {t('placeholder_nombre', 'Nombre Completo')}</label>
               <input type="text" required placeholder={t('placeholder_nombre', 'Nombre Completo')} className={bigInput} value={formData.cliente_nombre} onChange={e => setFormData({...formData, cliente_nombre: e.target.value})} />
             </div>
             <div>
-              <label className={cardLabel}><Phone size={13}/> {t('placeholder_wa', 'Teléfono WhatsApp')}</label>
+              <label className={cardLabel}><Phone size={13} className="text-sky-500"/> {t('placeholder_wa', 'Teléfono WhatsApp')}</label>
               <input type="tel" required placeholder="WhatsApp" className={bigInput} value={formData.cliente_whatsapp} onChange={e => setFormData({...formData, cliente_whatsapp: e.target.value})} />
             </div>
             
             <div className="relative z-50">
-              <label className={cardLabel}><Car size={13}/> {t('nav_flota', 'Vehículo Seleccionado')}</label>
+              <label className={cardLabel}><Car size={13} className="text-sky-500"/> {t('nav_flota', 'Vehículo Seleccionado')}</label>
               <div 
                 onClick={() => setShowAutoList(!showAutoList)} 
-                className={`${bigInput} cursor-pointer flex items-center gap-3 sm:gap-4 h-[85px] sm:h-[95px] border-2 ${showAutoList ? 'border-yellow-500 bg-white shadow-md' : 'border-transparent'}`}
+                className={`${bigInput} cursor-pointer flex items-center gap-3 sm:gap-4 h-[85px] sm:h-[95px] border-2 ${showAutoList ? 'border-sky-500 bg-white shadow-md' : 'border-transparent'}`}
               >
                 {selectedAuto ? (
                   <>
@@ -194,8 +193,8 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
                       <img src={`${API_BASE_URL}${selectedAuto.imagen_url}`} alt={selectedAuto.modelo} className="w-full h-full object-contain" onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=200&auto=format&fit=crop"; }} />
                     </div>
                     <div className="flex flex-col text-left min-w-0 flex-1">
-                      <span className="text-[12px] sm:text-[13px] font-black uppercase italic leading-tight text-slate-900 truncate">{selectedAuto.modelo}</span>
-                      <span className="text-[8px] sm:text-[9px] text-yellow-600 font-black bg-yellow-50 px-1.5 py-0.5 rounded mt-1 w-fit font-mono">{selectedAuto.patente || 'S/P'}</span>
+                      <span className="text-[12px] sm:text-[13px] font-black uppercase italic leading-tight text-slate-800 truncate">{selectedAuto.modelo}</span>
+                      <span className="text-[8px] sm:text-[9px] text-sky-600 font-black bg-sky-50 px-2 py-0.5 rounded mt-1 w-fit font-mono tracking-widest">{selectedAuto.patente || 'S/P'}</span>
                     </div>
                   </>
                 ) : <span className="text-slate-400 font-bold text-sm">{t('select_car_label', 'Seleccionar Auto')}</span>}
@@ -207,7 +206,7 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
                   <div className="fixed inset-0 z-[105]" onClick={() => setShowAutoList(false)}></div>
                   <div className="absolute top-[105%] left-0 w-full bg-white rounded-xl sm:rounded-[2.5rem] shadow-2xl border border-slate-200 z-[110] max-h-[250px] overflow-y-auto p-2 flex flex-col gap-1.5">
                     {listaAutos.map(auto => (
-                      <div key={auto.id} onClick={() => { setFormData({ ...formData, auto_id: auto.id.toString() }); setShowAutoList(false); }} className={`p-2.5 rounded-lg sm:rounded-[1.8rem] flex items-center gap-3 sm:gap-4 cursor-pointer transition-all ${formData.auto_id === auto.id.toString() ? 'bg-slate-900 text-white shadow-md' : 'hover:bg-slate-100 bg-slate-50'}`}>
+                      <div key={auto.id} onClick={() => { setFormData({ ...formData, auto_id: auto.id.toString() }); setShowAutoList(false); }} className={`p-2.5 rounded-lg sm:rounded-[1.8rem] flex items-center gap-3 sm:gap-4 cursor-pointer transition-all ${formData.auto_id === auto.id.toString() ? 'bg-slate-800 text-white shadow-md' : 'hover:bg-slate-100 bg-slate-50'}`}>
                         <div className="w-14 h-10 bg-white rounded-lg flex items-center justify-center p-1 shadow-sm overflow-hidden flex-shrink-0 border border-slate-100"><img src={`${API_BASE_URL}${auto.imagen_url}`} className="w-full h-full object-contain" alt="car" /></div>
                         <p className="text-[11px] sm:text-[12px] font-black uppercase italic truncate">{auto.modelo}</p>
                       </div>
@@ -221,12 +220,13 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
           {/* BLOQUE 2: CALENDARIO - FECHAS Y HORAS */}
           <div className="space-y-4 sm:space-y-6 bg-slate-50/50 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[3.5rem] border border-slate-100">
             <div>
-              <label className={cardLabel}><Clock size={13} className="text-yellow-500"/> {t('label_retiro', 'Fecha de Retiro')}</label>
+              <label className={cardLabel}><Clock size={13} className="text-sky-500"/> {t('label_retiro', 'Fecha de Retiro')}</label>
               <input type="date" min={today} required className={bigInput} value={formData.desde} onChange={e => setFormData({...formData, desde: e.target.value})} />
               <input type="time" className={`${bigInput} mt-1.5 sm:mt-2 text-center text-lg sm:text-xl italic font-black py-2 sm:py-4`} value={formData.hora_inicio} onChange={e => setFormData({...formData, hora_inicio: e.target.value})} />
             </div>
             <div>
-              <label className={cardLabel}><Clock size={13} className="text-red-500"/> {t('label_devolucion', 'Fecha de Entrega')}</label>
+              {/* Cambiado de rojo a un gris sobrio para mantener neutralidad */}
+              <label className={cardLabel}><Clock size={13} className="text-slate-400"/> {t('label_devolucion', 'Fecha de Entrega')}</label>
               <input type="date" min={formData.desde || today} required className={bigInput} value={formData.hasta} onChange={e => setFormData({...formData, hasta: e.target.value})} />
               <input type="time" className={`${bigInput} mt-1.5 sm:mt-2 text-center text-lg sm:text-xl italic font-black py-2 sm:py-4`} value={formData.hora_fin} onChange={e => setFormData({...formData, hora_fin: e.target.value})} />
             </div>
@@ -236,7 +236,7 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
           <div className="flex flex-col justify-between space-y-4 sm:space-y-6 w-full">
             <div className="space-y-4">
               <div>
-                <label className={cardLabel}><MapPin size={13} className="text-yellow-500"/> {t('lugar_retiro', 'Lugar Retiro')}</label>
+                <label className={cardLabel}><MapPin size={13} className="text-sky-500"/> {t('lugar_retiro', 'Lugar Retiro')}</label>
                 <select className={`${bigInput} py-3.5 sm:py-6`} value={formData.entrega} onChange={e => setFormData({...formData, entrega: e.target.value})}>
                   <option value="mendoza ciudad">{t('loc_ciudad', 'Ciudad (Gratis)')}</option>
                   <option value="aeropuerto">{t('loc_aeropuerto', 'Aeropuerto')}</option>
@@ -250,21 +250,22 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
                 </select>
               </div>
 
-              {/* SILLITA DE BEBÉ ADAPTABLE */}
-              <div onClick={() => setFormData({ ...formData, sillita: !formData.sillita })} className={`p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 flex items-center justify-between cursor-pointer transition-all ${formData.sillita ? 'bg-slate-900 border-slate-900 text-white shadow-md' : 'bg-slate-50 border-transparent text-slate-700 hover:bg-slate-100'}`}>
+              {/* SILLITA DE BEBÉ SELECCIONABLE */}
+              <div onClick={() => setFormData({ ...formData, sillita: !formData.sillita })} className={`p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 flex items-center justify-between cursor-pointer transition-all ${formData.sillita ? 'bg-slate-800 border-slate-800 text-white shadow-md' : 'bg-slate-50 border-transparent text-slate-700 hover:bg-slate-100'}`}>
                 <div className="flex items-center gap-3">
                   <span className="text-lg">👶</span>
                   <p className="text-[11px] sm:text-xs font-black uppercase tracking-tight">
                     {t('silla_bebe_q', '¿Necesitás Sillita?')}
                   </p>
                 </div>
-                <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border-2 flex-shrink-0 ${formData.sillita ? 'bg-yellow-500 border-yellow-500 text-slate-900' : 'border-slate-300'}`}>{formData.sillita && <Check size={11} strokeWidth={4} />}</div>
+                {/* Checkbox en Celeste */}
+                <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border-2 flex-shrink-0 ${formData.sillita ? 'bg-sky-500 border-sky-500 text-white' : 'border-slate-300'}`}>{formData.sillita && <Check size={11} strokeWidth={4} />}</div>
               </div>
             </div>
 
-            {/* BOTÓN ENVIAR */}
-            <button type="submit" disabled={loading} className="w-full bg-yellow-500 hover:bg-slate-900 text-slate-950 hover:text-white font-black py-4 sm:py-7 rounded-xl sm:rounded-[2.5rem] transition-all flex items-center justify-center gap-3 sm:gap-4 shadow-xl active:scale-95 duration-150 cursor-pointer mt-2">
-              {loading ? <Loader2 className="animate-spin" size={20} /> : <><span className="uppercase text-xs sm:text-[13px] font-black italic tracking-wider">{t('btn_cotizar', 'COTIZAR')}</span><ArrowRight size={18}/></>}
+            {/* BOTÓN ENVIAR COTIZACIÓN - ADAPTADO A LA PALETA LIMPIA */}
+            <button type="submit" disabled={loading} className="w-full bg-slate-850 bg-slate-800 hover:bg-sky-500 text-white font-black py-4 sm:py-7 rounded-xl sm:rounded-[2.5rem] transition-all flex items-center justify-center gap-3 sm:gap-4 shadow-xl active:scale-95 duration-150 cursor-pointer mt-2">
+              {loading ? <Loader2 className="animate-spin text-white" size={20} /> : <><span className="uppercase text-xs sm:text-[13px] font-black italic tracking-wider">{t('btn_cotizar', 'COTIZAR')}</span><ArrowRight size={18}/></>}
             </button>
           </div>
 

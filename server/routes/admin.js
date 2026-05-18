@@ -23,7 +23,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// Instancia nativa de Resend vinculada a tus credenciales secretas
 const resend = new Resend(process.env.RESEND_API_KEY); 
+
+// 🚨 MODO SANDBOX CONFIGURADO: Usamos 'onboarding@resend.dev' para que salgan los mails en la cuenta gratuita.
+// Nota: Recordá que en modo sandbox, Resend SOLO te deja enviar correos a tu propia casilla de registro.
+const EMAIL_REMITENTE_OFICIAL = 'Mendoza Rent <onboarding@resend.dev>';
 
 // --- 1. GESTIÓN DE RESERVAS MAESTRA ---
 
@@ -32,7 +37,6 @@ router.post('/nueva-cotizacion', async (req, res) => {
     try {
         console.log("➡️ Recibiendo Lead en Backend, parseando payload...");
 
-        // BLINDAJE EXTRACTOR: Soporta tanto los nombres del Formulario como de la BD
         const auto_id = req.body.auto_id;
         const cliente_nombre = req.body.cliente_nombre;
         const cliente_whatsapp = req.body.cliente_whatsapp;
@@ -46,15 +50,12 @@ router.post('/nueva-cotizacion', async (req, res) => {
         const tasa_dolar_usada = parseFloat(req.body.tasa_dolar_usada || req.body.cotizacion || 1400.00);
         const garantia_usd = parseFloat(req.body.garantia_usd || 300.00);
         
-        // Mapeo exacto para la columna 'sillita' TINYINT(1)
         const sillita = req.body.sillita === true || req.body.sillita == 1 || String(req.body.sillita) === 'true' || String(req.body.sillita) === '1' ? 1 : 0;
 
-        // Validación estructural inquebrantable
         if (!fecha_inicio || !fecha_fin || !auto_id || !cliente_nombre) {
             return res.status(400).json({ error: "Faltan datos obligatorios (fechas, nombre o vehículo)." });
         }
 
-        // QUERY REPARADA: Inyecta las 15 columnas exactas de tu tabla de MySQL
         const queryDB = `
             INSERT INTO reservas 
             (auto_id, cliente_nombre, cliente_whatsapp, fecha_inicio, hora_inicio, fecha_fin, hora_fin, lugar_retiro, lugar_devolucion, monto_total_ars, tasa_dolar_usada, garantia_usd, sillita, estado_reserva, estado) 
@@ -62,40 +63,29 @@ router.post('/nueva-cotizacion', async (req, res) => {
         `;
 
         const [result] = await db.query(queryDB, [
-            auto_id, 
-            cliente_nombre, 
-            cliente_whatsapp, 
-            fecha_inicio, 
-            hora_inicio, 
-            fecha_fin, 
-            hora_fin,
-            lugar_retiro, 
-            lugar_devolucion,
-            monto_total_ars, 
-            tasa_dolar_usada,
-            garantia_usd,
-            sillita
+            auto_id, cliente_nombre, cliente_whatsapp, fecha_inicio, hora_inicio, fecha_fin, hora_fin,
+            lugar_retiro, lugar_devolucion, monto_total_ars, tasa_dolar_usada, garantia_usd, sillita
         ]);
 
-        console.log(`✔️ Reserva ID ${result.insertId} insertada con éxito en la Base de Datos.`);
+        console.log(`✔️ Reserva ID ${result.insertId} insertada con éxito.`);
 
-        // Notificación Mail automatizada
+        // Notificación Mail de nueva cotización adaptada al Sandbox
         try {
             await resend.emails.send({
-                from: 'Mendoza Rent <onboarding@resend.dev>',
-                to: ['goodtripmendoza@gmail.com'],
+                from: EMAIL_REMITENTE_OFICIAL,
+                to: [process.env.TEST_EMAIL_DESTINATARIO || 'goodtripmendoza@gmail.com'], // Recordá que en Sandbox debe ser un mail autorizado tuyo
                 subject: `🚨 NUEVA SOLICITUD - ${cliente_nombre}`,
                 html: `
-                    <div style="font-family: sans-serif; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-                        <h2 style="color: #EAB308;">Nuevo Lead: ${cliente_nombre}</h2>
-                        <p><b>WhatsApp:</b> ${cliente_whatsapp}</p>
-                        <p><b>Vehículo ID:</b> ${auto_id}</p>
-                        <p><b>Retiro:</b> ${fecha_inicio} (${hora_inicio} hs) - 📍 ${lugar_retiro}</p>
-                        <p><b>Devolución:</b> ${fecha_fin} (${hora_fin} hs) - 📍 ${lugar_devolucion}</p>
-                        <p><b>Sillita Bebé:</b> ${sillita === 1 ? 'Sí ✔️' : 'No ❌'}</p>
-                        <p><b>Monto Estimado:</b> $${monto_total_ars.toLocaleString('es-AR')} ARS</p>
-                        <hr>
-                        <p style="font-size: 10px; color: #999;">Gestionar desde el panel de administración.</p>
+                    <div style="font-family: sans-serif; border: 1px solid #f1f5f9; padding: 25px; border-radius: 16px; max-width: 600px; color: #334155;">
+                        <h2 style="color: #0ea5e9; font-style: italic; text-transform: uppercase;">Nuevo Lead: ${cliente_nombre}</h2>
+                        <p style="font-size: 14px;"><b>WhatsApp:</b> ${cliente_whatsapp}</p>
+                        <p style="font-size: 14px;"><b>Vehículo ID:</b> ${auto_id}</p>
+                        <p style="font-size: 14px;"><b>Retiro:</b> ${fecha_inicio} (${hora_inicio} hs) - 📍 ${lugar_retiro}</p>
+                        <p style="font-size: 14px;"><b>Devolución:</b> ${fecha_fin} (${hora_fin} hs) - 📍 ${lugar_devolucion}</p>
+                        <p style="font-size: 14px;"><b>Sillita Bebé:</b> ${sillita === 1 ? 'Sí ✔️' : 'No ❌'}</p>
+                        <p style="font-size: 16px; color: #10b981; font-weight: bold;"><b>Monto Estimado:</b> $${monto_total_ars.toLocaleString('es-AR')} ARS</p>
+                        <hr style="border: none; border-top: 1px dashed #e2e8f0; margin: 20px 0;">
+                        <p style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Gestionar desde el panel de administración de Good Trip.</p>
                     </div>
                 `
             });
@@ -103,8 +93,8 @@ router.post('/nueva-cotizacion', async (req, res) => {
 
         res.json({ status: 'success', id: result.insertId });
     } catch (error) {
-        console.error("❌ Error grave en endpoint nueva-cotizacion:", error);
-        res.status(500).json({ error: "Error al procesar la reserva en la base de datos.", detalles: error.message });
+        console.error("❌ Error en endpoint nueva-cotizacion:", error);
+        res.status(500).json({ error: "Error al procesar la reserva." });
     }
 });
 
@@ -116,17 +106,12 @@ router.post('/cambiar-estado', async (req, res) => {
     } catch (error) { res.status(500).json({ error: "Error al actualizar estado" }); }
 });
 
-// CORREGIDO: Ruta limpia sin acentos ni caracteres unicode especiales para sincronizar con el Front
 router.post('/cambiar-estado-garantia', async (req, res) => {
     try {
         const { id, garantia_estado } = req.body;
-        console.log(`➡️ Actualizando garantía de reserva ID ${id} a estado: ${garantia_estado}`);
         await db.query('UPDATE reservas SET estado_reserva = ? WHERE id = ?', [garantia_estado, id]);
         res.json({ status: 'success', message: 'Estado de garantía actualizado' });
-    } catch (error) { 
-        console.error("❌ Error al actualizar estado de garantía:", error);
-        res.status(500).json({ error: "Error al actualizar estado de garantía" }); 
-    }
+    } catch (error) { res.status(500).json({ error: "Error al actualizar estado de garantía" }); }
 });
 
 router.delete('/reservas/:id', async (req, res) => {
@@ -161,10 +146,7 @@ router.get('/dashboard', async (req, res) => {
                 totalReservas: reservas.filter(r => r.estado !== 'rechazado').length
             }
         });
-    } catch (error) { 
-        console.error(error);
-        res.status(500).json({ error: "Error cargando Dashboard" }); 
-    }
+    } catch (error) { res.status(500).json({ error: "Error cargando Dashboard" }); }
 });
 
 // --- 3. FLOTA ---
@@ -180,10 +162,7 @@ router.post('/autos', upload.single('imagen'), async (req, res) => {
         
         await db.query(query, [modelo, patente, color, transmision || 'Manual', precio_base_usd, imagen_url, descripcion_larga]);
         res.json({ status: 'success' });
-    } catch (err) { 
-        console.error("Error auto:", err);
-        res.status(500).json({ error: "Error al crear auto" }); 
-    }
+    } catch (err) { res.status(500).json({ error: "Error al crear auto" }); }
 });
 
 router.delete('/autos/:id', async (req, res) => {
@@ -198,10 +177,7 @@ router.get('/precios-mensuales', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM precios_mensuales ORDER BY mes ASC');
         res.json(rows);
-    } catch (error) {
-        console.error("Error tarifas mensuales:", error);
-        res.status(500).json({ error: "Error en el servidor al traer precios." });
-    }
+    } catch (error) { res.status(500).json({ error: "Error en el servidor al traer precios." }); }
 });
 
 router.post('/update-precio-mensual', async (req, res) => {
@@ -214,10 +190,7 @@ router.post('/update-precio-mensual', async (req, res) => {
         `;
         await db.query(query, [mes, anio, parseFloat(valor) || 0]);
         res.json({ status: 'success' });
-    } catch (error) { 
-        console.error(error);
-        res.status(500).json({ error: "Error en actualización de precios" }); 
-    }
+    } catch (error) { res.status(500).json({ error: "Error en actualización de precios" }); }
 });
 
 // --- 5. GESTIÓN DE STAFF / USUARIOS ---
@@ -231,26 +204,64 @@ router.get('/users', async (req, res) => {
 router.post('/invite', async (req, res) => {
     try {
         const { nombre, email, rol } = req.body;
-        if (!nombre || !email) return res.status(400).json({ error: "Faltan datos obligatorios." });
+        console.log("📥 [INVITE] Petición entrante para creación de Staff:", { nombre, email, rol });
 
+        if (!nombre || !email) {
+            return res.status(400).json({ error: "Faltan datos obligatorios: nombre o email." });
+        }
+
+        const username = email.split('@')[0].toLowerCase() + Math.floor(Math.random() * 100);
         const tempPass = Math.random().toString(36).slice(-8);
         const hash = await bcrypt.hash(tempPass, 10);
-        const username = email.split('@')[0] + Math.floor(Math.random() * 100);
+        const fechaActual = new Date(); 
 
-        await db.query('INSERT INTO admins (nombre, username, email, password_hash, rol) VALUES (?, ?, ?, ?, ?)', 
-        [nombre, username, email, hash, rol || 'admin']);
+        console.log(`⏳ [INVITE] Registrando en base de datos al usuario: ${username}...`);
+
+        const querySQL = 'INSERT INTO admins (nombre, username, email, password_hash, rol, created_at) VALUES (?, ?, ?, ?, ?, ?)';
+        await db.query(querySQL, [nombre, username, email, hash, rol || 'admin', fechaActual]);
+
+        console.log("✔️ [INVITE] Fila de administrador asentada en la base de datos.");
+
+        const frontUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const linkActivacion = `${frontUrl}/setup-password?email=${encodeURIComponent(email)}`;
+
+        console.log(`✉️ [INVITE] Despachando paquete de correo electrónico hacia: ${email}...`);
 
         try {
             await resend.emails.send({
-                from: 'Mendoza Rent <onboarding@resend.dev>', 
-                to: [email],
-                subject: '🔑 Invitación Staff - Mendoza Rent',
-                html: `<h1>Hola ${nombre}</h1><p>Tu clave temporal de acceso es: <b>${tempPass}</b></p>`
+                from: EMAIL_REMITENTE_OFICIAL, 
+                to: [email], // Recordá ingresar de destinatario tu mail de admin de la cuenta de Resend para el testeo exitoso
+                subject: '🔑 Invitación de Acceso - Panel Good Trip Car Rentals',
+                html: `
+                    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 550px; margin: 0 auto; padding: 30px; border: 1px solid #f1f5f9; border-radius: 24px; color: #1e293b; background-color: #ffffff;">
+                        <div style="margin-bottom: 20px; font-weight: 900; font-style: italic; font-size: 20px; text-transform: uppercase; color: #1e293b;">
+                            Good Trip <span style="color: #0ea5e9;">Car Rentals</span>
+                        </div>
+                        <h2 style="font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px; color: #0f172a; margin-top: 0;">¡Hola, ${nombre}!</h2>
+                        <p style="font-size: 14px; line-height: 1.6; color: #475569;">Te han invitado a formar parte del equipo de gestión en el Panel de Control Operativo de Good Trip Mendoza.</p>
+                        <p style="font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 30px;">Para completar tu registro y activar tu cuenta, hacé clic en el botón de abajo para configurar tu contraseña de seguridad definitiva:</p>
+                        
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <a href="${linkActivacion}" style="background-color: #1e293b; color: #38bdf8; text-decoration: none; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; padding: 16px 32px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 12px rgba(30,41,59,0.15);">
+                                Activar Mi Cuenta
+                            </a>
+                        </div>
+                        
+                        <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 25px 0;">
+                        <p style="font-size: 10px; color: #94a3b8; text-transform: uppercase; line-height: 1.4; margin: 0;">Si el botón no funciona, podés copiar y pegar este enlace en tu navegador:<br> <a href="${linkActivacion}" style="color: #0ea5e9; text-decoration: none;">${linkActivacion}</a></p>
+                    </div>
+                `
             });
-        } catch (mailError) { console.error("Error Resend:", mailError.message); }
+            console.log(`✉️ [INVITE] Mail entregado a la cola de Resend de forma exitosa.`);
+        } catch (mailError) { 
+            console.error("❌ [INVITE] Error aislado en plataforma Resend:", mailError.message); 
+        }
 
         res.json({ status: 'success' });
-    } catch (err) { res.status(500).json({ error: "Error al invitar personal" }); }
+    } catch (err) { 
+        console.error("❌ [INVITE] ERROR CRÍTICO EN EL ENDPOINT:", err);
+        res.status(500).json({ error: "Error interno en el servidor al procesar el alta.", detalles: err.message }); 
+    }
 });
 
 router.delete('/users/:id', async (req, res) => {

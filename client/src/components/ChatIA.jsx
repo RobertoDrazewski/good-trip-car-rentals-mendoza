@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { X, Send, ShieldCheck, Crown, MessageCircle, Headphones } from 'lucide-react';
+import { X, Send, MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 // Importación modular del logotipo oficial
 import logoMendozaRent from '../assets/logo.png';
 
-// URL de consumo de la API de telemetría o chat
+// URL de consumo de la API
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
@@ -83,11 +83,6 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
   const ui = uiTexts[i18n.language] || uiTexts['es'];
 
   return (
-    /**
-     * 🛠️ REPARADO DE CLICS MÓVILES:
-     * Si el chat está cerrado (!isOpen), se remueven max-sm:w-full y max-sm:left-0, 
-     * cambiando a w-auto para que no se genere una pantalla invisible que tape el pie de página.
-     */
     <div className={`fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-[1000] font-sans flex flex-col items-end gap-4 ${
       isOpen ? 'max-sm:w-full max-sm:inset-0 max-sm:p-0' : 'w-auto'
     }`}>
@@ -105,28 +100,43 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
         </button>
       )}
 
-      {/* BOTÓN APERTURA CHAT IA */}
+      {/* 🏔️ BOTÓN APERTURA CHAT IA: Icono de Montañas y Sol original recuperado */}
       {!isOpen ? (
         <button 
           onClick={() => setIsOpen(true)} 
-          className="relative group bg-slate-900 text-white p-5 rounded-full shadow-[0_20px_50px_rgba(15,23,42,0.4)] hover:scale-105 transition-all active:scale-95 flex items-center justify-center border-2 border-yellow-500/50 cursor-pointer"
+          className="relative group bg-slate-800 text-white p-4 sm:p-5 rounded-full shadow-[0_20px_50px_rgba(30,41,59,0.3)] hover:scale-105 transition-all active:scale-95 flex items-center justify-center border-2 border-sky-500/30 cursor-pointer"
+          aria-label="Abrir Chat de Asistencia"
         >
-          <Crown size={28} className="text-yellow-500" />
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            className="w-7 h-7 sm:w-8 sm:h-8 text-sky-400 transition-transform group-hover:scale-110"
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            {/* Montañas */}
+            <path d="m8 3 4 8 5-5 5 15H2L8 3z" fill="none" />
+            {/* Sol Solitario del Logo */}
+            <circle cx="18" cy="5" r="2" fill="currentColor" stroke="none" />
+          </svg>
         </button>
       ) : (
-        /* INTERFAZ MÓVIL PANTALLA COMPLETA SOLO CUANDO ESTÁ ABIERTO */
-        <div className="bg-white w-full sm:w-[400px] h-[85vh] sm:h-[650px] max-sm:fixed max-sm:inset-0 max-sm:h-full max-sm:w-full shadow-[0_40px_100px_-20px_rgba(0,0,0,0.4)] rounded-[2.5rem] max-sm:rounded-none flex flex-col border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+        /* INTERFAZ DEL CHAT ABIERTO */
+        <div className="bg-white w-full sm:w-[400px] h-[85vh] sm:h-[650px] max-sm:fixed max-sm:inset-0 max-sm:h-full max-sm:w-full shadow-[0_40px_100px_-20px_rgba(148,163,184,0.3)] rounded-[2.5rem] max-sm:rounded-none flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
           
           {/* HEADER DEL CONSERJE */}
-          <div className="bg-slate-900 p-6 text-white flex justify-between items-center relative max-sm:pt-10">
+          <div className="bg-slate-800 p-6 text-white flex justify-between items-center relative max-sm:pt-10 border-b border-slate-700">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center overflow-hidden shadow-lg p-1">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center overflow-hidden shadow-sm p-1">
                 <img src={logoMendozaRent} alt="Good Trip Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-[11px] uppercase tracking-[0.15em] text-slate-100">Good Trip Car Rentals</span>
-                <span className="text-[9px] text-yellow-500 flex items-center gap-1 font-black uppercase tracking-widest mt-0.5">
-                  <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></span> Sales Concierge
+                <span className="text-[9px] text-sky-400 flex items-center gap-1 font-black uppercase tracking-widest mt-0.5">
+                  <span className="w-1.5 h-1.5 bg-sky-400 rounded-full animate-pulse"></span> Sales Concierge
                 </span>
               </div>
             </div>
@@ -137,25 +147,27 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
           </div>
 
           {/* CUERPO DEL CHAT */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-5 bg-slate-50/50">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-5 bg-slate-50/40">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[85%] p-4 rounded-2xl text-[12.5px] shadow-sm leading-relaxed whitespace-pre-line ${
                   m.role === 'user' 
-                    ? 'bg-slate-800 text-white rounded-tr-none font-medium' 
-                    : 'bg-white text-slate-700 border border-slate-200/80 rounded-tl-none font-medium'
+                    ? 'bg-slate-700 text-white rounded-tr-none font-medium' 
+                    : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none font-medium'
                 }`}>
                   {m.content}
                 </div>
               </div>
             ))}
-            {loading && <div className="p-2 italic text-[11px] text-slate-400 animate-pulse">Good Trip Assistant está procesando su solicitud...</div>}
+            {loading && <div className="p-2 italic text-[11px] text-sky-500 font-bold animate-pulse">Good Trip Assistant está procesando su solicitud...</div>}
           </div>
 
-          {/* BOTÓN ASISTENCIA HUMANA ALTERNATIVA */}
+          {/* ASISTENCIA HUMANA ALTERNATIVA */}
           <div className="px-6 py-2.5 bg-slate-100/70 border-t border-slate-100 flex justify-center text-center">
             <button onClick={handleWhatsAppClick} className="text-[8.5px] font-black text-slate-500 uppercase tracking-[0.12em] hover:text-[#25D366] transition-colors flex items-center gap-2 cursor-pointer leading-tight">
-              <Headphones size={13} /> {ui.help}
+              {/* Icono de Montaña miniatura de ayuda */}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+              {ui.help}
             </button>
           </div>
 
@@ -165,10 +177,10 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
               value={input} 
               onChange={e => setInput(e.target.value)} 
               onKeyDown={e => e.key === 'Enter' && handleSend()} 
-              className="flex-1 bg-slate-50 rounded-xl px-5 py-3.5 text-sm outline-none border border-slate-200/60 focus:border-yellow-500/50 transition-colors" 
+              className="flex-1 bg-slate-50 rounded-xl px-5 py-3.5 text-sm outline-none border border-slate-200/50 focus:border-sky-500/50 transition-colors text-slate-800 font-medium" 
               placeholder={ui.placeholder} 
             />
-            <button onClick={handleSend} className="bg-slate-900 text-yellow-500 p-3.5 rounded-xl shadow-md hover:bg-slate-800 transition-colors cursor-pointer">
+            <button onClick={handleSend} className="bg-slate-800 text-sky-400 p-3.5 rounded-xl shadow-md hover:bg-sky-500 hover:text-white transition-all cursor-pointer">
               <Send size={18} />
             </button>
           </div>

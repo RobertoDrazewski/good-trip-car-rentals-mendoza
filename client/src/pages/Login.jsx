@@ -40,25 +40,26 @@ export default function Login({ onLoginSuccess }) {
   };
 
   return (
-    // Estructura contenedora adaptativa con márgenes verticales controlados para despliegue de teclado móvil
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 sm:p-6 py-12 relative overflow-hidden">
+    // Fondo general cambiado de slate-950 a un degradado suave de slate-900 a slate-950
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 flex items-center justify-center p-4 sm:p-6 py-12 relative overflow-hidden">
       
-      {/* Elementos decorativos de fondo con desenfoque */}
-      <div className="absolute top-0 left-0 w-72 h-72 sm:w-96 sm:h-96 bg-blue-600/10 blur-[100px] sm:blur-[150px] rounded-full -z-0" />
-      <div className="absolute bottom-0 right-0 w-72 h-72 sm:w-96 sm:h-96 bg-yellow-500/5 blur-[100px] sm:blur-[150px] rounded-full -z-0" />
+      {/* Elementos decorativos de fondo con desenfoque alineados a la paleta fría */}
+      <div className="absolute top-0 left-0 w-72 h-72 sm:w-96 sm:h-96 bg-sky-500/10 blur-[100px] sm:blur-[150px] rounded-full -z-0" />
+      <div className="absolute bottom-0 right-0 w-72 h-72 sm:w-96 sm:h-96 bg-slate-700/10 blur-[100px] sm:blur-[150px] rounded-full -z-0" />
 
       {/* TARJETA CONTENEDORA PRINCIPAL */}
-      <div className="bg-white w-full max-w-md rounded-3xl md:rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden p-6 sm:p-10 md:p-14 relative z-10 border border-slate-100">
+      <div className="bg-white w-full max-w-md rounded-3xl md:rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(15,23,42,0.3)] overflow-hidden p-6 sm:p-10 md:p-14 relative z-10 border border-slate-100">
         
         {/* ENCABEZADO */}
         <div className="text-center mb-6 sm:mb-10">
-          <div className="bg-yellow-500 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-[1.5rem] flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-xl shadow-yellow-500/20 rotate-3">
-            {/* 🛠️ SOLUCIONADO: Se eliminó la propiedad sm errónea y se usaron clases de utilidades */}
-            <Lock className="text-slate-900 w-7 h-7 sm:w-9 sm:h-9" strokeWidth={2.5} />
+          {/* Contenedor del Candado: Cambiado de amarillo a slate-800 con icono celeste */}
+          <div className="bg-slate-800 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-[1.5rem] flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-xl shadow-slate-900/10 rotate-3">
+            <Lock className="text-sky-400 w-7 h-7 sm:w-9 sm:h-9" strokeWidth={2.5} />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tighter italic leading-none">
+          {/* Título: Cambiado de amarillo a celeste sky-500 */}
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-800 uppercase tracking-tighter italic leading-none">
             {isRecovering ? 'Recuperar' : 'Good Trip'} <br/>
-            <span className="text-yellow-500">{isRecovering ? 'Acceso' : 'Admin Panel'}</span>
+            <span className="text-sky-500">{isRecovering ? 'Acceso' : 'Admin Panel'}</span>
           </h2>
           <div className="flex items-center justify-center gap-2 mt-3 sm:mt-4 opacity-30">
              <ShieldCheck size={12} className="text-slate-400" />
@@ -72,12 +73,13 @@ export default function Login({ onLoginSuccess }) {
             <div className="space-y-1 sm:space-y-2">
               <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Usuario</label>
               <div className="relative group">
-                <User className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-yellow-500 transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                {/* Iconos de foco mutados a sky-500 */}
+                <User className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-500 transition-colors w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type="text"
                   placeholder="admin_mendoza"
                   required
-                  className="w-full bg-slate-50 border-2 border-transparent p-4 sm:p-5 pl-12 sm:pl-14 rounded-2xl sm:rounded-[1.8rem] outline-none focus:border-yellow-500 focus:bg-white transition-all font-bold text-slate-800 text-sm sm:text-base"
+                  className="w-full bg-slate-50 border-2 border-transparent p-4 sm:p-5 pl-12 sm:pl-14 rounded-2xl sm:rounded-[1.8rem] outline-none focus:border-sky-500 focus:bg-white transition-all font-black text-slate-800 text-sm sm:text-base shadow-inner"
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 />
               </div>
@@ -86,23 +88,24 @@ export default function Login({ onLoginSuccess }) {
             <div className="space-y-1 sm:space-y-2">
               <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Contraseña</label>
               <div className="relative group">
-                <Key className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-yellow-500 transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                <Key className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-500 transition-colors w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type="password"
                   placeholder="••••••••"
                   required
-                  className="w-full bg-slate-50 border-2 border-transparent p-4 sm:p-5 pl-12 sm:pl-14 rounded-2xl sm:rounded-[1.8rem] outline-none focus:border-yellow-500 focus:bg-white transition-all font-bold text-slate-800 text-sm sm:text-base"
+                  className="w-full bg-slate-50 border-2 border-transparent p-4 sm:p-5 pl-12 sm:pl-14 rounded-2xl sm:rounded-[1.8rem] outline-none focus:border-sky-500 focus:bg-white transition-all font-black text-slate-800 text-sm sm:text-base shadow-inner"
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
               </div>
             </div>
 
+            {/* BOTÓN PRINCIPAL: Cambiado a slate-800 inicial y hover sky-500 */}
             <button
               disabled={loading}
-              className="w-full bg-slate-900 text-yellow-500 py-4 sm:py-5 rounded-2xl sm:rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl hover:bg-yellow-500 hover:text-slate-900 transition-all active:scale-95 disabled:bg-slate-200 flex items-center justify-center gap-2 touch-manipulation"
+              className="w-full bg-slate-800 text-sky-400 py-4 sm:py-5 rounded-2xl sm:rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl hover:bg-sky-500 hover:text-white transition-all active:scale-95 disabled:bg-slate-200 flex items-center justify-center gap-2 touch-manipulation cursor-pointer"
             >
               {loading ? (
-                <Loader2 className="animate-spin" size={20} />
+                <Loader2 className="animate-spin text-white" size={20} />
               ) : (
                 <>
                   <Sparkles size={16} /> Ingresar al Panel
@@ -113,7 +116,7 @@ export default function Login({ onLoginSuccess }) {
             <button
               type="button"
               onClick={() => setIsRecovering(true)}
-              className="w-full text-[9px] sm:text-[10px] text-slate-400 font-black uppercase tracking-widest hover:text-yellow-600 transition-colors py-2 touch-manipulation"
+              className="w-full text-[9px] sm:text-[10px] text-slate-400 font-black uppercase tracking-widest hover:text-sky-600 transition-colors py-2 touch-manipulation cursor-pointer"
             >
               ¿Olvidaste tu contraseña?
             </button>
@@ -128,16 +131,17 @@ export default function Login({ onLoginSuccess }) {
               type="email"
               placeholder="tu-email@ejemplo.com"
               required
-              className="w-full bg-slate-50 border-2 border-transparent p-4 sm:p-5 rounded-2xl sm:rounded-[1.8rem] outline-none focus:border-yellow-500 font-bold text-slate-800 text-sm sm:text-base"
+              className="w-full bg-slate-50 border-2 border-transparent p-4 sm:p-5 rounded-2xl sm:rounded-[1.8rem] outline-none focus:border-sky-500 font-black text-slate-800 text-sm sm:text-base shadow-inner"
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
-            <button className="w-full bg-yellow-500 text-slate-900 py-4 sm:py-5 rounded-2xl sm:rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl touch-manipulation">
+            {/* Botón de envío modificado al esquema slate-800 y sky-500 hover */}
+            <button className="w-full bg-slate-800 hover:bg-sky-500 text-sky-400 hover:text-white py-4 sm:py-5 rounded-2xl sm:rounded-[1.8rem] font-black uppercase tracking-[0.2em] text-xs shadow-xl transition-all cursor-pointer">
               Enviar Recuperación
             </button>
             <button
               type="button"
               onClick={() => setIsRecovering(false)}
-              className="flex items-center justify-center gap-2 w-full text-[9px] sm:text-[10px] text-slate-400 font-black uppercase tracking-widest hover:text-slate-900 transition-colors py-2 touch-manipulation"
+              className="flex items-center justify-center gap-2 w-full text-[9px] sm:text-[10px] text-slate-400 font-black uppercase tracking-widest hover:text-slate-800 transition-colors py-2 touch-manipulation cursor-pointer"
             >
               <ArrowLeft size={14} /> Volver al Login
             </button>
