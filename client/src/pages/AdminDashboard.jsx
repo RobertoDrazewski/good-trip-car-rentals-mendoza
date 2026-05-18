@@ -275,25 +275,45 @@ export default function AdminDashboard() {
     <div className="flex min-h-screen w-full bg-[#f8fafc] font-sans text-slate-800 max-lg:flex-col relative">
       
       {/* ALERTA DE NUEVO LEAD - FIJO, VERDE ESMERALDA Y CERRADO SEGURO */}
-      {newLeadAlert && (
-        <div className="fixed top-6 right-6 left-6 sm:left-auto sm:w-96 bg-emerald-600 text-white p-5 rounded-2xl shadow-[0_20px_50px_rgba(16,185,129,0.35)] z-[9999] border border-emerald-500 flex gap-4 items-center animate-in fade-in duration-300">
-          <div className="bg-white/20 p-2.5 rounded-xl flex-shrink-0">
-            <BellRing size={22} className="text-white animate-pulse" />
-          </div>
-          <div className="flex-1 text-left min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200">¡Nueva Venta Inbound!</p>
-            <h4 className="text-sm font-black uppercase tracking-tight truncate mt-0.5">{recentLeadName}</h4>
-            <p className="text-xs text-emerald-100 font-medium leading-tight mt-0.5">Ingresó una nueva solicitud de cotización desde el sitio web.</p>
-          </div>
-          <button 
-            onClick={() => setNewLeadAlert(false)} 
-            className="p-2 text-white/80 hover:text-white rounded-xl transition-all cursor-pointer bg-white/10 hover:bg-white/20 flex items-center justify-center"
-            title="Cerrar Alerta"
-          >
-            <X size={20} strokeWidth={2.5} />
-          </button>
-        </div>
-      )}
+{newLeadAlert && (
+  <div 
+    /**
+     * 🛠️ REPARADO: Cambiado 'cotizaciones' por 'ventas' para coincidir exactamente 
+     * con la pestaña modular de tu AdminDashboard y evitar la pantalla en blanco.
+     */
+    onClick={() => {
+      if (typeof setActiveTab === 'function') {
+        setActiveTab('ventas'); // 👈 Sincronizado con tu herramienta de Ventas
+      }
+      setNewLeadAlert(false);
+    }}
+    className="fixed top-6 right-6 left-6 sm:left-auto sm:w-96 bg-emerald-600 hover:bg-emerald-500 text-white p-5 rounded-2xl shadow-[0_20px_50px_rgba(16,185,129,0.35)] z-[9999] border border-emerald-500 flex gap-4 items-center animate-in fade-in duration-300 cursor-pointer transition-colors select-none"
+  >
+    <div className="bg-white/20 p-2.5 rounded-xl flex-shrink-0">
+      <BellRing size={22} className="text-white animate-pulse" />
+    </div>
+    
+    <div className="flex-1 text-left min-w-0">
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200">¡Nueva Venta Inbound!</p>
+      <h4 className="text-sm font-black uppercase tracking-tight truncate mt-0.5">{recentLeadName}</h4>
+      <p className="text-xs text-emerald-100 font-medium leading-tight mt-0.5">Ingresó una nueva solicitud de cotización desde el sitio web.</p>
+    </div>
+
+    <button 
+      /**
+       * 🛠️ EVITA PROPAGACIÓN: Mantiene el resguardo para que la X no dispare el click de la pestaña
+       */
+      onClick={(e) => {
+        e.stopPropagation(); 
+        setNewLeadAlert(false);
+      }} 
+      className="p-2 text-white/80 hover:text-white rounded-xl transition-all cursor-pointer bg-white/10 hover:bg-white/20 flex items-center justify-center relative z-10"
+      title="Cerrar Alerta"
+    >
+      <X size={20} strokeWidth={2.5} />
+    </button>
+  </div>
+)}
 
       {/* SIDEBAR CON BRANDING ACTUALIZADO Y LOGOUT EN CORPORATIVO */}
       <aside className="w-80 bg-slate-800 p-6 flex flex-col sticky top-0 h-screen border-r border-slate-700 z-40 max-lg:w-full max-lg:h-auto max-lg:p-5 max-lg:border-b">
@@ -761,7 +781,7 @@ export default function AdminDashboard() {
         {/* 6. TARIFAS MULTI-AÑO */}
         {activeTab === 'precios' && (() => {
           const listaOriginalPrecios = Array.isArray(preciosMes) ? preciosMes : Object.values(preciosMes);
-          const datosMesActual = listaOriginalPrecios.find(p => parseInt(p.mes) === parseInt(selectedMes) && parseInt(p.anio) === parseInt(selectedAnio)) || { precio_dia: 0, cotizacion_dolar: 1400, precio_sillita: 0, cargo_aeropuerto: 0, garantia_ars: 0, garantia_usd: 0 };
+          const datosMesActual = listaOriginalPrecios.find(p => parseInt(p.mes) === parseInt(selectedMes) && parseInt(p.anio) === parseInt(selectedAnio)) || { precio_dia: 0, cotizacion_dolar: 1400, precio_sillita: 0, cargo_aeropuerto: 0, garantia_ars: 0, garantia_usd: 0, precio_lavado: 0 };
 
           return (
             <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-500 text-left">
@@ -788,6 +808,10 @@ export default function AdminDashboard() {
                 <PriceBox label="VALOR ALQUILER POR DÍA (ARS)" val={datosMesActual.precio_dia} icon="💰" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'precio_dia', valor: v })} />
                 <PriceBox label="COTIZACIÓN DEL DÓLAR BLUE" val={datosMesActual.cotizacion_dolar} icon="💵" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'cotizacion_dolar', valor: v })} />
                 <PriceBox label="SILLITA DE BEBÉ POR DÍA (ARS)" val={datosMesActual.precio_sillita} icon="👶" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'precio_sillita', valor: v })} />
+                
+                {/* 🧼 NUEVO: Tarifa de lavado de auto agregada de forma integrada al panel de Mauricio */}
+                <PriceBox label="TARIFA DE LAVADO DEL AUTO (ARS)" val={datosMesActual.precio_lavado || 0} icon="🧼" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'precio_lavado', valor: v })} />
+                
                 <PriceBox label="CARGO LOGÍSTICO AEROPUERTO (ARS)" val={datosMesActual.cargo_aeropuerto} icon="✈️" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'cargo_aeropuerto', valor: v })} />
                 <PriceBox label="GARANTÍA EN PESOS (ARS)" val={datosMesActual.garantia_ars} icon="🛡️" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'garantia_ars', valor: v })} />
                 <PriceBox label="GARANTÍA EN DÓLARES (USD)" val={datosMesActual.garantia_usd} icon="🇺🇸" onSave={(v) => handleAction('post', `${apiUrl}/api/admin/update-precio-mensual`, { mes: selectedMes, anio: selectedAnio, campo: 'garantia_usd', valor: v })} />

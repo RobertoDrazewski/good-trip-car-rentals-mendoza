@@ -31,10 +31,9 @@ router.post('/check-availability', async (req, res) => {
     }
 });
 
-// --- 2. COTIZAR (LÓGICA DE PRECISIÓN POR HORAS - REPARADO CON DATOS DE AUTO) ---
+// --- 2. COTIZAR (LÓGICA DE PRECISIÓN POR HORAS - ACTUALIZADO CON TARIFA DE LAVADO) ---
 router.post('/quote', async (req, res) => {
     try {
-        // CORREGIDO: Ahora extraemos explícitamente auto_id para buscar la patente y el modelo
         const { desde, hasta, hora_inicio, hora_fin, entrega, devolucion, sillita, auto_id } = req.body;
 
         if (!desde || !hasta || !auto_id) {
@@ -87,13 +86,19 @@ router.post('/quote', async (req, res) => {
         const precioSilla = parseFloat(mensual.precio_sillita) || parseFloat(settings.precio_sillita) || 0;
         const cotizacion = parseFloat(mensual.cotizacion_dolar) || parseFloat(settings.cotizacion_dolar) || 1;
         const garantia = parseFloat(mensual.garantia_ars) || parseFloat(settings.garantia_ars) || 450000;
+        
+        // 🧼 EXTRAER PRECIO DE LAVADO MIGRADO (Mensual con fallback a global settings o 0)
+        const precioLavado = parseFloat(mensual.precio_lavado) || parseFloat(settings.precio_lavado) || 0;
 
         // 4. Cálculos finales de tarifas
         let totalArs = diasParaCobrar * precioDia;
         if (entrega === 'aeropuerto' || devolucion === 'aeropuerto') totalArs += cargoAero;
         if (sillita === true || sillita === 'true') totalArs += (Math.ceil(diasParaCobrar) * precioSilla);
+        
+        // 🧼 SUMAR EL LAVADO (Fijo por cada contrato de alquiler gestionado)
+        totalArs += precioLavado;
 
-        // Devolvemos el JSON enriquecido para que el Frontend reciba absolutamente todo impecable
+        // Devolvemos el JSON enriquecido para el Frontend
         res.json({
             status: 'success',
             dias_totales: diasParaCobrar, 
@@ -101,8 +106,9 @@ router.post('/quote', async (req, res) => {
             totalUsd: totalArs / cotizacion,
             cotizacion,
             garantia_ars: garantia,
-            auto_modelo: autoInfo.modelo, // <-- Enviamos el nombre del auto real
-            patente: autoInfo.patente,     // <-- Enviamos la patente real de la base de datos
+            precio_lavado_aplicado: precioLavado, // Opcional por si querés detallarlo en el desglose
+            auto_modelo: autoInfo.modelo, 
+            patente: autoInfo.patente,     
             desde,
             hasta,
             hora_inicio,

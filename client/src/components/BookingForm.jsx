@@ -63,8 +63,8 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
 
     try {
       const payloadCotizacion = {
-        fecha_inicio: formData.desde,
-        fecha_fin: formData.hasta,
+        desde: formData.desde,
+        hasta: formData.hasta,
         hora_inicio: formData.hora_inicio,
         hora_fin: formData.hora_fin,
         entrega: formData.entrega,
@@ -74,17 +74,29 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
       };
 
       let datosCalculados = {};
+      let usoRespaldoLocal = false;
+
       try {
         const resCotizacion = await axios.post(`${API_BASE_URL}/api/prices/quote`, payloadCotizacion);
         datosCalculados = resCotizacion.data || {};
       } catch (quoteErr) {
-        console.warn("⚠️ Usando estimación de respaldo local.");
+        console.warn("⚠️ Usando estimación de respaldo local por fallo de comunicación:", quoteErr);
+        usoRespaldoLocal = true;
       }
 
       const tasaDolar = datosCalculados.cotizacion || datosCalculados.tasa_dolar || 1400.00;
       const precioDiaUsd = selectedAuto?.precio_base_usd || 30;
-      const totalArsFinal = datosCalculados.monto_total_ars || datosCalculados.total || (diasCalculadosLocal * precioDiaUsd * tasaDolar);
-      const diasFinales = datosCalculados.dias || diasCalculadosLocal;
+      const lavadoResguardoLocal = 12000; 
+      
+      const precioLavadoFinal = datosCalculados.precio_lavado_aplicado !== undefined 
+        ? datosCalculados.precio_lavado_aplicado 
+        : lavadoResguardoLocal;
+
+      const totalArsFinal = !usoRespaldoLocal && datosCalculados.monto_total_ars
+        ? datosCalculados.monto_total_ars
+        : ((diasCalculadosLocal * precioDiaUsd * tasaDolar) + (formData.sillita ? 5000 * diasCalculadosLocal : 0) + precioLavadoFinal);
+      
+      const diasFinales = datosCalculados.dias_totales || datosCalculados.dias || diasCalculadosLocal;
 
       const payloadDB = {
         cliente_nombre: formData.cliente_nombre,
@@ -118,6 +130,7 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
           cotizacion: tasaDolar,
           dias: diasFinales,
           precio_sillita_ars: datosCalculados.precio_sillita_ars || (formData.sillita ? 5000 : 0),
+          precio_lavado_aplicado: precioLavadoFinal,
           garantia_usd: 300.00,
           cliente_nombre: formData.cliente_nombre,
           cliente_whatsapp: formData.cliente_whatsapp,
@@ -144,27 +157,25 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
     }
   };
 
-  /* 🛠️ AJUSTADO: Clases compactas premium para eliminar scroll y rellenos innecesarios */
-  const cardLabel = "text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1 block ml-2 flex items-center gap-1.5";
+  /* 🛠️ OPTIMIZADO: Clases modulares limpias sin alturas rígidas (h-[52px] o h-[44px]) que rompen las fuentes */
+  const cardLabel = "text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1 block ml-2 flex items-center gap-1.5 text-left";
   const bigInput = "w-full bg-slate-50 p-3 sm:p-3.5 rounded-xl font-bold text-xs sm:text-sm text-slate-800 border-2 border-transparent focus:border-sky-500 focus:bg-white outline-none transition-all shadow-inner";
+  
+  /* 🛠️ NUEVO: Estilo exclusivo para los selectores de destino que evita el corte a la mitad */
+  const selectInput = "w-full bg-slate-50 py-3 px-3.5 pr-8 rounded-xl font-bold text-xs sm:text-sm text-slate-800 border-2 border-transparent focus:border-sky-500 focus:bg-white outline-none transition-all shadow-inner bg-[right_12px_center] cursor-pointer";
 
   return (
     <div className="w-full relative">
-      
-      {/* 🛠️ COMPACTADO: Reducción de padding y margins para convivir en el grid simétrico de App.jsx */}
       <form 
         onSubmit={handleSubmit} 
         className="bg-white p-4 sm:p-6 rounded-[1.8rem] relative z-30 text-slate-800 w-full flex flex-col gap-4"
       >
-        {/* TITULO INTERNO COMPACTO */}
         <div className="flex items-center gap-2 border-b border-slate-50 pb-2 text-left">
           <Star size={14} className="text-sky-500 fill-sky-500" />
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-700">{t('vip_badge', 'Configurar Cotización VIP')}</h3>
         </div>
 
-        {/* CONTENEDOR GRID ADAPTADO A 2 COLUMNAS PARA MÁXIMA COMPRESIÓN */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-          
           {/* CAMPO: NOMBRE */}
           <div>
             <label className={cardLabel}><User size={12} className="text-sky-500"/> {t('placeholder_nombre', 'Nombre Completo')}</label>
@@ -177,12 +188,12 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
             <input type="tel" required placeholder="Ej: 2612764618" className={bigInput} value={formData.cliente_whatsapp} onChange={e => setFormData({...formData, cliente_whatsapp: e.target.value})} />
           </div>
           
-          {/* CAMPO: SELECTOR DE AUTO COMPACTO */}
+          {/* CAMPO: VEHÍCULO SELECCIONADO */}
           <div className="relative sm:col-span-2">
             <label className={cardLabel}><Car size={12} className="text-sky-500"/> {t('nav_flota', 'Vehículo Seleccionado')}</label>
             <div 
               onClick={() => setShowAutoList(!showAutoList)} 
-              className={`${bigInput} cursor-pointer flex items-center justify-between h-[52px] border-2 ${showAutoList ? 'border-sky-500 bg-white shadow-sm' : 'border-transparent'}`}
+              className={`${bigInput} cursor-pointer flex items-center justify-between border-2 ${showAutoList ? 'border-sky-500 bg-white shadow-sm' : 'border-transparent'}`}
             >
               {selectedAuto ? (
                 <div className="flex items-center gap-3 min-w-0">
@@ -196,7 +207,6 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
               <ChevronDown className="text-slate-400 flex-shrink-0" size={16} />
             </div>
 
-            {/* LISTA DESPLEGABLE FLOTANTE COMPACTA */}
             {showAutoList && (
               <>
                 <div className="fixed inset-0 z-[105]" onClick={() => setShowAutoList(false)}></div>
@@ -212,7 +222,7 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
             )}
           </div>
 
-          {/* FILA CRONOLÓGICA: RETIRO */}
+          {/* RETIRO CRONOLÓGICO */}
           <div className="bg-slate-50/70 p-3 rounded-2xl border border-slate-100 space-y-2 text-left">
             <label className={cardLabel}><Clock size={12} className="text-sky-500"/> {t('label_retiro', 'Fecha / Hora Retiro')}</label>
             <div className="grid grid-cols-2 gap-1.5">
@@ -221,7 +231,7 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
             </div>
           </div>
 
-          {/* FILA CRONOLÓGICA: DEVOLUCIÓN */}
+          {/* DEVOLUCIÓN CRONOLÓGICA */}
           <div className="bg-slate-50/70 p-3 rounded-2xl border border-slate-100 space-y-2 text-left">
             <label className={cardLabel}><Clock size={12} className="text-slate-400"/> {t('label_devolucion', 'Fecha / Hora Devolución')}</label>
             <div className="grid grid-cols-2 gap-1.5">
@@ -230,25 +240,25 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
             </div>
           </div>
 
-          {/* LOGÍSTICA: LUGAR RETIRO */}
+          {/* 🛠️ REPARADO: Se reemplazó h-[44px] y bigInput por selectInput para evitar fuentes cortadas */}
           <div>
             <label className={cardLabel}><MapPin size={12} className="text-sky-500"/> {t('lugar_retiro', 'Lugar Retiro')}</label>
-            <select className={`${bigInput} py-2.5 h-[44px] appearance-none`} value={formData.entrega} onChange={e => setFormData({...formData, entrega: e.target.value})}>
+            <select className={selectInput} value={formData.entrega} onChange={e => setFormData({...formData, entrega: e.target.value})}>
               <option value="mendoza ciudad">{t('loc_ciudad', 'Ciudad (Gratis)')}</option>
               <option value="aeropuerto">{t('loc_aeropuerto', 'Aeropuerto')}</option>
             </select>
           </div>
 
-          {/* LOGÍSTICA: LUGAR DEVOLUCIÓN */}
+          {/* 🛠️ REPARADO: Se reemplazó h-[44px] y bigInput por selectInput para evitar fuentes cortadas */}
           <div>
             <label className={cardLabel}><MapPin size={12} className="text-slate-400"/> {t('lugar_entrega', 'Lugar Devolución')}</label>
-            <select className={`${bigInput} py-2.5 h-[44px] appearance-none`} value={formData.devolucion} onChange={e => setFormData({...formData, devolucion: e.target.value})}>
+            <select className={selectInput} value={formData.devolucion} onChange={e => setFormData({...formData, devolucion: e.target.value})}>
               <option value="mendoza ciudad">{t('loc_ciudad', 'Ciudad (Gratis)')}</option>
               <option value="aeropuerto">{t('loc_aeropuerto', 'Aeropuerto')}</option>
             </select>
           </div>
 
-          {/* ADICIONAL: SILLITA DE BEBÉ INTERNA */}
+          {/* ADICIONAL SILLITA */}
           <div 
             onClick={() => setFormData({ ...formData, sillita: !formData.sillita })} 
             className={`p-3 rounded-xl border-2 flex items-center justify-between cursor-pointer transition-all sm:col-span-2 ${formData.sillita ? 'bg-slate-800 border-slate-800 text-white' : 'bg-slate-50 border-transparent text-slate-700 hover:bg-slate-100'}`}
@@ -264,7 +274,6 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
 
         </div>
 
-        {/* BOTÓN DEFINITIVO ULTRA-COMPACTO DE ENVÍO */}
         <button 
           type="submit" 
           disabled={loading} 
@@ -279,7 +288,6 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
             </>
           )}
         </button>
-
       </form>
     </div>
   );
