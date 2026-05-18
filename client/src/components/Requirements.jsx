@@ -41,13 +41,11 @@ export default function Requirements() {
   ];
 
   return (
-    /* 📱 RESPONSIVE: Reducido padding vertical de py-24 a py-12 en móviles */
     <section id="requisitos" className="py-12 md:py-24 bg-white w-full overflow-hidden">
       <div className="max-w-6xl mx-auto px-4">
         
         {/* ENCABEZADO */}
         <div className="text-center mb-10 md:mb-16">
-          {/* 📱 RESPONSIVE: text-3xl en celu para evitar desbordes feos de línea */}
           <h2 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
             {t('req_section_title', 'Requisitos de')} <span className="text-yellow-500">{t('req_section_subtitle', 'Alquiler')}</span>
           </h2>
@@ -55,14 +53,10 @@ export default function Requirements() {
         </div>
 
         {/* CONTENEDOR DE TARJETAS / DESLIZABLE EN MÓVILES */}
-        {/* 📱 TRUCO PREMIUM: En celulares se transforma en una hilera horizontal fluida (overflow-x-auto) 
-           con efecto snap-center para que el cliente deslice las tarjetas como en una app de celular */}
         <div className="flex overflow-x-auto pb-6 gap-5 snap-x snap-mandatory scrollbar-none md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:pb-0">
           {reqs.map((item, idx) => (
             <div 
               key={idx} 
-              /* 📱 RESPONSIVE: Adaptados paddings (p-6) y bordes (rounded-[2rem]) más limpios en móvil.
-                 flex-shrink-0 y w-[82vw] le dan el tamaño ideal de tarjeta en teléfonos */
               className="p-6 sm:p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] bg-slate-50 border border-slate-100 hover:border-slate-200 hover:bg-white hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.05)] transition-all duration-300 group flex-shrink-0 w-[82vw] sm:w-[320px] md:w-auto snap-center"
             >
               <div className="mb-5 md:mb-6 w-11 h-11 md:w-12 md:h-12 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:bg-slate-900 transition-colors flex-shrink-0">

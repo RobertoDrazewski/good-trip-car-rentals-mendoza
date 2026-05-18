@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { 
   DollarSign, Car, Users, Calendar as CalendarIcon, BarChart3, 
   LogOut, Trash2, Activity, Navigation, Map as MapIcon,
   Settings, Plus, MessageCircle, Save, CheckCircle, 
   Sparkles, ChevronLeft, ChevronRight, User, Clock, ShieldCheck, FileText, UserPlus,
-  Home 
+  Home, BellRing, X
 } from 'lucide-react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -13,7 +13,7 @@ import 'react-calendar/dist/Calendar.css';
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function AdminDashboard() {
-  // 1. TOP-LEVEL HOOK DECLARATIONS (Order is strictly preserved)
+  // 1. TOP-LEVEL HOOK DECLARATIONS
   const [activeTab, setActiveTab] = useState('ventas');
   const [selectedMes, setSelectedMes] = useState(new Date().getMonth() + 1);
   const [selectedAnio, setSelectedAnio] = useState(new Date().getFullYear());
@@ -33,9 +33,12 @@ export default function AdminDashboard() {
   const [showAddAuto, setShowAddAuto] = useState(false);
   const [newAuto, setNewAuto] = useState({ modelo: '', precio_base_usd: '', patente: '', color: '#000000', descripcion_larga: '', transmision: 'Manual', imagen_file: null });
   const [newAdmin, setNewAdmin] = useState({ nombre: '', email: '' });
-
-  // FIXED: Moved selectedDate to the top level so it never mounts/unmounts conditionally
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // 🚨 NUEVOS ESTADOS DE ALERTA DE LEADS
+  const [newLeadAlert, setNewLeadAlert] = useState(false);
+  const [recentLeadName, setRecentLeadName] = useState('');
+  const prevLeadsCount = useRef(null);
 
   const mesesNom = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
   const config = useMemo(() => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }), []);
@@ -43,6 +46,31 @@ export default function AdminDashboard() {
   const puntosEntregaCoordenadas = {
     aeropuerto: "Aeropuerto Internacional Gobernador Francisco Gabrielli, Mendoza",
     km0: "Kilómetro 0, Av. San Martín y Garibaldi, Mendoza"
+  };
+
+  // 🚨 FUNCIÓN DE AUDIO ALARMA POR HARDWARE (Web Audio API)
+  const reproducirAlarmaSonora = () => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      // Creamos dos pitidos consecutivos de alerta ejecutiva
+      [0, 0.2, 0.4].forEach((delay) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime + delay); // Nota LA alta
+        gain.gain.setValueAtTime(0.15, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + delay + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.15);
+      });
+    } catch (e) {
+      console.warn("Audio Context bloqueado por políticas del navegador.");
+    }
   };
 
   const fetchData = async () => {
@@ -53,7 +81,22 @@ export default function AdminDashboard() {
         axios.get(`${apiUrl}/api/admin/precios-mensuales`, config).catch(() => ({data: []})),
         axios.get(`${apiUrl}/api/routes/all`).catch(() => ({data: []}))
       ]);
-      setReservas(resDash.data.reservas || []);
+      
+      const nuevasReservas = resDash.data.reservas || [];
+
+      // 🚨 ALGORITMO COMPARADOR DE NUEVOS LEADS
+      if (prevLeadsCount.current !== null && nuevasReservas.length > prevLeadsCount.current) {
+        // Encontró un lead nuevo ingresado en la DB
+        const ultimoLead = nuevasReservas[0] || {}; 
+        setRecentLeadName(ultimoLead.cliente_nombre || 'Nuevo Cliente');
+        setNewLeadAlert(true);
+        reproducirAlarmaSonora();
+      }
+
+      // Actualizamos la referencia para el próximo ciclo
+      prevLeadsCount.current = nuevasReservas.length;
+
+      setReservas(nuevasReservas);
       setAutos(resDash.data.autos || []);
       setSettings(resDash.data.settings || {});
       setMetrics(resDash.data.metrics || { ingresosTotales: 0, totalReservas: 0 });
@@ -69,10 +112,21 @@ export default function AdminDashboard() {
       const mapa = {};
       if (Array.isArray(resPrecios.data)) resPrecios.data.forEach(p => { mapa[p.mes] = p; });
       setPreciosMes(mapa);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) { 
+      console.error(err); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  // Efecto inicial y loop de fondo (Sondea el servidor cada 15 segundos en busca de nuevos leads)
+  useEffect(() => { 
+    fetchData(); 
+    const interval = setInterval(() => {
+      fetchData();
+    }, 15000); 
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => { 
     localStorage.clear(); 
@@ -280,15 +334,31 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-950 gap-6"><Activity className="text-yellow-500 animate-pulse" size={64} /><span className="text-yellow-500 font-black tracking-[0.3em] italic text-xl uppercase">Mendoza Rent Pro...</span></div>;
 
-  // Formatter helper built for the calendar calculations
-  const formatLocalDate = (date) => {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  };
   const fechaSeleccionadaStr = formatLocalDate(selectedDate);
 
   return (
-    <div className="flex min-h-screen w-full bg-[#f8fafc] font-sans text-slate-900 max-lg:flex-col">
+    <div className="flex min-h-screen w-full bg-[#f8fafc] font-sans text-slate-900 max-lg:flex-col relative">
       
+      {/* 🚨 MODAL FLOTANTE DE NOTIFICACIÓN DE NUEVO LEAD (ALERTA VISUAL PREMIUM) */}
+      {newLeadAlert && (
+        <div className="fixed top-4 right-4 left-4 sm:left-auto sm:w-96 bg-rose-600 text-white p-5 rounded-2xl shadow-[0_20px_50px_rgba(225,29,72,0.4)] z-[9999] border-2 border-white/20 flex gap-4 items-start animate-bounce">
+          <div className="bg-white/20 p-2.5 rounded-xl animate-pulse">
+            <BellRing size={22} className="text-yellow-300" />
+          </div>
+          <div className="flex-1 text-left min-w-0">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-300">¡Alerta Nuevo Lead!</p>
+            <h4 className="text-sm font-black uppercase tracking-tight truncate mt-0.5">{recentLeadName}</h4>
+            <p className="text-xs text-rose-100 font-medium leading-tight mt-1">Acaba de ingresar una nueva solicitud de cotización en la web.</p>
+          </div>
+          <button 
+            onClick={() => setNewLeadAlert(false)} 
+            className="p-1 text-white/60 hover:text-white rounded-lg transition-colors cursor-pointer bg-black/10"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       {/* SIDEBAR */}
       <aside className="w-80 bg-slate-900 p-8 flex flex-col sticky top-0 h-screen border-r border-white/5 z-40 max-lg:w-full max-lg:h-auto max-lg:p-5 max-lg:border-b">
         <div className="flex items-center gap-3 mb-4 max-lg:mb-3">
@@ -389,7 +459,7 @@ export default function AdminDashboard() {
                   <span className="text-[9px] bg-slate-800 text-slate-300 px-3 py-1 rounded-full font-bold">{reservasCronologicas.length} Ops</span>
                 </div>
 
-                {/* COMPUTADORA VISTA (TABLE) */}
+                {/* VISTA TABLE */}
                 <div className="hidden lg:block overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-50 border-b border-slate-100">
@@ -517,14 +587,11 @@ export default function AdminDashboard() {
           );
         })()}
 
-        {/* 2. CALENDARIO (FIXED: Clean Layout, Hooks are completely decoupled from this section) */}
+        {/* 2. CALENDARIO */}
         {activeTab === 'calendario' && (
           <div className="space-y-6 animate-in fade-in duration-500">
-            {/* Contenedor del Calendario Principal */}
             <div className="bg-white p-4 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
-              <h3 className="font-black uppercase italic text-lg md:text-xl text-slate-900 tracking-wider mb-6">
-                Ocupación en Tiempo Real
-              </h3>
+              <h3 className="font-black uppercase italic text-lg md:text-xl text-slate-900 tracking-wider mb-6">Ocupación en Tiempo Real</h3>
 
               <style>{`
                 .react-calendar { width: 100% !important; border: none !important; font-family: inherit !important; }
@@ -572,30 +639,18 @@ export default function AdminDashboard() {
               />
             </div>
 
-            {/* Estado Detallado de Flota abajo del Calendario */}
             <div className="bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl border border-slate-100">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 mb-6 gap-2">
                 <div>
-                  <h4 className="font-black uppercase italic text-md md:text-lg text-slate-900 tracking-wider">
-                    Estado de la Flota
-                  </h4>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Monitoreando disponibilidad para el día: <span className="text-blue-600 font-bold">{selectedDate.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                  </p>
+                  <h4 className="font-black uppercase italic text-md md:text-lg text-slate-900 tracking-wider">Estado de la Flota</h4>
+                  <p className="text-xs text-slate-500 font-medium">Monitoreando disponibilidad para el día: <span className="text-blue-600 font-bold">{selectedDate.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}</span></p>
                 </div>
                 <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-wider">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-emerald-500 block"></span>
-                    <span className="text-emerald-700">Disponible</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded-full bg-rose-500 block"></span>
-                    <span className="text-rose-700">Ocupado</span>
-                  </div>
+                  <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-emerald-500 block"></span><span className="text-emerald-700">Disponible</span></div>
+                  <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-rose-500 block"></span><span className="text-rose-700">Ocupado</span></div>
                 </div>
               </div>
 
-              {/* Rejilla de Autos */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {autos.map((auto) => {
                   const reservaActiva = reservas.find(r => 
@@ -604,40 +659,18 @@ export default function AdminDashboard() {
                     r.fecha_fin?.split('T')[0] >= fechaSeleccionadaStr && 
                     (r.estado === 'confirmado' || r.estado === 'contratado')
                   );
-
                   const estaOcupado = !!reservaActiva;
 
                   return (
-                    <div 
-                      key={auto.id} 
-                      className={`flex items-center p-4 rounded-2xl border transition-all duration-300 ${
-                        estaOcupado 
-                          ? 'border-rose-100 bg-rose-50/30' 
-                          : 'border-slate-100 bg-slate-50/50 hover:border-emerald-200 hover:bg-emerald-50/10'
-                      }`}
-                    >
+                    <div key={auto.id} className={`flex items-center p-4 rounded-2xl border transition-all duration-300 ${estaOcupado ? 'border-rose-100 bg-rose-50/30' : 'border-slate-100 bg-slate-50/50 hover:border-emerald-200 hover:bg-emerald-50/10'}`}>
                       <div className="w-24 h-16 bg-white rounded-xl p-1 flex items-center justify-center border border-slate-100 shadow-sm flex-shrink-0 overflow-hidden">
-                        {auto.imagen_url ? (
-                          <img 
-                            src={`${apiUrl}${auto.imagen_url}`} 
-                            alt={auto.modelo} 
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <span className="text-[10px] text-slate-400 font-bold uppercase">Sin Foto</span>
-                        )}
+                        {auto.imagen_url ? <img src={`${apiUrl}${auto.imagen_url}`} alt={auto.modelo} className="w-full h-full object-contain" /> : <span className="text-[10px] text-slate-400 font-bold uppercase">Sin Foto</span>}
                       </div>
-
                       <div className="ml-4 flex-grow flex flex-col justify-between h-full min-w-0">
                         <div className="min-w-0">
-                          <h5 className="font-bold text-slate-950 text-sm truncate uppercase tracking-tight">
-                            {auto.modelo || 'Modelo no registrado'}
-                          </h5>
-                          <p className="text-[10px] text-slate-500 font-mono font-bold mt-0.5 tracking-wider">
-                            PATENTE: <span className="bg-slate-200 text-slate-800 px-1 py-0.5 rounded">{auto.patente || 'S/P'}</span>
-                          </p>
+                          <h5 className="font-bold text-slate-950 text-sm truncate uppercase tracking-tight">{auto.modelo || 'Modelo no registrado'}</h5>
+                          <p className="text-[10px] text-slate-500 font-mono font-bold mt-0.5 tracking-wider">PATENTE: <span className="bg-slate-200 text-slate-800 px-1 py-0.5 rounded">{auto.patente || 'S/P'}</span></p>
                         </div>
-
                         <div className="flex items-center gap-2 mt-2">
                           {estaOcupado ? (
                             <>
@@ -645,18 +678,12 @@ export default function AdminDashboard() {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
                               </span>
-                              <span className="text-[10px] font-black uppercase text-rose-600 truncate">
-                                Ocupado por: {reservaActiva.cliente_nombre || 'Cliente'}
-                              </span>
+                              <span className="text-[10px] font-black uppercase text-rose-600 truncate">Ocupado por: {reservaActiva.cliente_nombre || 'Cliente'}</span>
                             </>
                           ) : (
                             <>
-                              <span className="relative flex h-2.5 w-2.5">
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                              </span>
-                              <span className="text-[10px] font-black uppercase text-emerald-600">
-                                Disponible para alquiler
-                              </span>
+                              <span className="relative flex h-2.5 w-2.5"><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
+                              <span className="text-[10px] font-black uppercase text-emerald-600">Disponible para alquiler</span>
                             </>
                           )}
                         </div>
@@ -712,7 +739,6 @@ export default function AdminDashboard() {
                   <p className="text-[9px] font-black uppercase text-yellow-500 tracking-[0.2em] mb-1">Logística de Entregas VIP</p>
                   <h3 className="text-lg font-black text-white uppercase italic">Trazador</h3>
                 </div>
-
                 <div className="bg-slate-800/80 p-2 rounded-xl">
                   <p className="text-[9px] font-black uppercase text-slate-400 mb-2">📍 Retiro:</p>
                   <div className="grid grid-cols-2 gap-2">
@@ -720,7 +746,6 @@ export default function AdminDashboard() {
                     <button onClick={() => setPuntoOrigenMapa('km0')} className={`py-2 px-1 rounded-lg text-[9px] font-black uppercase transition-all ${puntoOrigenMapa === 'km0' ? 'bg-yellow-500 text-slate-950' : 'bg-slate-700 text-slate-300'}`}>🏢 Km Cero</button>
                   </div>
                 </div>
-
                 <div className="w-full border-t border-slate-800 pt-3 flex flex-col gap-2">
                   <p className="text-[9px] font-black uppercase text-slate-400 mb-1">⛰️ Destino:</p>
                   {rutas.map((r, idx) => (
@@ -729,7 +754,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-
             <div className="lg:col-span-3 h-96 lg:h-full w-full rounded-[1.5rem] lg:rounded-[3.5rem] overflow-hidden border-[6px] md:border-[10px] border-white shadow-xl relative bg-slate-100">
               <iframe src={obtenerUrlEnrutamientoDinamico(rutaMapaSeleccionada)} width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full"></iframe>
             </div>
@@ -844,7 +868,11 @@ export default function AdminDashboard() {
   );
 }
 
-// COMPONENTES AUXILIARES MAESTROS
+// FORMATTER HELPER OUTSIDE
+const formatLocalDate = (date) => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
+
 function NavBtn({active, label, icon, onClick}) {
   return <button onClick={onClick} className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-all font-black text-[10px] uppercase tracking-wider cursor-pointer whitespace-nowrap flex-shrink-0 lg:w-full lg:px-7 lg:py-4 ${active ? 'bg-yellow-500 text-slate-900 shadow-md' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>{icon} {label}</button>;
 }

@@ -1,11 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { Car, Loader2, Clock, ChevronDown, ArrowRight, Star, Check, User, Phone, MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // 🔌 CAPTURA DINÁMICA DE LA API (Detecta Render en la nube, o usa localhost de respaldo)
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatOpen }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [listaAutos, setListaAutos] = useState([]);
   const [showAutoList, setShowAutoList] = useState(false);
@@ -34,7 +36,9 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
         if (flota.length > 0) {
           setFormData(prev => ({ ...prev, auto_id: flota[0].id.toString() }));
         }
-      } catch (err) { console.error("Error cargando flota"); }
+      } catch (err) { 
+        console.error("Error cargando flota"); 
+      }
     };
     fetchAutos();
   }, []);
@@ -47,7 +51,8 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.cliente_nombre || !formData.cliente_whatsapp || !formData.desde || !formData.hasta) {
-      alert("Por favor completá todos los campos obligatorios.");
+      // 🛠️ TRADUCIDO: Alerta de validación obligatoria
+      alert(t('error_calc', 'Por favor completá todos los campos obligatorios.'));
       return;
     }
     setLoading(true);
@@ -144,7 +149,7 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
     }
   };
 
-  /* 📱 RESPONSIVE: Etiquetas y espaciados internos escalables con el dedo */
+  /* Estilos responsivos reutilizables */
   const cardLabel = "text-[10px] sm:text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-1.5 sm:mb-2 block ml-2 sm:ml-4 flex items-center gap-2";
   const bigInput = "w-full bg-slate-50 p-4 sm:p-6 rounded-xl sm:rounded-[2rem] font-black text-sm sm:text-base text-slate-800 border-2 border-transparent focus:border-yellow-500 focus:bg-white outline-none transition-all shadow-inner";
 
@@ -152,38 +157,35 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
     <div className="relative w-full max-w-7xl mx-auto px-2 sm:px-4">
       
       {/* BADGE FLOTANTE DE PRESENTACIÓN */}
-      {/* 📱 RESPONSIVE: Reducido padding en móvil (px-6 py-2.5) para que no ocupe 2 renglones */}
       <div className="absolute -top-5 sm:-top-7 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-2.5 sm:px-10 sm:py-4 rounded-full shadow-2xl z-40 flex items-center gap-2 sm:gap-3 border-2 border-yellow-500/20 whitespace-nowrap">
         <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />
-        <span className="text-[9px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] italic text-white">Solicitar Presupuesto VIP</span>
+        <span className="text-[9px] sm:text-xs font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] italic text-white">
+          {t('vip_badge', 'Solicitar Presupuesto VIP')}
+        </span>
       </div>
 
       {/* CONTENEDOR DEL FORMULARIO */}
-      {/* 📱 RESPONSIVE MAESTRO: -mt-16 en celu (da aire al Hero) y -mt-32 en pc. 
-         Se ajustó de p-10 rígido a p-4 para que rinda el espacio táctil. Esquinas suavizadas a rounded-[2rem] en móvil */}
       <form 
         onSubmit={handleSubmit} 
         className="bg-white/95 backdrop-blur-3xl p-4 sm:p-10 md:p-16 rounded-[2rem] sm:rounded-[4rem] shadow-2xl border border-slate-100 relative -mt-16 sm:-mt-24 md:-mt-32 z-30 text-slate-900"
       >
-        {/* 📱 RESPONSIVE: gap reducido en móvil (gap-4) y expandido en pc (lg:gap-12) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-12 w-full">
           
           {/* BLOQUE 1: DATOS GENERALES Y AUTO */}
           <div className="space-y-4 sm:space-y-6">
             <div>
-              <label className={cardLabel}><User size={13}/> Nombre Completo</label>
-              <input type="text" required placeholder="Nombre Completo" className={bigInput} value={formData.cliente_nombre} onChange={e => setFormData({...formData, cliente_nombre: e.target.value})} />
+              <label className={cardLabel}><User size={13}/> {t('placeholder_nombre', 'Nombre Completo')}</label>
+              <input type="text" required placeholder={t('placeholder_nombre', 'Nombre Completo')} className={bigInput} value={formData.cliente_nombre} onChange={e => setFormData({...formData, cliente_nombre: e.target.value})} />
             </div>
             <div>
-              <label className={cardLabel}><Phone size={13}/> Teléfono WhatsApp</label>
+              <label className={cardLabel}><Phone size={13}/> {t('placeholder_wa', 'Teléfono WhatsApp')}</label>
               <input type="tel" required placeholder="WhatsApp" className={bigInput} value={formData.cliente_whatsapp} onChange={e => setFormData({...formData, cliente_whatsapp: e.target.value})} />
             </div>
             
             <div className="relative z-50">
-              <label className={cardLabel}><Car size={13}/> Vehículo Seleccionado</label>
+              <label className={cardLabel}><Car size={13}/> {t('nav_flota', 'Vehículo Seleccionado')}</label>
               <div 
                 onClick={() => setShowAutoList(!showAutoList)} 
-                /* 📱 RESPONSIVE: Altura controlada (h-[85px] sm:h-[95px]) para celulares */
                 className={`${bigInput} cursor-pointer flex items-center gap-3 sm:gap-4 h-[85px] sm:h-[95px] border-2 ${showAutoList ? 'border-yellow-500 bg-white shadow-md' : 'border-transparent'}`}
               >
                 {selectedAuto ? (
@@ -196,7 +198,7 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
                       <span className="text-[8px] sm:text-[9px] text-yellow-600 font-black bg-yellow-50 px-1.5 py-0.5 rounded mt-1 w-fit font-mono">{selectedAuto.patente || 'S/P'}</span>
                     </div>
                   </>
-                ) : <span className="text-slate-400 font-bold text-sm">Seleccionar Auto</span>}
+                ) : <span className="text-slate-400 font-bold text-sm">{t('select_car_label', 'Seleccionar Auto')}</span>}
                 <ChevronDown className="ml-auto text-slate-400 flex-shrink-0" size={18} />
               </div>
 
@@ -217,15 +219,14 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
           </div>
 
           {/* BLOQUE 2: CALENDARIO - FECHAS Y HORAS */}
-          {/* 📱 RESPONSIVE: Ajustado padding interno en móvil (p-4 sm:p-8) y radio de curva */}
           <div className="space-y-4 sm:space-y-6 bg-slate-50/50 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[3.5rem] border border-slate-100">
             <div>
-              <label className={cardLabel}><Clock size={13} className="text-yellow-500"/> Retiro (Fecha y Hora)</label>
+              <label className={cardLabel}><Clock size={13} className="text-yellow-500"/> {t('label_retiro', 'Fecha de Retiro')}</label>
               <input type="date" min={today} required className={bigInput} value={formData.desde} onChange={e => setFormData({...formData, desde: e.target.value})} />
               <input type="time" className={`${bigInput} mt-1.5 sm:mt-2 text-center text-lg sm:text-xl italic font-black py-2 sm:py-4`} value={formData.hora_inicio} onChange={e => setFormData({...formData, hora_inicio: e.target.value})} />
             </div>
             <div>
-              <label className={cardLabel}><Clock size={13} className="text-red-500"/> Devolución (Fecha y Hora)</label>
+              <label className={cardLabel}><Clock size={13} className="text-red-500"/> {t('label_devolucion', 'Fecha de Entrega')}</label>
               <input type="date" min={formData.desde || today} required className={bigInput} value={formData.hasta} onChange={e => setFormData({...formData, hasta: e.target.value})} />
               <input type="time" className={`${bigInput} mt-1.5 sm:mt-2 text-center text-lg sm:text-xl italic font-black py-2 sm:py-4`} value={formData.hora_fin} onChange={e => setFormData({...formData, hora_fin: e.target.value})} />
             </div>
@@ -235,17 +236,17 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
           <div className="flex flex-col justify-between space-y-4 sm:space-y-6 w-full">
             <div className="space-y-4">
               <div>
-                <label className={cardLabel}><MapPin size={13} className="text-yellow-500"/> Lugar de Entrega</label>
+                <label className={cardLabel}><MapPin size={13} className="text-yellow-500"/> {t('lugar_retiro', 'Lugar Retiro')}</label>
                 <select className={`${bigInput} py-3.5 sm:py-6`} value={formData.entrega} onChange={e => setFormData({...formData, entrega: e.target.value})}>
-                  <option value="mendoza ciudad">Mendoza Ciudad / Hotel</option>
-                  <option value="aeropuerto">Aeropuerto (MDZ)</option>
+                  <option value="mendoza ciudad">{t('loc_ciudad', 'Ciudad (Gratis)')}</option>
+                  <option value="aeropuerto">{t('loc_aeropuerto', 'Aeropuerto')}</option>
                 </select>
               </div>
               <div>
-                <label className={cardLabel}><MapPin size={13} className="text-slate-400"/> Lugar de Devolución</label>
+                <label className={cardLabel}><MapPin size={13} className="text-slate-400"/> {t('lugar_entrega', 'Lugar Devolución')}</label>
                 <select className={`${bigInput} py-3.5 sm:py-6`} value={formData.devolucion} onChange={e => setFormData({...formData, devolucion: e.target.value})}>
-                  <option value="mendoza ciudad">Mendoza Ciudad / Hotel</option>
-                  <option value="aeropuerto">Aeropuerto (MDZ)</option>
+                  <option value="mendoza ciudad">{t('loc_ciudad', 'Ciudad (Gratis)')}</option>
+                  <option value="aeropuerto">{t('loc_aeropuerto', 'Aeropuerto')}</option>
                 </select>
               </div>
 
@@ -253,7 +254,9 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
               <div onClick={() => setFormData({ ...formData, sillita: !formData.sillita })} className={`p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 flex items-center justify-between cursor-pointer transition-all ${formData.sillita ? 'bg-slate-900 border-slate-900 text-white shadow-md' : 'bg-slate-50 border-transparent text-slate-700 hover:bg-slate-100'}`}>
                 <div className="flex items-center gap-3">
                   <span className="text-lg">👶</span>
-                  <p className="text-[11px] sm:text-xs font-black uppercase tracking-tight">¿Necesitás Sillita?</p>
+                  <p className="text-[11px] sm:text-xs font-black uppercase tracking-tight">
+                    {t('silla_bebe_q', '¿Necesitás Sillita?')}
+                  </p>
                 </div>
                 <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded flex items-center justify-center border-2 flex-shrink-0 ${formData.sillita ? 'bg-yellow-500 border-yellow-500 text-slate-900' : 'border-slate-300'}`}>{formData.sillita && <Check size={11} strokeWidth={4} />}</div>
               </div>
@@ -261,7 +264,7 @@ export default function BookingForm({ onQuoteGenerated, setAiContext, setIsChatO
 
             {/* BOTÓN ENVIAR */}
             <button type="submit" disabled={loading} className="w-full bg-yellow-500 hover:bg-slate-900 text-slate-950 hover:text-white font-black py-4 sm:py-7 rounded-xl sm:rounded-[2.5rem] transition-all flex items-center justify-center gap-3 sm:gap-4 shadow-xl active:scale-95 duration-150 cursor-pointer mt-2">
-              {loading ? <Loader2 className="animate-spin" size={20} /> : <><span className="uppercase text-xs sm:text-[13px] font-black italic tracking-wider">Enviar Solicitud</span><ArrowRight size={18}/></>}
+              {loading ? <Loader2 className="animate-spin" size={20} /> : <><span className="uppercase text-xs sm:text-[13px] font-black italic tracking-wider">{t('btn_cotizar', 'COTIZAR')}</span><ArrowRight size={18}/></>}
             </button>
           </div>
 

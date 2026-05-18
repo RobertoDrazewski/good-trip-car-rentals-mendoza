@@ -100,7 +100,7 @@ function App() {
               context={aiContext} 
             />
 
-            {/* COMPONENTE LOCAL DEL FOOTER CON ACCESIBILIDAD MÓVIL ASEGURADA */}
+            {/* COMPONENTE LOCAL DEL FOOTER CON INTERNACIONALIZACIÓN Y ACCESIBILIDAD MÓVIL */}
             <FooterLocal t={t} logoImg={logoMendozaRent} />
 
           </div>
@@ -118,14 +118,12 @@ function App() {
   );
 }
 
-// 🎯 COMPONENTE LOCAL DEL FOOTER OPTIMIZADO PARA PANTALLAS TÁCTILES MÓVILES
+// 🎯 COMPONENTE LOCAL DEL FOOTER OPTIMIZADO E INTERNACIONALIZADO
 function FooterLocal({ t, logoImg }) {
-  // Inyectamos el enrutador dinámico para controlar la navegación por funciones de hardware nativas
   const navigate = useNavigate();
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    // Se añade relative, un z-index base seguro y pointer-events-auto para blindar todo el bloque del footer
     <footer className="relative bg-slate-950 border-t border-white/5 pt-16 pb-8 overflow-hidden w-full text-white z-30 pointer-events-auto">
       
       {/* IMAGEN DE MARCA DE AGUA DE FONDO */}
@@ -152,20 +150,24 @@ function FooterLocal({ t, logoImg }) {
             </p>
           </div>
 
-          {/* COLUMNA 2: NAVEGACIÓN DE ANCLAS */}
+          {/* COLUMNA 2: NAVEGACIÓN (INTERNACIONALIZADA) */}
           <div className="text-left">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-500 mb-4">Navegación</h4>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-500 mb-4">
+              {t('footer_nav_title', 'Navegación')}
+            </h4>
             <ul className="grid grid-cols-2 gap-3 text-xs font-semibold text-slate-300">
-              <li><a href="#reservas" className="hover:text-yellow-500 transition-colors">Reservas</a></li>
-              <li><a href="#flota" className="hover:text-yellow-500 transition-colors">Vehículos</a></li>
-              <li><a href="#requisitos" className="hover:text-yellow-500 transition-colors">Requisitos</a></li>
-              <li><a href="#rutas" className="hover:text-yellow-500 transition-colors">Rutas</a></li>
+              <li><a href="#reservas" className="hover:text-yellow-500 transition-colors">{t('nav_reserva', 'Reservas')}</a></li>
+              <li><a href="#flota" className="hover:text-yellow-500 transition-colors">{t('nav_flota', 'Vehículos')}</a></li>
+              <li><a href="#requisitos" className="hover:text-yellow-500 transition-colors">{t('req_section_subtitle', 'Requisitos')}</a></li>
+              <li><a href="#rutas" className="hover:text-yellow-500 transition-colors">{t('nav_rutas', 'Rutas')}</a></li>
             </ul>
           </div>
 
-          {/* COLUMNA 3: CANALES DE CONTACTO DIRECTO */}
+          {/* COLUMNA 3: CANALES DE CONTACTO (INTERNACIONALIZADA) */}
           <div className="space-y-4 text-left">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-500 mb-2">Atención Directa</h4>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-yellow-500 mb-2">
+              {t('footer_contact_title', 'Atención Directa')}
+            </h4>
             <div className="space-y-3 text-xs text-slate-300 font-medium">
               <div className="flex items-center gap-2">
                 <MapPin size={14} className="text-yellow-500 flex-shrink-0" />
@@ -179,8 +181,7 @@ function FooterLocal({ t, logoImg }) {
           </div>
         </div>
 
-        {/* CONTENEDOR INFERIOR DE REDES, COPYRIGHT Y ACCESO ADMINISTRATIVO */}
-        {/* El uso de 'z-50' e 'isolate' rompe cualquier solapamiento invisible del chat de IA */}
+        {/* CONTENEDOR INFERIOR DE REDES, COPYRIGHT Y CREDITOS DE AGENCIA */}
         <div className="relative mt-8 flex flex-col sm:flex-row justify-between items-center gap-6 w-full z-50 isolate">
           <div className="flex items-center gap-4">
             <a href="https://www.instagram.com/good.triprentals/" target="_blank" rel="noreferrer" className="p-2.5 bg-white/5 hover:bg-yellow-500 hover:text-slate-950 rounded-full transition-all border border-white/5">
@@ -188,24 +189,31 @@ function FooterLocal({ t, logoImg }) {
             </a>
           </div>
 
-          {/* Bloque central de textos informativos */}
+          {/* Bloque de Copyright y Firma de Puma Code */}
           <div className="text-center sm:text-left space-y-2 relative z-50">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-              © 2026 <span className="text-slate-400">Good Trip Car Rentals Mendoza, Arg</span>. Todos los derechos reservados.
+              © 2026 <span className="text-slate-400">Good Trip Car Rentals Mendoza, Arg</span>. {t('footer_rights', 'Todos los derechos reservados.')}
             </p>
             <div className="flex justify-center sm:justify-start gap-3 text-[9px] font-black uppercase tracking-[0.2em] text-slate-600 items-center">
               
-              {/* 🛠️ SOLUCIÓN MÓVIL APLICADA: Reemplazado Link por button nativo con disparadores táctiles reactivos */}
               <button 
                 onClick={() => navigate('/login')}
                 onTouchStart={() => navigate('/login')}
                 className="hover:text-yellow-500/80 text-slate-500 transition-colors inline-block py-3 px-4 sm:py-1.5 sm:px-2 relative z-55 active:text-yellow-500 touch-manipulation pointer-events-auto bg-transparent border-none outline-none appearance-none font-black uppercase tracking-[0.2em] cursor-pointer"
               >
-                Acceso Staff
+                {t('nav_staff', 'Acceso Staff')}
               </button>
 
               <span className="select-none text-slate-800">•</span>
-              <span className="text-slate-700 select-none">Dev by Puma Code</span>
+
+              <a 
+                href="https://www.puma-code.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-slate-700 hover:text-yellow-500 font-black transition-colors active:text-yellow-600 touch-manipulation cursor-pointer pointer-events-auto lowercase tracking-normal"
+              >
+                Dev by Puma Code
+              </a>
             </div>
           </div>
 
