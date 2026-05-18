@@ -237,6 +237,12 @@ router.post('/invite', async (req, res) => {
                         </div>
                         <h2 style="font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px; color: #0f172a; margin-top: 0;">¡Hola, ${nombre}!</h2>
                         <p style="font-size: 14px; line-height: 1.6; color: #475569;">Te han invitado a formar parte del equipo de gestión en el Panel de Control Operativo de Good Trip Mendoza.</p>
+                        
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px 20px; border-radius: 14px; margin: 20px 0; text-align: left;">
+                            <p style="margin: 0; font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">Tu Nombre de Usuario asignado:</p>
+                            <p style="margin: 4px 0 0 0; font-size: 16px; font-weight: 800; color: #0f172a; font-family: monospace;">${username}</p>
+                        </div>
+
                         <p style="font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 30px;">Para completar tu registro y activar tu cuenta, hacé clic en el botón de abajo para configurar tu contraseña de seguridad definitiva:</p>
                         
                         <div style="text-align: center; margin-bottom: 30px;">
@@ -262,7 +268,7 @@ router.post('/invite', async (req, res) => {
     }
 });
 
-// 🛠️ INYECTADO: Endpoint definitivo para guardar la contraseña de cuentas nuevas
+// --- 6. COMPLETAR CONFIGURACIÓN DE CONTRASEÑA NUEVA (🛠️ REPARADO PARA ENVIAR EL USERNAME) ---
 router.post('/complete-setup', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -272,20 +278,29 @@ router.post('/complete-setup', async (req, res) => {
             return res.status(400).json({ error: "Faltan datos obligatorios (email o password)." });
         }
 
-        // 1. Generamos el hash definitivo de la clave ingresada en el Front
-        const hashDefinitivo = await bcrypt.hash(password, 10);
-
-        // 2. Reemplazamos el hash aleatorio temporal por el real en MySQL
-        const querySQL = 'UPDATE admins SET password_hash = ? WHERE email = ?';
-        const [result] = await db.query(querySQL, [hashDefinitivo, email]);
-
-        if (result.affectedRows === 0) {
+        // 1. Buscamos primero el usuario asignado para podérselo mandar al Frontend
+        const [users] = await db.query('SELECT username FROM admins WHERE email = ?', [email]);
+        if (users.length === 0) {
             console.log(`❌ [SETUP] No se encontró ningún usuario con el correo: ${email}`);
             return res.status(404).json({ error: "El usuario no existe en el sistema." });
         }
+        const adminData = users[0];
+
+        // 2. Generamos el hash definitivo de la clave ingresada en el Front
+        const hashDefinitivo = await bcrypt.hash(password, 10);
+
+        // 3. Reemplazamos el hash aleatorio temporal por el real en MySQL
+        const querySQL = 'UPDATE admins SET password_hash = ? WHERE email = ?';
+        await db.query(querySQL, [hashDefinitivo, email]);
 
         console.log(`✔️ [SETUP] Contraseña guardada con éxito para ${email}. Cuenta activada.`);
-        res.json({ status: 'success', message: 'Contraseña configurada correctamente.' });
+        
+        // 🚀 RESPUESTA REPARADA: Devolvemos el username dinámico para que el Front lo dibuje en la interfaz
+        res.json({ 
+            status: 'success', 
+            message: 'Contraseña configurada correctamente.',
+            username: adminData.username 
+        });
 
     } catch (error) {
         console.error("❌ [SETUP] Error crítico al guardar la contraseña definitiva:", error);
