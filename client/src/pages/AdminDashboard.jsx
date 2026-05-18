@@ -48,7 +48,7 @@ export default function AdminDashboard() {
 
   const mesesNom = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-  // 🛠️ REPARADO: Generación dinámica del Header de Autorización para evitar tokens congelados
+  // Generación dinámica del Header de Autorización para evitar tokens congelados
   const getAuthConfig = () => ({
     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   });
@@ -260,7 +260,7 @@ export default function AdminDashboard() {
   return (
     <div className="flex min-h-screen w-full bg-[#f8fafc] font-sans text-slate-800 max-lg:flex-col relative">
       
-      {/* 🚨 ALERTA DE NUEVO LEAD - FIJO, VERDE ESMERALDA Y CERRADO SEGURO */}
+      {/* ALERTA DE NUEVO LEAD - FIJO, VERDE ESMERALDA Y CERRADO SEGURO */}
       {newLeadAlert && (
         <div className="fixed top-6 right-6 left-6 sm:left-auto sm:w-96 bg-emerald-600 text-white p-5 rounded-2xl shadow-[0_20px_50px_rgba(16,185,129,0.35)] z-[9999] border border-emerald-500 flex gap-4 items-center animate-in fade-in duration-300">
           <div className="bg-white/20 p-2.5 rounded-xl flex-shrink-0">
@@ -760,10 +760,10 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between bg-slate-700 p-1 rounded-xl border border-slate-600 w-full sm:w-auto">
                     <button onClick={() => setSelectedMes(m => m > 1 ? m - 1 : 12)} className="w-8 h-8 bg-slate-600 rounded-lg flex items-center justify-center font-bold text-white"><ChevronLeft size={14}/></button>
                     <span className="text-xs font-black px-4 uppercase text-sky-400 text-center min-w-[90px]">{mesesNom[selectedMes - 1].substring(0,3)}</span>
-                    <button onClick={() => setSelectedMes(m => m < 12 ? m + 1 : 1)} className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center font-bold text-white"><ChevronRight size={14}/></button>
+                    <button onClick={() => setSelectedMes(m => m < 12 ? m + 1 : 1)} className="w-8 h-8 bg-slate-600 rounded-lg flex items-center justify-center font-bold text-white"><ChevronRight size={14}/></button>
                   </div>
                   <div className="flex items-center justify-between bg-slate-700 p-1 rounded-xl border border-slate-600 w-full sm:w-auto">
-                    <button onClick={() => setSelectedAnio(a => a - 1)} className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center font-bold text-white"><ChevronLeft size={14}/></button>
+                    <button onClick={() => setSelectedAnio(a => a - 1)} className="w-8 h-8 bg-slate-600 rounded-lg flex items-center justify-center font-bold text-white"><ChevronLeft size={14}/></button>
                     <span className="text-xs font-black px-4 font-mono text-white text-center min-w-[60px]">{selectedAnio}</span>
                     <button onClick={() => setSelectedAnio(a => a + 1)} className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center font-bold text-white"><ChevronRight size={14}/></button>
                   </div>
@@ -791,7 +791,6 @@ export default function AdminDashboard() {
                 <input placeholder="Nombre" className={inputStyle} value={newAdmin.nombre} onChange={e => setNewAdmin({...newAdmin, nombre: e.target.value})} />
                 <input placeholder="Email" className={inputStyle} value={newAdmin.email} onChange={e => setNewAdmin({...newAdmin, email: e.target.value})} />
                 
-                {/* 🛠️ OPTIMIZADO: Loader integrado y Headers dinámicos */}
                 <button 
                   disabled={isInviting}
                   onClick={async () => {
@@ -805,7 +804,6 @@ export default function AdminDashboard() {
                       await axios.post(`${apiUrl}/api/admin/invite`, newAdmin, authHeader);
                       setNewAdmin({ nombre: '', email: '' });
                       alert("¡Invitación procesada y enviada con éxito mediante Resend!");
-                      // Refrescamos la lista de admins activos para que figure al toque
                       fetchData();
                     } catch (err) {
                       console.error(err);
@@ -856,8 +854,8 @@ const formatLocalDate = (date) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
-// COMPONENTES AUXILIARES
- Berk 
+// --- COMPONENTES AUXILIARES DEL PANEL ---
+
 function NavBtn({active, label, icon, onClick}) {
   return <button onClick={onClick} className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-all font-black text-[10px] uppercase tracking-wider cursor-pointer whitespace-nowrap flex-shrink-0 lg:w-full lg:px-7 lg:py-4 ${active ? 'bg-sky-500 text-white shadow-md' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>{icon} {label}</button>;
 }
