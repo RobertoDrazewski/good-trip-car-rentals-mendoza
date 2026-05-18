@@ -27,7 +27,6 @@ const upload = multer({ storage: storage });
 const resend = new Resend(process.env.RESEND_API_KEY); 
 
 // 🚨 MODO SANDBOX CONFIGURADO: Usamos 'onboarding@resend.dev' para que salgan los mails en la cuenta gratuita.
-// Nota: Recordá que en modo sandbox, Resend SOLO te deja enviar correos a tu propia casilla de registro.
 const EMAIL_REMITENTE_OFICIAL = 'Mendoza Rent <onboarding@resend.dev>';
 
 // --- 1. GESTIÓN DE RESERVAS MAESTRA ---
@@ -69,11 +68,10 @@ router.post('/nueva-cotizacion', async (req, res) => {
 
         console.log(`✔️ Reserva ID ${result.insertId} insertada con éxito.`);
 
-        // Notificación Mail de nueva cotización adaptada al Sandbox
         try {
             await resend.emails.send({
                 from: EMAIL_REMITENTE_OFICIAL,
-                to: [process.env.TEST_EMAIL_DESTINATARIO || 'goodtripmendoza@gmail.com'], // Recordá que en Sandbox debe ser un mail autorizado tuyo
+                to: [process.env.TEST_EMAIL_DESTINATARIO || 'goodtripmendoza@gmail.com'], 
                 subject: `🚨 NUEVA SOLICITUD - ${cliente_nombre}`,
                 html: `
                     <div style="font-family: sans-serif; border: 1px solid #f1f5f9; padding: 25px; border-radius: 16px; max-width: 600px; color: #334155;">
@@ -230,7 +228,7 @@ router.post('/invite', async (req, res) => {
         try {
             await resend.emails.send({
                 from: EMAIL_REMITENTE_OFICIAL, 
-                to: [email], // Recordá ingresar de destinatario tu mail de admin de la cuenta de Resend para el testeo exitoso
+                to: [email], 
                 subject: '🔑 Invitación de Acceso - Panel Good Trip Car Rentals',
                 html: `
                     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 550px; margin: 0 auto; padding: 30px; border: 1px solid #f1f5f9; border-radius: 24px; color: #1e293b; background-color: #ffffff;">
@@ -261,6 +259,37 @@ router.post('/invite', async (req, res) => {
     } catch (err) { 
         console.error("❌ [INVITE] ERROR CRÍTICO EN EL ENDPOINT:", err);
         res.status(500).json({ error: "Error interno en el servidor al procesar el alta.", detalles: err.message }); 
+    }
+});
+
+// 🛠️ INYECTADO: Endpoint definitivo para guardar la contraseña de cuentas nuevas
+router.post('/complete-setup', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        console.log(`⏳ [SETUP] Configurando contraseña definitiva para el mail: ${email}...`);
+
+        if (!email || !password) {
+            return res.status(400).json({ error: "Faltan datos obligatorios (email o password)." });
+        }
+
+        // 1. Generamos el hash definitivo de la clave ingresada en el Front
+        const hashDefinitivo = await bcrypt.hash(password, 10);
+
+        // 2. Reemplazamos el hash aleatorio temporal por el real en MySQL
+        const querySQL = 'UPDATE admins SET password_hash = ? WHERE email = ?';
+        const [result] = await db.query(querySQL, [hashDefinitivo, email]);
+
+        if (result.affectedRows === 0) {
+            console.log(`❌ [SETUP] No se encontró ningún usuario con el correo: ${email}`);
+            return res.status(404).json({ error: "El usuario no existe en el sistema." });
+        }
+
+        console.log(`✔️ [SETUP] Contraseña guardada con éxito para ${email}. Cuenta activada.`);
+        res.json({ status: 'success', message: 'Contraseña configurada correctamente.' });
+
+    } catch (error) {
+        console.error("❌ [SETUP] Error crítico al guardar la contraseña definitiva:", error);
+        res.status(500).json({ error: "Error interno en el servidor al activar la cuenta.", detalles: error.message });
     }
 });
 
