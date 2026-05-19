@@ -3,44 +3,43 @@ import { useTranslation } from 'react-i18next';
 import { Star } from 'lucide-react';
 
 /**
- * Componente Hero - Diseño Premium Centrado Adaptado para Fondo Envolvente Global
+ * Componente Hero - Versión Compacta de Alta Densidad para Evitar Desbordes
  */
 export default function Hero() {
   const { t } = useTranslation();
 
   return (
     /**
-     * 🛠️ MODIFICADO: Eliminado el bg-slate-900 y la etiqueta <img> interna.
-     * Ahora el componente es transparente para integrarse con el fondo global de App.jsx
+     * 🛠️ REPARADO: Se eliminaron las alturas en VH (h-[35vh], h-[50vh]) que estiraban el layout vacío.
+     * Ahora usa h-auto y lg:h-[130px] fijos, actuando como una marquesina ejecutiva de alta gama.
      */
-    <div className="relative h-[35vh] sm:h-[45vh] md:h-[50vh] text-white px-4 sm:px-8 md:px-16 flex flex-col justify-center items-center overflow-hidden w-full bg-transparent">
+    <div className="relative w-full h-auto lg:h-[130px] text-white px-4 sm:px-8 md:px-16 flex flex-col justify-center items-center overflow-hidden bg-transparent flex-shrink-0">
       
-      {/* Brillo radial de acento de servicios centrado sutil */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-sky-500/15 via-transparent to-transparent opacity-60 pointer-events-none z-1" />
+      {/* Brillo radial de acento de servicios centrado sutil - Gradiente Balanz */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-[#88BDF2]/10 via-transparent to-transparent opacity-60 pointer-events-none z-1" />
 
-      {/* CONTENEDOR DE TEXTO COMPLETAMENTE CENTRADO */}
-      <div className="relative z-10 max-w-lg md:max-w-2xl w-full flex flex-col items-center pt-2 sm:pt-6 text-center">
+      {/* CONTENEDOR DE TEXTO INTEGRADO EN UNA LÍNEA COMPACTA PARA RENDIMIENTO DE ESPACIO */}
+      <div className="relative z-10 w-full flex flex-col lg:flex-row items-center justify-between gap-3 max-w-7xl pt-2 sm:pt-4">
         
-        {/* Título principal compacto */}
-        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-1.5 sm:mb-2 leading-tight animate-in fade-in slide-in-from-bottom-10 duration-1000 tracking-tighter uppercase italic text-white drop-shadow-[0_4px_12px_rgba(15,23,42,0.5)]">
-          Good Trip <br className="max-md:hidden" />
-          <span className="text-sky-400 not-italic">Car Rentals</span>
-        </h2>
-        
-        {/* Mensaje de calidez y confianza */}
-        <p className="text-xs sm:text-sm md:text-base opacity-95 font-medium leading-relaxed mb-3 sm:mb-4 max-w-md md:max-w-xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200 drop-shadow-[0_2px_8px_rgba(15,23,42,0.8)]">
-          {t('hero_subtitle', 'Nacimos como una familia con dos autos y un sueño: ofrecer el trato humano que Mendoza merece.')}
-        </p>
+        {/* Título principal y subtítulo en horizontal (Optimiza altura en PC) */}
+        <div className="text-center lg:text-left">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter uppercase italic text-white drop-shadow-[0_4px_12px_rgba(18,19,25,0.6)]">
+            Good Trip <span className="text-[#88BDF2] not-italic">Car Rentals</span>
+          </h2>
+          <p className="text-[11px] opacity-85 text-[#6F7D93] font-bold hidden md:block mt-0.5">
+            {t('hero_subtitle', 'Nacimos como una familia con dos autos y un sueño: ofrecer el trato humano que Mendoza merece.')}
+          </p>
+        </div>
 
-        {/* Prueba social optimizada centrada */}
-        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-500 bg-slate-900/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 max-sm:scale-90 shadow-lg">
-          <div className="flex text-sky-400 gap-0.5">
+        {/* Prueba social optimizada centrada - Estilo Tarjeta Balanz */}
+        <div className="flex items-center gap-2 bg-[#1E222F]/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-800/60 shadow-2xl flex-shrink-0">
+          <div className="flex text-[#88BDF2] gap-0.5">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} size={11} fill="currentColor" className="text-sky-400" />
+              <Star key={i} size={10} fill="currentColor" stroke="none" className="text-[#88BDF2]" />
             ))}
           </div>
-          <div className="w-[1px] h-3 bg-white/20" />
-          <p className="text-[8px] md:text-[10px] uppercase tracking-widest font-black text-slate-200">
+          <div className="w-[1px] h-3 bg-slate-800" />
+          <p className="text-[9px] uppercase tracking-widest font-black text-white/90">
             5 Estrellas en Google
           </p>
         </div>

@@ -45,34 +45,46 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 90px; 
+  background-color: #121319; /* Evita destellos blancos al cargar la página */
 }
 
 body {
   overflow-x: hidden;
   width: 100%;
+  background-color: #121319;
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 🛡️ PARCHE CRÍTICO PUMA CODE: Forzar opacidad sólida y contraste absoluto 
-   en las tarjetas del main para que NINGÚN texto de requisitos se pierda con el fondo */
-main .bg-white, 
+/* 🛡️ OPTIMIZACIÓN BALANZ PREMIUM: Sincronización transparente y contraste nocturno
+   para que conviva de forma cristalina sobre el fondo envolvente */
+main .bg-transparent, 
 #requisitos, 
 #flota, 
 #testimonios, 
 #reservas {
-  background-color: rgba(255, 255, 255, 0.98) !important; /* 98% blanco puro para blindar las letras */
-  backdrop-blur: md;
-  color: #0f172a !important; /* Fuerza Slate-900 (Letras ultra oscuras de alta visibilidad) */
+  background-color: rgba(30, 34, 47, 0.55) !important; /* Capa translúcida del color de tarjeta Balanz (#1E222F) */
+  backdrop-filter: blur(12px) !important; /* Efecto esmerilado de alta gama para despegar del paisaje */
+  -webkit-backdrop-filter: blur(12px) !important;
+  color: #ffffff !important; /* Texto principal en blanco puro para blindar la lectura nocturna */
+  border: 1px solid rgba(136, 189, 242, 0.15) !important; /* Borde sutil usando el celeste acento */
 }
 
-/* Forzar que los textos secundarios de los requisitos no se laven con el fondo */
+/* Ajuste fino para las descripciones y textos secundarios de los requisitos */
 #requisitos p, 
 #requisitos li, 
 #requisitos span {
-  color: #334155 !important; /* Slate-700 para máxima lectura */
-  font-weight: 600; /* Le da un poquito más de cuerpo a la tipografía */
+  color: #6F7D93 !important; /* Gris azulado Balanz para perfecta jerarquía visual */
+  font-weight: 600;
+}
+
+/* Asegurar legibilidad en los títulos de los bloques */
+#requisitos h2,
+#flota h2,
+#testimonios h2,
+#reservas h3 {
+  color: #ffffff !important;
 }
 
 /* ==========================================================================
@@ -82,32 +94,34 @@ main .bg-white,
 .sticky {
   position: -webkit-sticky;
   position: sticky;
-  background-color: #ffffff !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  background-color: #1E222F !important; /* Adaptado al modo oscuro corporativo */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(136, 189, 242, 0.1);
 }
 
+/* Adaptación nativa de los selectores de fecha/hora en dispositivos móviles */
 input[type="date"], input[type="time"], select {
-  color-scheme: light; 
+  color-scheme: dark; /* Forza al sistema operativo a usar calendarios nativos oscuros */
   -webkit-appearance: none; 
 }
 
 /* ==========================================================================
-   PERSONALIZACIÓN DE LA BARRA DE DESPLAZAMIENTO (SOLO ESCRITORIO)
+   PERSONALIZACIÓN DE LA BARRA DE DESPLAZAMIENTO (SOLO ESCRITORIO - ESTILO PREMIUM)
    ========================================================================== */
 @media (min-width: 769px) {
   ::-webkit-scrollbar {
-    width: 8px; 
-    height: 8px; 
+    width: 6px; 
+    height: 6px; 
   }
   ::-webkit-scrollbar-track {
-    background: #f1f5f9; 
+    background: #121319; /* Fondo ultra oscuro a tono con la app */
   }
   ::-webkit-scrollbar-thumb {
-    background: #0ea5e9; 
+    background: #1E222F; /* Color de tarjeta para el track */
     border-radius: 10px;
-    border: 2px solid #f1f5f9; 
+    border: 1px solid rgba(136, 189, 242, 0.2); /* Detalle sutil en celeste */
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #0284c7; 
+    background: #88BDF2; /* Brilla en celeste activo al pasar el mouse */
   }
 }
