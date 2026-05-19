@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import { useTranslation } from 'react-i18next'; 
 import { Instagram, MapPin, Phone, ArrowUp, Star } from 'lucide-react';
 
-// Importación de Activos de Marca
-import logoMendozaRent from './assets/logo.png';
+// Importación de Activos de Marca (Sincronizados al logo cuadrado para el layout)
+import logoCuadrado from './assets/logocuadrado.png';
 import imgHeroBackground from './assets/hero.png';
 
 // Importación de Componentes de Interfaz
@@ -60,7 +60,7 @@ export default function App() {
                 <Hero />
               </div>
               
-              {/* MAIN CONTAINER: Flujo vertical libre con alineación y simetría de alturas */}
+              {/* MAIN CONTAINER: Flujo libre adaptado para convivir con el Hero expandido */}
               <main className="w-full max-w-7xl mx-auto px-4 lg:px-6 flex-1 flex flex-col gap-8 md:gap-12 pb-12">
                 
                 {/* 🚗 SECCIÓN 1: FLOTA (lg:col-span-8) + REQUISITOS (lg:col-span-4) -> ¡MISMA ALTURA! */}
@@ -164,7 +164,7 @@ export default function App() {
   );
 }
 
-// 🎯 COMPONENTE FOOTER LOCAL: Totalmente Reparado, Sticky Fijo y Enlazado
+// 🎯 COMPONENTE FOOTER LOCAL: Reparado con la Sincronización del Logo Cuadrado Premium
 function FooterLocal({ t }) {
   const navigate = useNavigate();
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -172,12 +172,19 @@ function FooterLocal({ t }) {
   const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola, me comunico desde la plataforma web de Good Trip Car Rentals y deseo recibir asistencia comercial.")}`;
 
   return (
-    /**
-     * 🛠️ REPARADO CRÍTICO: Clases 'sticky bottom-0 z-50' añadidas junto con color y desenfoque Balanz 
-     * para asegurar que flote perfectamente por encima de todo el contenido de forma fija.
-     */
-    <footer className="sticky bottom-0 z-50 bg-[#121319]/90 backdrop-blur-md border-t border-slate-800/60 py-3.5 w-full text-white pointer-events-auto shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-3 text-[10px] font-bold text-[#666D7E]">
+    <footer className="sticky bottom-0 z-50 bg-[#121319]/90 backdrop-blur-md border-t border-slate-800/60 py-8 w-full text-white pointer-events-auto shadow-[0_-10px_30px_rgba(0,0,0,0.6)] overflow-hidden">
+      
+      {/* 🏔️ REPARADO: Ahora inyecta el logoCuadrado oficial mapeado con las reglas estrictas de index.css */}
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none opacity-[0.04] mix-blend-screen">
+        <img 
+          src={logoCuadrado} 
+          alt="Watermark Logo background" 
+          className="h-24 sm:h-32 w-auto object-contain"
+        />
+      </div>
+
+      {/* CONTENEDOR DE CONTENIDO */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-[#666D7E]">
         
         {/* IZQUIERDA: Copyright Completo Legal */}
         <p className="uppercase tracking-wider text-center md:text-left">
@@ -202,7 +209,6 @@ function FooterLocal({ t }) {
             rel="noreferrer" 
             className="flex items-center gap-1.5 text-slate-300 hover:text-[#25D366] transition-colors font-black uppercase text-[9px] tracking-wider"
           >
-            {/* SVG Ícono de WhatsApp nativo premium */}
             <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#25D366]"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
             <span>+54 9 261 276-4618</span>
           </a>

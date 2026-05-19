@@ -88,6 +88,22 @@ main .bg-transparent,
 }
 
 /* ==========================================================================
+   🏔️ PARCHE DE CONTROL PREMIUM PARA EL LOGO EN EL FOOTER
+   ========================================================================== */
+footer {
+  position: relative;
+}
+
+/* Forzar que la marca de agua escale de manera inteligente al 100% sin recortarse */
+footer img {
+  max-height: 85% !important; /* Deja un margen seguro arriba y abajo dentro del contenedor */
+  width: auto !important;
+  object-fit: contain !important; /* Evita cualquier tipo de estiramiento raro o deformación */
+  opacity: 0.04 !important; /* Calibrado sutil para verse elegante sin competir con los textos */
+  pointer-events: none; /* Asegura que el usuario pueda hacer clic en los links de arriba sin problemas */
+}
+
+/* ==========================================================================
    🛠️ PARCHE DE FIJACIÓN STICKY PARA LA CONSOLA MODULAR (PC & CELU)
    ========================================================================== */
 

@@ -9,7 +9,7 @@ i18n
         translation: {
           // --- HERO & NAVBAR ---
           "hero_title": "Recorré Mendoza con Good Trip",
-          "hero_subtitle": "Alquiler de autos directo, sin vueltas y con la mejor atención personalizada.",
+          "hero_subtitle": "Nacimos como una familia con dos autos y un sueño: ofrecer el trato humano que Mendoza merece.",
           "nav_reserva": "Reservas",
           "nav_flota": "Flota",
           "nav_rutas": "Rutas",
@@ -28,26 +28,21 @@ i18n
           "error_calc": "Por favor completá todos los campos obligatorios.",
 
           // --- RESULTADO DE COTIZACIÓN (QuoteResult Resumen) ---
-          "resumen_badge": "Presupuesto Calculado al Instante",
-          "resumen_titulo_1": "Tu Resumen de",
+          "resumen_badge": "Presupuesto Listo",
+          "resumen_titulo_1": "Resumen de",
           "resumen_titulo_2": "Viaje",
-          "quote_greeting": "Hola",
-          "quote_subtitle": ", revisá las condiciones de tu cotización oficial:",
-          "quote_item_car": "Vehículo solicitado",
+          "quote_item_car": "Vehículo",
           "quote_day": "Día",
           "quote_days": "Días",
-          "quote_item_baby_seat": "Opcional Sillita de Bebé",
-          "quote_added": "Adicionada",
+          "quote_item_baby_seat": "Sillita de Bebé",
+          "quote_item_wash": "Servicio de Lavado Obligatorio",
           "quote_not_requested": "No Solicitada",
-          "quote_pet_title": "Good Trip Experience • Pet Friendly Activo",
-          "resumen_titulo": "Resumen del Alquiler",
-          "resumen_dias": "Presupuesto por {{count}} días",
+          "quote_pet_title": "Pet Friendly Activo",
+          "resumen_dias": "Alquiler por",
           "label_garantia": "Garantía Reembolsable",
-          "garantia_desc": "Efectivo o Tarjeta",
-          "btn_reservar": "RESERVAR AHORA",
-          "sin_tarjeta": "Sin tarjeta de crédito",
-          "total_entrega": "VALOR TOTAL A ENTREGAR AL RECIBIR",
-          "pet_friendly_tag": "Pet Friendly",
+          "btn_reservar": "RESERVAR AHORA VIA WHATSAPP",
+          "total_entrega": "VALOR TOTAL NETO A ENTREGAR",
+          "pet_friendly_tag": "¡Tu mascota viaja con vos sin costos extras!",
 
           // --- SECCIÓN DE FLOTA ---
           "flota_title": "Nuestra",
@@ -68,13 +63,13 @@ i18n
           "req_guide_title": "Guía Turística",
           "req_guide_text": "Le obsequiamos una guía exclusiva para aprovechar sus rutas en Mendoza.",
 
-          // --- SECCIÓN DE RUTAS ---
-          "routes_title": "Destinos",
-          "routes_subtitle": "Imperdibles",
+          // --- SECCIÓN DE RUTAS & TRAZADOR MAPA ---
+          "routes_title": "Trazador",
+          "routes_subtitle": "Mendocinas",
           "routes_tag": "Explorá Mendoza con la mejor flota",
           "routes_btn_gps": "Iniciar Navegación GPS",
           "routes_empty": "Próximamente nuevas rutas...",
-          "routes_error_map": "Esta ruta aún no tiene un mapa configurado.",
+          "routes_error_map": "Seleccioná un destino mendocino para trazar el mapa",
 
           // --- WIDGET DEL CLIMA (WeatherWidget Avanzado) ---
           "weather_title": "Pronóstico",
@@ -116,7 +111,7 @@ i18n
           // --- CHAT IA ---
           "chat_welcome": "¡Hola! Soy el asistente virtual de Good Trip. ¿En qué puedo ayudarte?",
           "chat_followup": "¡Perfecto {{name}}! Ya tengo tus datos. Si estás de acuerdo con el presupuesto, solo confirmame por acá.",
-          "chat_error": "Tuve un problema. ¿Me consultás por WhatsApp?",
+          "chat_error": "Fallo estructural al activar:",
           "online_status": "En línea",
           "ai_typing": "Good Trip está escribiendo...",
           "chat_placeholder": "Escribí aquí...",
@@ -125,7 +120,7 @@ i18n
           "footer_desc": "Alquiler de vehículos sin franquicias ocultas ni sorpresas. Tu mejor experiencia recorriendo las rutas mendocinas.",
           "footer_nav_title": "Navegación",
           "footer_contact_title": "Atención Directa",
-          "nav_staff": "Acceso Staff",
+          "nav_staff": "Staff",
           "footer_rights": "Todos los derechos reservados."
         }
       },
@@ -133,7 +128,7 @@ i18n
         translation: {
           // --- HERO & NAVBAR ---
           "hero_title": "Explore Mendoza with Good Trip",
-          "hero_subtitle": "Direct car rental, no hassle, and the best personalized service.",
+          "hero_subtitle": "We were born as a family with two cars and a dream: to offer the humane treatment that Mendoza deserves.",
           "nav_reserva": "Bookings",
           "nav_flota": "Fleet",
           "nav_rutas": "Routes",
@@ -145,33 +140,28 @@ i18n
           "label_devolucion": "Return Date",
           "lugar_retiro": "Pick-up Location",
           "lugar_entrega": "Return Location",
-          "loc_ciudad": "Downtown (Free)",
+          "loc_ciudad": "City (Free)",
           "loc_aeropuerto": "Airport",
           "silla_bebe_q": "Baby Seat?",
           "btn_cotizar": "GET QUOTE",
           "error_calc": "Please fill in all mandatory fields.",
 
           // --- RESULTADO DE COTIZACIÓN (QuoteResult Resumen) ---
-          "resumen_badge": "Instant Quote Calculated",
-          "resumen_titulo_1": "Your Trip",
+          "resumen_badge": "Quote Ready",
+          "resumen_titulo_1": "Trip",
           "resumen_titulo_2": "Summary",
-          "quote_greeting": "Hello",
-          "quote_subtitle": ", check the conditions of your official quote:",
-          "quote_item_car": "Requested vehicle",
+          "quote_item_car": "Vehicle",
           "quote_day": "Day",
           "quote_days": "Days",
-          "quote_item_baby_seat": "Optional Baby Seat",
-          "quote_added": "Added",
+          "quote_item_baby_seat": "Baby Seat",
+          "quote_item_wash": "Mandatory Car Wash Fee",
           "quote_not_requested": "Not Requested",
-          "quote_pet_title": "Good Trip Experience • Pet Friendly Active",
-          "resumen_titulo": "Booking Summary",
-          "resumen_dias": "Quote for {{count}} days",
+          "quote_pet_title": "Pet Friendly Active",
+          "resumen_dias": "Rental for",
           "label_garantia": "Refundable Deposit",
-          "garantia_desc": "Cash or Card",
-          "btn_reservar": "BOOK NOW",
-          "sin_tarjeta": "No credit card required",
-          "total_entrega": "TOTAL AMOUNT TO PAY ON ARRIVAL",
-          "pet_friendly_tag": "Pet Friendly",
+          "btn_reservar": "BOOK NOW VIA WHATSAPP",
+          "total_entrega": "TOTAL NET AMOUNT TO PAY ON ARRIVAL",
+          "pet_friendly_tag": "Your pet travels with you at no extra cost!",
 
           // --- SECCIÓN DE FLOTA ---
           "flota_title": "Our",
@@ -192,13 +182,13 @@ i18n
           "req_guide_title": "Tourist Guide",
           "req_guide_text": "We provide a complimentary exclusive guide to enjoy your routes in Mendoza.",
 
-          // --- SECCIÓN DE RUTAS ---
-          "routes_title": "Must-See",
-          "routes_subtitle": "Destinations",
+          // --- SECCIÓN DE RUTAS & TRAZADOR MAPA ---
+          "routes_title": "Mendoza",
+          "routes_subtitle": "Tracker",
           "routes_tag": "Explore Mendoza with the best fleet",
           "routes_btn_gps": "Start GPS Navigation",
           "routes_empty": "New routes coming soon...",
-          "routes_error_map": "This route doesn't have a map configured yet.",
+          "routes_error_map": "Select a destination to trace the map route",
 
           // --- WIDGET DEL CLIMA (WeatherWidget Avanzado) ---
           "weather_title": "Weekly",
@@ -234,13 +224,13 @@ i18n
           "modal_titulo": "REQUEST SENT!",
           "modal_sub": "We will contact you via WhatsApp to confirm the details.",
           "placeholder_nombre": "Full name",
-          "placeholder_wa": "WhatsApp (e.g., +54 9 261...)",
+          "placeholder_wa": "WhatsApp (e.g., 2612764618)",
           "btn_confirmar": "CONFIRM & CHAT",
 
           // --- CHAT IA ---
           "chat_welcome": "Hi! I'm Good Trip's virtual assistant. How can I help you?",
           "chat_followup": "Perfect {{name}}! I have your details. If you agree with the quote, just confirm here.",
-          "chat_error": "I had a problem. Can you contact me via WhatsApp?",
+          "chat_error": "Activation failure:",
           "online_status": "Online",
           "ai_typing": "Good Trip is typing...",
           "chat_placeholder": "Type here...",
@@ -249,7 +239,7 @@ i18n
           "footer_desc": "Car rental with no hidden fees or surprises. Your best experience traveling the roads of Mendoza.",
           "footer_nav_title": "Navigation",
           "footer_contact_title": "Direct Support",
-          "nav_staff": "Staff Login",
+          "nav_staff": "Staff",
           "footer_rights": "All rights reserved."
         }
       },
@@ -257,7 +247,7 @@ i18n
         translation: {
           // --- HERO & NAVBAR ---
           "hero_title": "Explore Mendoza com Good Trip",
-          "hero_subtitle": "Aluguel de carros direto, sem complicações e com o melhor atendimento personalizado.",
+          "hero_subtitle": "Nascemos como uma família com dois carros e um sonho: oferecer o tratamento humano que Mendoza merece.",
           "nav_reserva": "Reservas",
           "nav_flota": "Frota",
           "nav_rutas": "Rotas",
@@ -269,33 +259,28 @@ i18n
           "label_devolucion": "Data de Devolução",
           "lugar_retiro": "Local de Retirada",
           "lugar_entrega": "Local de Devolução",
-          "loc_ciudad": "Centro (Grátis)",
+          "loc_ciudad": "Cidade (Grátis)",
           "loc_aeropuerto": "Aeroporto",
           "silla_bebe_q": "Cadeira de Bebê?",
           "btn_cotizar": "ORÇAMENTO",
           "error_calc": "Por favor, preencha todos os campos obrigatórios.",
 
           // --- RESULTADO DE COTIZACIÓN (QuoteResult Resumen) ---
-          "resumen_badge": "Orçamento Calculado Instantaneamente",
-          "resumen_titulo_1": "Seu Resumo de",
+          "resumen_badge": "Orçamento Pronto",
+          "resumen_titulo_1": "Resumo de",
           "resumen_titulo_2": "Viagem",
-          "quote_greeting": "Olá",
-          "quote_subtitle": ", verifique as condições do seu orçamento oficial:",
-          "quote_item_car": "Veículo solicitado",
+          "quote_item_car": "Veículo",
           "quote_day": "Dia",
           "quote_days": "Dias",
-          "quote_item_baby_seat": "Cadeira de Bebê Opcional",
-          "quote_added": "Adicionada",
+          "quote_item_baby_seat": "Cadeira de Bebê",
+          "quote_item_wash": "Taxa de Lavagem Obrigatória",
           "quote_not_requested": "Não Solicitada",
-          "quote_pet_title": "Good Trip Experience • Pet Friendly Ativo",
-          "resumen_titulo": "Resumo da Reserva",
-          "resumen_dias": "Orçamento para {{count}} dias",
+          "quote_pet_title": "Pet Friendly Ativo",
+          "resumen_dias": "Aluguel por",
           "label_garantia": "Garantia Reembolsável",
-          "garantia_desc": "Dinheiro o Cartão",
-          "btn_reservar": "RESERVAR AGORA",
-          "sin_tarjeta": "Sem cartão de crédito",
-          "total_entrega": "VALOR TOTAL A PAGAR NA CHEGADA",
-          "pet_friendly_tag": "Pet Friendly",
+          "btn_reservar": "RESERVAR AGORA VIA WHATSAPP",
+          "total_entrega": "VALOR TOTAL LÍQUIDO A PAGAR NA CHEGADA",
+          "pet_friendly_tag": "Seu animal de estimação viaja com você sem custos extras!",
 
           // --- SECCIÓN DE FLOTA ---
           "flota_title": "Nossa",
@@ -305,7 +290,7 @@ i18n
           "req_section_subtitle": "Aluguel",
           "req_age_title": "Idade Mínima",
           "req_age_text": "Para dirigir nossas unidades é necessário ter mais de 23 anos.",
-          "req_doc_title": "Documentação",
+          "req_doc_title": "Documentación",
           "req_doc_text": "Carteira de habilitação física, válida e autorizada para veículos de passeio.",
           "req_km_title": "Quilometragem Livre",
           "req_km_text": "Quilômetros ilimitados em todas as unidades e sem taxa para motorista adicional.",
@@ -314,15 +299,15 @@ i18n
           "req_warranty_title": "Caução / Garantia",
           "req_warranty_text": "Depósito de $450.000 ARS ou USD 300 (Totalmente reembolsável ao final do contrato).",
           "req_guide_title": "Guia Turístico",
-          "req_guide_text": "Oferecemos um guias exclusivo gratuito para aproveitar suas rotas em Mendoza.",
+          "req_guide_text": "Oferecemos um guia exclusivo gratuito para aproveitar suas rotas em Mendoza.",
 
-          // --- SECCIÓN DE ROTAS ---
-          "routes_title": "Destinos",
-          "routes_subtitle": "Imperdíveis",
+          // --- SECCIÓN DE ROTAS & TRAZADOR MAPA ---
+          "routes_title": "Traçador",
+          "routes_subtitle": "Mendocinas",
           "routes_tag": "Explore Mendoza com a melhor frota",
           "routes_btn_gps": "Iniciar Navegação GPS",
           "routes_empty": "Novas rotas em breve...",
-          "routes_error_map": "Esta rota ainda não tem um mapa configurado.",
+          "routes_error_map": "Selecione um destino para traçar a rota no mapa",
 
           // --- WIDGET DEL CLIMA (WeatherWidget Avanzado) ---
           "weather_title": "Previsão",
@@ -332,7 +317,7 @@ i18n
           "weather_sunrise": "Nascer do Sol",
           "weather_sunset": "Pôr do Sol",
           "weather_rain_chance": "Chuva Prob.",
-          "weather_wind_speed": "Vento Atual",
+          "weather_wind_speed": "Vento Actual",
           "weather_humidity": "Umidade",
           "weather_planning_text": "Planeje suas rotas turísticas com dados em tempo real.",
           "season_summer": "Verão",
@@ -351,20 +336,20 @@ i18n
           "rev_1_date": "3 meses atrás",
           "rev_2_text": "Excelente serviço! Tudo foi muito gentil e atencioso. O carro era mais do que esperávamos.",
           "rev_2_date": "2 meses atrás",
-          "rev_3_text": "Tudo excelente! A mejor experiência de aluguel em Mendoza. O carro funcionou perfeitamente.",
+          "rev_3_text": "Tudo excelente! A melhor experiência de aluguel em Mendoza. O carro funcionou perfeitamente.",
           "rev_3_date": "4 meses atrás",
 
           // --- MODAL ---
           "modal_titulo": "SOLICITAÇÃO ENVIADA!",
-          "modal_sub": "Entraremos em contato com você pelo WhatsApp para confirmar los detalhes.",
+          "modal_sub": "Entraremos em contato com você pelo WhatsApp para confirmar os detalhes.",
           "placeholder_nombre": "Nome completo",
-          "placeholder_wa": "WhatsApp (Ex: +54 9 261...)",
+          "placeholder_wa": "WhatsApp (Ex: 2612764618)",
           "btn_confirmar": "CONFIRMAR E CHAT",
 
           // --- CHAT IA ---
           "chat_welcome": "Olá! Sou o assistente virtual da Good Trip. Como posso te ajudar?",
           "chat_followup": "Perfeito {{name}}! Já tenho seus dados. Se você concorda com o orçamento, confirme por aqui.",
-          "chat_error": "Tive um problema. Você pode me consultar pelo WhatsApp?",
+          "chat_error": "Falha estrutural ao ativar:",
           "online_status": "Online",
           "ai_typing": "Good Trip está escrevendo...",
           "chat_placeholder": "Escreva aqui...",
@@ -372,8 +357,8 @@ i18n
           // --- FOOTER ---
           "footer_desc": "Aluguel de veículos sem taxas ocultas ou surpresas. Sua melhor experiência percorrendo as estradas de Mendoza.",
           "footer_nav_title": "Navegação",
-          "footer_contact_title": "Atendimento Direto",
-          "nav_staff": "Acesso Staff",
+          "footer_contact_title": "Atendimento Directo",
+          "nav_staff": "Staff",
           "footer_rights": "Todos os direitos reservados."
         }
       }

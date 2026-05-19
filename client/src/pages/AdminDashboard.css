@@ -1,246 +1,146 @@
 /* ==========================================================================
-   PUMA CODE: FULL SCREEN LAYOUT FINAL + MOBILE PROTECTION
+   PUMA CODE: ANIMACIONES DE INTERFAZ & OPTIMIZACIÓN TÁCTIL (MENDOZA RENT)
    ========================================================================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box !important;
+
+/* ANIMACIONES PARA LOS RESULTADOS DE COTIZACIÓN */
+.animate-in {
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden; /* 🔥 Optimiza el renderizado en celulares para evitar parpadeos */
+  transform: translateZ(0); /* Acciona la aceleración por hardware en iOS y Android */
 }
 
-/* En escritorio se clava a la pantalla; en celulares se adapta de forma fluida */
-body, html, #root {
-  width: 100%;
-  height: 100vh;
-  background-color: #f1f5f9;
+.fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (max-width: 1024px) {
-  body, html, #root {
-    height: auto;
-    overflow-y: auto; /* Permite scroll natural en el celular */
-  }
+.zoom-in {
+  animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* El contenedor principal */
-.flex.min-h-screen {
-  display: flex;
-  width: 100%;
-  height: 100vh;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 1024px) {
-  .flex.min-h-screen {
-    flex-direction: column; /* Apila el menú arriba y el contenido abajo en celulares */
-    height: auto;
-  }
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 /* ==========================================================================
-   SIDEBAR ANCHO Y AZUL OSCURO (RESPONSIVE)
+   🚀 SOPORTE PREMIUM PARA CARRUSELES MÓVILES (RESEÑAS, REQUISITOS Y CLIMA)
    ========================================================================== */
-aside {
-  width: 300px !important;
-  min-width: 300px !important;
-  background-color: #0f172a;
-  flex-shrink: 0;
-  height: 100vh;
-  padding: 40px 20px !important;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
+
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE y Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
-@media (max-width: 1024px) {
-  aside {
-    width: 100% !important;
-    min-width: 100% !important;
-    height: auto !important; /* Libera los 100vh en el celular */
-    padding: 20px !important;
-    position: sticky;
-    top: 0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Distribución fluida para tus NavBtn auxiliares en celulares */
-  aside nav {
-    display: flex !important;
-    flex-direction: row !important;
-    overflow-x: auto; /* Permite deslizar los botones hacia los costados con el dedo */
-    gap: 8px !important;
-    padding-bottom: 5px;
-    
-    /* Oculta la barra de scroll nativa para mantenerlo premium */
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  aside nav::-webkit-scrollbar {
-    display: none;
-  }
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari y Opera */
 }
 
-/* ==========================================================================
-   CONTENIDO PRINCIPAL: OCUPA TODO EL RESTO
-   ========================================================================== */
-main {
-  flex-grow: 1 !important;
-  height: 100vh;
-  overflow-y: auto;
-  padding: 50px !important;
-  background-color: #f8fafc;
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px; 
+  background-color: #121319; /* Evita destellos blancos al cargar la página */
 }
 
-@media (max-width: 1024px) {
-  main {
-    height: auto !important;
-    padding: 20px !important; /* Menos margen en celular para ganar espacio útil */
-    overflow-y: visible !important;
-  }
-}
-
-/* ==========================================================================
-   🛡️ REPARADO: CALENDARIO GIGANTE PREMIUM (DURANTE EL ALQUILER EN TIEMPO REAL)
-   ========================================================================== */
-.react-calendar {
-  width: 100% !important;
-  max-width: none !important;
-  border: none !important;
-  border-radius: 40px !important;
-  padding: 30px !important;
-  background-color: #ffffff !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-  font-family: inherit !important;
-}
-
-/* Estructura y altura de cada día de la grilla */
-.react-calendar__tile {
-  height: 125px !important; /* Altura óptima corporativa para PC */
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  padding: 8px 4px !important;
-  border: 1px solid #f1f5f9 !important;
-  background: none;
-  transition: all 0.15s ease-in-out;
-  font-weight: 700 !important;
-  color: #334155 !important;
-}
-
-.react-calendar__tile:hover {
-  background-color: #f8fafc !important;
-}
-
-/* Día seleccionado o activo */
-.react-calendar__tile--active {
-  background-color: #f0f9ff !important;
-  border: 2px solid #0ea5e9 !important;
-  color: #0369a1 !important;
-}
-
-/* Estilización de las cabeceras de los días (Lu, Ma, Mi...) */
-.react-calendar__month-view__weekdays {
-  text-transform: uppercase !important;
-  font-size: 11px !important;
-  font-weight: 900 !important;
-  letter-spacing: 1px !important;
-  color: #94a3b8 !important;
-  padding-bottom: 12px !important;
-}
-
-.react-calendar__month-view__weekdays__weekday abbr {
-  text-decoration: none !important;
-}
-
-/* Botones de navegación del mes (atrás, adelante) */
-.react-calendar__navigation {
-  display: flex !important;
-  height: 48px !important;
-  margin-bottom: 20px !important;
-}
-
-.react-calendar__navigation button {
-  min-width: 44px !important;
-  background: none !important;
-  border: none !important;
-  font-size: 16px !important;
-  font-weight: 900 !important;
-  text-transform: uppercase !important;
-  color: #1e293b !important;
-  cursor: pointer !important;
-  border-radius: 12px !important;
-}
-
-.react-calendar__navigation button:hover {
-  background-color: #f1f5f9 !important;
-}
-
-/* Etiquetas internas de patentes (Mini Tags flotantes de tus autos ocupados) */
-.patente-tag {
-  font-size: 7.5px !important;
-  font-weight: 900 !important;
-  text-transform: uppercase;
-  background-color: #1e293b !important;
-  color: #0ea5e9 !important;
-  padding: 2px 4px !important;
-  border-radius: 4px !important;
-  width: 100% !important;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.calendar-car-thumb {
+body {
+  overflow-x: hidden;
   width: 100%;
-  height: 40px;
-  object-fit: contain;
-  margin-top: auto;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.04));
+  background-color: #121319;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Adaptación táctil y responsiva del calendario en celulares */
-@media (max-width: 640px) {
-  .react-calendar {
-    border-radius: 24px !important;
-    padding: 15px !important;
-  }
-  .react-calendar__tile {
-    height: 80px !important; /* Más petiso para que entre el mes completo sin scroll */
-    padding: 4px 2px !important;
-    font-size: 12px !important;
-  }
-  .calendar-car-thumb {
-    height: 22px;
-  }
-  .patente-tag {
-    font-size: 6px !important;
-    padding: 1px 2px !important;
-  }
+/* 🛡️ OPTIMIZACIÓN BALANZ PREMIUM: Sincronización transparente y contraste nocturno
+   para que conviva de forma cristalina sobre el fondo envolvente */
+main .bg-transparent, 
+#requisitos, 
+#flota, 
+#testimonios, 
+#reservas {
+  background-color: rgba(30, 34, 47, 0.65) !important; /* Capa translúcida exacta basada en #1E222F */
+  backdrop-filter: blur(14px) !important; /* Efecto esmerilado de alta gama para despegar del paisaje */
+  -webkit-backdrop-filter: blur(14px) !important;
+  color: #ffffff !important; /* Texto principal en blanco puro para blindar la lectura nocturna */
+  border: 1px solid rgba(136, 189, 242, 0.2) !important; /* Borde sutil utilizando el celeste acento #88BDF2 */
+  box-shadow: 0 20px 50px rgba(18, 19, 25, 0.6) !important; /* Sombras profundas integradas al negro mate */
+}
+
+/* Ajuste fino para las descripciones y textos secundarios de los requisitos */
+#requisitos p, 
+#requisitos li, 
+#requisitos span {
+  color: #6F7D93 !important; /* Gris azulado Balanz para perfecta jerarquía visual */
+  font-weight: 600;
+}
+
+/* Asegurar legibilidad en los títulos de los bloques y mutación a tono de acento */
+#requisitos h2,
+#flota h2,
+#testimonios h2,
+#reservas h3 {
+  color: #ffffff !important;
 }
 
 /* ==========================================================================
-   TARIFAS: FILAS RECTANGULARES LARGAS ADAPTABLES
+   🏔️ PARCHE DE CONTROL PREMIUM PARA EL LOGO EN EL FOOTER
    ========================================================================== */
-.price-row-full {
-  background: white;
-  padding: 30px 45px;
-  border-radius: 30px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  border: 1px solid #e2e8f0;
-  width: 100%;
+footer {
+  position: relative;
 }
 
-@media (max-width: 640px) {
-  .price-row-full {
-    flex-direction: column; /* Se apila en formato tarjeta: texto arriba, entrada abajo */
-    gap: 15px;
-    padding: 20px;
-    border-radius: 20px;
-    text-align: center;
+/* Forzar que la marca de agua escale de manera inteligente al 100% sin recortarse */
+footer img {
+  max-height: 85% !important; /* Deja un margen seguro arriba y abajo dentro del contenedor */
+  width: auto !important;
+  object-fit: contain !important; /* Evita cualquier tipo de estiramiento raro o deformación */
+  opacity: 0.04 !important; /* Calibrado sutil para verse elegante sin competir con los textos */
+  pointer-events: none; /* Asegura que el usuario pueda hacer clic en los links de arriba sin problemas */
+}
+
+/* ==========================================================================
+   🛠️ PARCHE DE FIJACIÓN STICKY PARA LA CONSOLA MODULAR (PC & CELU)
+   ========================================================================== */
+
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  background-color: rgba(30, 34, 47, 0.9) !important; /* Sincronizado con #1E222F para mantener la cohesión */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(18, 19, 25, 0.5);
+  border-bottom: 1px solid rgba(136, 189, 242, 0.15);
+}
+
+/* Adaptación nativa de los selectores de fecha/hora en dispositivos móviles */
+input[type="date"], input[type="time"], select {
+  color-scheme: dark; /* Forza al sistema operativo a usar calendarios nativos oscuros */
+  -webkit-appearance: none; 
+}
+
+/* ==========================================================================
+   PERSONALIZACIÓN DE LA BARRA DE DESPLAZAMIENTO (SOLO ESCRITORIO - ESTILO PREMIUM)
+   ========================================================================== */
+@media (min-width: 769px) {
+  ::-webkit-scrollbar {
+    width: 6px; 
+    height: 6px; 
+  }
+  ::-webkit-scrollbar-track {
+    background: #121319; /* Fondo ultra oscuro a tono con la app */
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1E222F; /* Color de tarjeta para el track */
+    border-radius: 10px;
+    border: 1px solid rgba(136, 189, 242, 0.25); /* Detalle sutil en celeste #88BDF2 */
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #88BDF2; /* Brilla en celeste activo al pasar el mouse */
   }
 }

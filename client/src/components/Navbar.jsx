@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Menu, X, Globe } from 'lucide-react';
 
-// 🛠️ Importación relativa modular optimizada para Render
-import logoMendozaRent from '../assets/logo.png'; 
-
 export default function Navbar() {
   const { t, i18n } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,10 +26,6 @@ export default function Navbar() {
   ];
 
   return (
-    /**
-     * 🛠️ REPARADO: Alturas fijas optimizadas (h-16 en estático, h-14 en scroll para PC)
-     * Reemplazado el fondo blanco por el gris azulado translúcido de Balanz en el scroll.
-     */
     <nav className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-300 ${
       isScrolled 
         ? 'h-14 md:h-14 bg-[#1E222F]/90 backdrop-blur-lg shadow-2xl border-b border-slate-800/50' 
@@ -41,27 +34,8 @@ export default function Navbar() {
       
       <div className="max-w-[1440px] h-full mx-auto px-4 md:px-12 flex justify-between items-center relative">
         
-        {/* --- CONTENEDOR LOGO OPTIMIZADO (EVITA SOBREPOSICIÓN) --- */}
-        <div className="flex-1 flex items-center">
-          <a href="/" className="inline-block transition-transform hover:scale-105 active:scale-95">
-            <img 
-              src={logoMendozaRent} 
-              alt="Mendoza Rent Logo" 
-              /**
-               * 🛠️ REPARADO: Se redujo drásticamente el tamaño máximo en PC (de h-28 a lg:h-14 estático)
-               * para liberar por completo al Hero. En scroll baja a lg:h-10 de forma súper sutil.
-               */
-              className={`transition-all duration-300 object-contain ${
-                isScrolled 
-                  ? 'h-9 sm:h-10 md:h-10 lg:h-10' 
-                  : 'h-11 sm:h-12 md:h-14 lg:h-14' 
-              }`}
-            />
-          </a>
-        </div>
-
-        {/* --- LINKS ESCRITORIO --- */}
-        <div className="hidden lg:flex items-center gap-8">
+        {/* --- LINKS ESCRITORIO (Alineados a la izquierda de la barra) --- */}
+        <div className="hidden lg:flex items-center gap-8 flex-1">
           {navLinks.map(link => (
             <a 
               key={link.href}
