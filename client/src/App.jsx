@@ -92,37 +92,37 @@ export default function App() {
 
                 </div>
 
-                {/* 📝 SECCIÓN 2: BOOKING (lg:col-span-8) + REVIEWS (lg:col-span-4) -> ¡MISMA ALTURA! */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-slate w-full items-stretch">
-                  
-                  {/* Formulario Booking */}
-                  <div id="reservas" className="bg-transparent p-5 sm:p-6 rounded-[2rem] shadow-2xl border border-slate-800/30 backdrop-blur-md lg:col-span-8 flex flex-col justify-center">
-                    <BookingForm 
-                      onQuoteGenerated={(data) => setQuote(data)} 
-                      setAiContext={setAiContext}
-                      setIsChatOpen={setIsChatOpen}
-                    />
-                  </div>
+                {/* 📝 SECCIÓN 2: BOOKING (lg:col-span-7) + REVIEWS (lg:col-span-5) -> MÁS ANCHO */}
+<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch w-full">
+  
+  {/* Formulario Booking (Reducido de 8 a 7) */}
+  <div id="reservas" className="bg-transparent p-5 sm:p-6 rounded-[2rem] shadow-2xl border border-slate-800/30 backdrop-blur-md lg:col-span-7 flex flex-col justify-center">
+    <BookingForm 
+      onQuoteGenerated={(data) => setQuote(data)} 
+      setAiContext={setAiContext}
+      setIsChatOpen={setIsChatOpen}
+    />
+  </div>
 
-                  {/* Bloque dinámico para Cotización o Testimonios de Google */}
-                  <div className="lg:col-span-4 w-full flex flex-col">
-                    {quote ? (
-                      <div className="w-full h-full flex flex-col">
-                        <QuoteResult quote={quote} />
-                      </div>
-                    ) : (
-                      <div id="testimonios" className="bg-transparent p-5 sm:p-6 rounded-[2rem] shadow-2xl border border-slate-800/30 backdrop-blur-md flex flex-col h-full flex-1">
-                        <div className="flex items-center gap-2 mb-3 bg-[#1E222F] text-slate-300 px-3 py-1 rounded-full w-fit text-[9px] font-black uppercase tracking-wider border border-slate-800/40 flex-shrink-0">
-                          <Star size={10} className="fill-[#88BDF2] text-[#88BDF2]" /> Google Verified
-                        </div>
-                        <div className="w-full flex-1 flex flex-col justify-between">
-                          <GoogleReviews />
-                        </div>
-                      </div>
-                    )}
-                  </div>
+  {/* Bloque de Reviews (Aumentado de 4 a 5 -> más ancho) */}
+  <div className="lg:col-span-5 w-full flex flex-col">
+    {quote ? (
+      <div className="w-full h-full flex flex-col">
+        <QuoteResult quote={quote} />
+      </div>
+    ) : (
+      <div id="testimonios" className="bg-transparent p-5 sm:p-6 rounded-[2rem] shadow-2xl border border-slate-800/30 backdrop-blur-md flex flex-col h-full flex-1">
+        <div className="flex items-center gap-2 mb-3 bg-[#1E222F] text-slate-300 px-3 py-1 rounded-full w-fit text-[9px] font-black uppercase tracking-wider border border-slate-800/40 flex-shrink-0">
+          <Star size={10} className="fill-[#88BDF2] text-[#88BDF2]" /> Google Verified
+        </div>
+        <div className="w-full flex-1 flex flex-col justify-between">
+          <GoogleReviews />
+        </div>
+      </div>
+    )}
+  </div>
 
-                </div>
+</div>
 
                 {/* ⛅ SECCIÓN 3: CLIMA A TODO LO ANCHO */}
                 <div id="clima" className="bg-transparent backdrop-blur-md rounded-[2rem] shadow-2xl border border-slate-800/30 p-5 sm:p-6 w-full">

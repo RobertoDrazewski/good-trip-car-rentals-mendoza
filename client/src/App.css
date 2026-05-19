@@ -1,143 +1,40 @@
-/* ==========================================================================
-   PUMA CODE: ANIMACIONES DE INTERFAZ & OPTIMIZACIÓN TÁCTIL (MENDOZA RENT)
-   ========================================================================== */
-
-/* ANIMACIONES PARA LOS RESULTADOS DE COTIZACIÓN */
-.animate-in {
-  animation-fill-mode: forwards;
-  will-change: transform, opacity;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden; /* 🔥 Optimiza el renderizado en celulares para evitar parpadeos */
-  transform: translateZ(0); /* Acciona la aceleración por hardware en iOS y Android */
-}
-
-.fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.zoom-in {
-  animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes zoomIn {
-  from { opacity: 0; transform: scale(0.97); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-/* ==========================================================================
-   🚀 SOPORTE PREMIUM PARA CARRUSELES MÓVILES (RESEÑAS, REQUISITOS Y CLIMA)
-   ========================================================================== */
-
-.scrollbar-none {
-  -ms-overflow-style: none;  /* IE y Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.scrollbar-none::-webkit-scrollbar {
-  display: none; /* Chrome, Safari y Opera */
-}
-
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 90px; 
-  background-color: #121319; /* Evita destellos blancos al cargar la página */
-}
-
-body {
-  overflow-x: hidden;
-  width: 100%;
-  background-color: #121319;
-  -webkit-text-size-adjust: 100%;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* 🛡️ OPTIMIZACIÓN BALANZ PREMIUM: Sincronización transparente y contraste nocturno
-   para que conviva de forma cristalina sobre el fondo envolvente */
+/* 🛡️ OPTIMIZACIÓN PREMIUM: Glassmorphism real */
 main .bg-transparent, 
 #requisitos, 
 #flota, 
 #testimonios, 
 #reservas {
-  background-color: rgba(30, 34, 47, 0.55) !important; /* Capa translúcida del color de tarjeta Balanz (#1E222F) */
-  backdrop-filter: blur(12px) !important; /* Efecto esmerilado de alta gama para despegar del paisaje */
-  -webkit-backdrop-filter: blur(12px) !important;
-  color: #ffffff !important; /* Texto principal en blanco puro para blindar la lectura nocturna */
-  border: 1px solid rgba(136, 189, 242, 0.15) !important; /* Borde sutil usando el celeste acento */
-}
-
-/* Ajuste fino para las descripciones y textos secundarios de los requisitos */
-#requisitos p, 
-#requisitos li, 
-#requisitos span {
-  color: #6F7D93 !important; /* Gris azulado Balanz para perfecta jerarquía visual */
-  font-weight: 600;
-}
-
-/* Asegurar legibilidad en los títulos de los bloques */
-#requisitos h2,
-#flota h2,
-#testimonios h2,
-#reservas h3 {
+  /* CAMBIO: Fondo más claro y transparente, quitamos el color sólido pesado */
+  background-color: rgba(255, 255, 255, 0.05) !important; 
+  
+  /* Aumentamos el desenfoque para dar sensación de profundidad */
+  backdrop-filter: blur(20px) !important; 
+  -webkit-backdrop-filter: blur(20px) !important;
+  
+  /* Borde más brillante (esto es lo que hace que "resalte" sobre el fondo oscuro) */
+  border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+  
+  /* Sombra más ligera para que el bloque "flote" */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+  
   color: #ffffff !important;
 }
 
-/* ==========================================================================
-   🏔️ PARCHE DE CONTROL PREMIUM PARA EL LOGO EN EL FOOTER
-   ========================================================================== */
-footer {
-  position: relative;
+/* Mejora la legibilidad de los textos secundarios que se veían muy apagados */
+#requisitos p, 
+#requisitos li, 
+#requisitos span {
+  color: #a0aec0 !important; /* Un gris más claro para mejor contraste */
+  font-weight: 500;
 }
 
-/* Forzar que la marca de agua escale de manera inteligente al 100% sin recortarse */
-footer img {
-  max-height: 85% !important; /* Deja un margen seguro arriba y abajo dentro del contenedor */
-  width: auto !important;
-  object-fit: contain !important; /* Evita cualquier tipo de estiramiento raro o deformación */
-  opacity: 0.04 !important; /* Calibrado sutil para verse elegante sin competir con los textos */
-  pointer-events: none; /* Asegura que el usuario pueda hacer clic en los links de arriba sin problemas */
-}
-
-/* ==========================================================================
-   🛠️ PARCHE DE FIJACIÓN STICKY PARA LA CONSOLA MODULAR (PC & CELU)
-   ========================================================================== */
-
-.sticky {
-  position: -webkit-sticky;
-  position: sticky;
-  background-color: #1E222F !important; /* Adaptado al modo oscuro corporativo */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  border-bottom: 1px solid rgba(136, 189, 242, 0.1);
-}
-
-/* Adaptación nativa de los selectores de fecha/hora en dispositivos móviles */
-input[type="date"], input[type="time"], select {
-  color-scheme: dark; /* Forza al sistema operativo a usar calendarios nativos oscuros */
-  -webkit-appearance: none; 
-}
-
-/* ==========================================================================
-   PERSONALIZACIÓN DE LA BARRA DE DESPLAZAMIENTO (SOLO ESCRITORIO - ESTILO PREMIUM)
-   ========================================================================== */
-@media (min-width: 769px) {
-  ::-webkit-scrollbar {
-    width: 6px; 
-    height: 6px; 
-  }
-  ::-webkit-scrollbar-track {
-    background: #121319; /* Fondo ultra oscuro a tono con la app */
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #1E222F; /* Color de tarjeta para el track */
-    border-radius: 10px;
-    border: 1px solid rgba(136, 189, 242, 0.2); /* Detalle sutil en celeste */
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #88BDF2; /* Brilla en celeste activo al pasar el mouse */
-  }
+/* Agregamos un pequeño brillo al pasar el mouse (Efecto Premium) */
+main .bg-transparent:hover, 
+#requisitos:hover, 
+#flota:hover, 
+#testimonios:hover, 
+#reservas:hover {
+  border: 1px solid rgba(136, 189, 242, 0.3) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  transition: all 0.3s ease !important;
 }
