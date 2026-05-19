@@ -5,7 +5,7 @@ import { Instagram, MapPin, Phone, ArrowUp, Star } from 'lucide-react';
 
 // Importación de Activos de Marca
 import logoMendozaRent from './assets/logo.png';
-import imgHeroBackground from './assets/hero.PNG';
+import imgHeroBackground from './assets/hero.png';
 
 // Importación de Componentes de Interfaz
 import Navbar from './components/Navbar';
