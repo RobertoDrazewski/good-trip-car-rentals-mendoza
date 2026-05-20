@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'; 
 import { Instagram, MapPin, Phone, ArrowUp, Star } from 'lucide-react';
+import axios from 'axios'; // 🔴 AGREGADO: Necesario para consultar la promo
 
-// Importación de Activos de Marca (Sincronizados al logo cuadrado para el layout)
+// Importación de Activos de Marca
 import logoCuadrado from './assets/logocuadrado.png';
 import imgHeroBackground from './assets/hero.png';
 
@@ -23,6 +24,50 @@ import Requirements from './components/Requirements';
 import AdminDashboard from './pages/AdminDashboard';
 import SetupPassword from './pages/SetupPassword';
 import Login from './pages/Login';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+// 🔴 NUEVO COMPONENTE: BANNER PROMOCIONAL INTELIGENTE
+function PromoBanner() {
+  const [promo, setPromo] = useState(null);
+
+  useEffect(() => {
+    // Consulta al endpoint que creamos en el backend
+    axios.get(`${API_BASE_URL}/api/promos/active`)
+      .then(res => setPromo(res.data))
+      .catch(() => setPromo(null)); // Falla silenciosa si no hay promo
+  }, []);
+
+  if (!promo) return null;
+
+  // Verifica si la URL viene completa de OpenAI o es la ruta local guardada
+  const imgUrl = promo.imagen_url?.startsWith('http') 
+    ? promo.imagen_url 
+    : `${API_BASE_URL}${promo.imagen_url}`;
+
+  return (
+    <div className="w-full max-w-7xl mx-auto px-4 lg:px-6 pt-6 md:pt-8 animate-in fade-in zoom-in-95 duration-700">
+      <div className="relative h-40 md:h-56 rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-slate-800/60 group">
+        <img 
+          src={imgUrl} 
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" 
+          alt="Promoción Activa" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#121319]/95 via-[#121319]/80 to-transparent flex flex-col justify-center px-6 md:px-12">
+          <span className="bg-[#88BDF2] text-[#121319] text-[9px] md:text-[11px] font-black px-3 py-1.5 rounded w-fit mb-3 uppercase tracking-widest shadow-lg">
+            Oferta Especial: {promo.descuento}% OFF
+          </span>
+          <h2 className="text-xl md:text-3xl font-black text-white italic uppercase tracking-tighter drop-shadow-md">
+            {promo.titulo}
+          </h2>
+          <p className="text-[#88BDF2] text-xs md:text-sm font-bold mt-1 max-w-md uppercase tracking-wider drop-shadow-md">
+            {promo.descripcion}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function LoginWrapper() {
   const navigate = useNavigate();
@@ -58,12 +103,14 @@ export default function App() {
               <div className="w-full flex-shrink-0">
                 <Navbar />
                 <Hero />
+                {/* 🔴 EL BANNER PROMOCIONAL SE INYECTA JUSTO DEBAJO DEL HERO */}
+                <PromoBanner />
               </div>
               
-              {/* MAIN CONTAINER: Flujo libre adaptado para convivir con el Hero expandido */}
-              <main className="w-full max-w-7xl mx-auto px-4 lg:px-6 flex-1 flex flex-col gap-8 md:gap-12 pb-12">
+              {/* MAIN CONTAINER */}
+              <main className="w-full max-w-7xl mx-auto px-4 lg:px-6 flex-1 flex flex-col gap-8 md:gap-12 pb-12 mt-8">
                 
-                {/* 🚗 SECCIÓN 1: FLOTA (lg:col-span-8) + REQUISITOS (lg:col-span-4) -> ¡MISMA ALTURA! */}
+                {/* 🚗 SECCIÓN 1: FLOTA (lg:col-span-8) + REQUISITOS (lg:col-span-4) */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch w-full">
                   
                   {/* Flota Vehicular Carrusel */}
@@ -92,44 +139,44 @@ export default function App() {
 
                 </div>
 
-                {/* 📝 SECCIÓN 2: BOOKING (lg:col-span-7) + REVIEWS (lg:col-span-5) -> MÁS ANCHO */}
-<div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch w-full">
-  
-  {/* Formulario Booking (Reducido de 8 a 7) */}
-  <div id="reservas" className="bg-transparent p-5 sm:p-6 rounded-[2rem] shadow-2xl border border-slate-800/30 backdrop-blur-md lg:col-span-7 flex flex-col justify-center">
-    <BookingForm 
-      onQuoteGenerated={(data) => setQuote(data)} 
-      setAiContext={setAiContext}
-      setIsChatOpen={setIsChatOpen}
-    />
-  </div>
+                {/* 📝 SECCIÓN 2: BOOKING (lg:col-span-7) + REVIEWS (lg:col-span-5) */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch w-full">
+                  
+                  {/* Formulario Booking */}
+                  <div id="reservas" className="bg-transparent p-5 sm:p-6 rounded-[2rem] shadow-2xl border border-slate-800/30 backdrop-blur-md lg:col-span-7 flex flex-col justify-center">
+                    <BookingForm 
+                      onQuoteGenerated={(data) => setQuote(data)} 
+                      setAiContext={setAiContext}
+                      setIsChatOpen={setIsChatOpen}
+                    />
+                  </div>
 
-  {/* Bloque de Reviews (Aumentado de 4 a 5 -> más ancho) */}
-  <div className="lg:col-span-5 w-full flex flex-col">
-    {quote ? (
-      <div className="w-full h-full flex flex-col">
-        <QuoteResult quote={quote} />
-      </div>
-    ) : (
-      <div id="testimonios" className="bg-transparent p-5 sm:p-6 rounded-[2rem] shadow-2xl border border-slate-800/30 backdrop-blur-md flex flex-col h-full flex-1">
-        <div className="flex items-center gap-2 mb-3 bg-[#1E222F] text-slate-300 px-3 py-1 rounded-full w-fit text-[9px] font-black uppercase tracking-wider border border-slate-800/40 flex-shrink-0">
-          <Star size={10} className="fill-[#88BDF2] text-[#88BDF2]" /> Google Verified
-        </div>
-        <div className="w-full flex-1 flex flex-col justify-between">
-          <GoogleReviews />
-        </div>
-      </div>
-    )}
-  </div>
+                  {/* Bloque de Reviews / Resultado de Cotización */}
+                  <div className="lg:col-span-5 w-full flex flex-col">
+                    {quote ? (
+                      <div className="w-full h-full flex flex-col">
+                        <QuoteResult quote={quote} />
+                      </div>
+                    ) : (
+                      <div id="testimonios" className="bg-transparent p-5 sm:p-6 rounded-[2rem] shadow-2xl border border-slate-800/30 backdrop-blur-md flex flex-col h-full flex-1">
+                        <div className="flex items-center gap-2 mb-3 bg-[#1E222F] text-slate-300 px-3 py-1 rounded-full w-fit text-[9px] font-black uppercase tracking-wider border border-slate-800/40 flex-shrink-0">
+                          <Star size={10} className="fill-[#88BDF2] text-[#88BDF2]" /> Google Verified
+                        </div>
+                        <div className="w-full flex-1 flex flex-col justify-between">
+                          <GoogleReviews />
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
-</div>
+                </div>
 
                 {/* ⛅ SECCIÓN 3: CLIMA A TODO LO ANCHO */}
                 <div id="clima" className="bg-transparent backdrop-blur-md rounded-[2rem] shadow-2xl border border-slate-800/30 p-5 sm:p-6 w-full">
                   <WeatherWidget />
                 </div>
 
-                {/* ⛰️ SECCIÓN 4: RUTAS A TODO LO ANCHO (DEBAJO DEL CLIMA) */}
+                {/* ⛰️ SECCIÓN 4: RUTAS A TODO LO ANCHO */}
                 <div id="rutas" className="bg-transparent backdrop-blur-md rounded-[2rem] shadow-2xl border border-slate-800/30 p-5 sm:p-6 text-center w-full">
                   <div className="mb-3 text-left">
                     <h2 className="text-xs font-black italic tracking-tighter text-white uppercase">
@@ -164,7 +211,7 @@ export default function App() {
   );
 }
 
-// 🎯 COMPONENTE FOOTER LOCAL: Reparado con la Sincronización del Logo Cuadrado Premium
+// 🎯 COMPONENTE FOOTER LOCAL
 function FooterLocal({ t }) {
   const navigate = useNavigate();
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -174,7 +221,6 @@ function FooterLocal({ t }) {
   return (
     <footer className="sticky bottom-0 z-50 bg-[#121319]/90 backdrop-blur-md border-t border-slate-800/60 py-8 w-full text-white pointer-events-auto shadow-[0_-10px_30px_rgba(0,0,0,0.6)] overflow-hidden">
       
-      {/* 🏔️ REPARADO: Ahora inyecta el logoCuadrado oficial mapeado con las reglas estrictas de index.css */}
       <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none opacity-[0.04] mix-blend-screen">
         <img 
           src={logoCuadrado} 
@@ -183,15 +229,12 @@ function FooterLocal({ t }) {
         />
       </div>
 
-      {/* CONTENEDOR DE CONTENIDO */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-[#666D7E]">
         
-        {/* IZQUIERDA: Copyright Completo Legal */}
         <p className="uppercase tracking-wider text-center md:text-left">
           © 2026 <span className="text-[#6F7D93]">Good Trip Car Rentals</span>. {t('footer_rights', 'Todos los derechos reservados.')}
         </p>
         
-        {/* CENTRO: Enlaces de Navegación rápidos y Link de WhatsApp con ícono */}
         <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5">
           <ul className="flex items-center gap-x-4 text-[9px] font-black uppercase tracking-wider text-[#6F7D93]">
             <li><a href="#flota" className="hover:text-[#88BDF2] transition-colors">Vehículos</a></li>
@@ -202,7 +245,6 @@ function FooterLocal({ t }) {
           
           <span className="hidden sm:inline text-slate-800">|</span>
 
-          {/* Enlace Comercial a WhatsApp */}
           <a 
             href={waUrl} 
             target="_blank" 
@@ -214,14 +256,12 @@ function FooterLocal({ t }) {
           </a>
         </div>
 
-        {/* DERECHA: Créditos oficiales obligatorios y Acceso Administrativo */}
         <div className="flex items-center gap-3 uppercase tracking-wider flex-shrink-0">
           <button onClick={() => navigate('/login')} className="hover:text-[#88BDF2] text-[#666D7E] transition-colors bg-transparent border-none outline-none font-bold cursor-pointer">
             Staff
           </button>
           <span className="select-none text-slate-800">•</span>
           
-          {/* Powered by Puma-Code.com */}
           <span className="text-[#666D7E] font-medium tracking-normal normal-case">
             Powered by{' '}
             <a href="https://www.puma-code.com" target="_blank" rel="noopener noreferrer" className="text-[#666D7E] hover:text-[#88BDF2] font-black transition-colors tracking-wide uppercase text-[9px]">

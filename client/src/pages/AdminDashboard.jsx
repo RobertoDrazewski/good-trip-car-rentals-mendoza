@@ -9,13 +9,12 @@ import {
 } from 'lucide-react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { useTranslation } from 'react-i18next'; // 👈 REPARADO: Importación agregada
+import { useTranslation } from 'react-i18next'; 
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function AdminDashboard() {
-  // 1. DECLARACIONES DE ESTADO (TOP-LEVEL)
-  const { t } = useTranslation(); // 👈 REPARADO: Hook inicializado para evitar ReferenceError
+  const { t } = useTranslation(); 
   const [activeTab, setActiveTab] = useState('ventas');
   const [selectedMes, setSelectedMes] = useState(new Date().getMonth() + 1);
   const [selectedAnio, setSelectedAnio] = useState(new Date().getFullYear());
@@ -28,6 +27,11 @@ export default function AdminDashboard() {
   const [preciosMes, setPreciosMes] = useState({});
   const [rutas, setRutas] = useState([]);
   
+  // 🔴 ESTADOS PARA PROMOCIONES IA
+  const [promoData, setPromoData] = useState({ evento: '', descuento: '', inicio: '', fin: '' });
+  const [propuestaIA, setPropuestaIA] = useState(null);
+  const [iaLoading, setIaLoading] = useState(false);
+
   const [rutaMapaSeleccionada, setRutaMapaSeleccionada] = useState(null);
   const [puntoOrigenMapa, setPuntoOrigenMapa] = useState('aeropuerto');
 
@@ -43,6 +47,7 @@ export default function AdminDashboard() {
   const [newLeadAlert, setNewLeadAlert] = useState(false);
   const [recentLeadName, setRecentLeadName] = useState('');
   const prevLeadsCount = useRef(null);
+  const audioCtxRef = useRef(null); 
 
   const mesesNom = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
@@ -55,12 +60,37 @@ export default function AdminDashboard() {
     km0: "Kilómetro 0, Av. San Martín y Garibaldi, Mendoza"
   };
 
+  useEffect(() => {
+    const initAudio = () => {
+      if (!audioCtxRef.current) {
+        const windowAudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(windowAudioCtx) audioCtxRef.current = new windowAudioCtx();
+      }
+      if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+        audioCtxRef.current.resume();
+      }
+    };
+    window.addEventListener('click', initAudio);
+    window.addEventListener('keydown', initAudio);
+    return () => {
+      window.removeEventListener('click', initAudio);
+      window.removeEventListener('keydown', initAudio);
+    };
+  }, []);
+
   const reproducirAlarmaSonora = () => {
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
-      
+      let ctx = audioCtxRef.current;
+      if (!ctx) {
+        const windowAudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(windowAudioCtx) {
+          ctx = new windowAudioCtx();
+          audioCtxRef.current = ctx;
+        }
+      }
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+
       [0, 0.2, 0.4].forEach((delay) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -91,7 +121,9 @@ export default function AdminDashboard() {
       const nuevasReservas = resDash.data.reservas || [];
 
       if (prevLeadsCount.current !== null && nuevasReservas.length > prevLeadsCount.current) {
-        const ultimoLead = nuevasReservas[0] || {}; 
+        const reservasOrdenadas = [...nuevasReservas].sort((a, b) => (b.id || 0) - (a.id || 0));
+        const ultimoLead = reservasOrdenadas[0] || {}; 
+        
         setRecentLeadName(ultimoLead.cliente_nombre || 'Nuevo Cliente');
         setNewLeadAlert(true);
         reproducirAlarmaSonora();
@@ -141,7 +173,25 @@ export default function AdminDashboard() {
     } catch (err) { console.error(err); }
   };
 
-  // 🛠️ REPARADO CRÍTICO: Se corrigió la interpolación del string `${origenLimpio}`
+  // --- PROMOCIONES IA FUNCIONES ---
+  const generarPropuestaIA = async () => {
+    setIaLoading(true);
+    try {
+        const res = await axios.post(`${apiUrl}/api/promos/generar-propuesta`, { evento: promoData.evento, descuento: promoData.descuento }, getAuthConfig());
+        setPropuestaIA(res.data);
+    } catch (e) { alert("Error al generar con IA"); }
+    setIaLoading(false);
+  };
+
+  const guardarPromo = async () => {
+    try {
+        await axios.post(`${apiUrl}/api/promos/save-promo`, { ...propuestaIA, descuento: promoData.descuento, fecha_inicio: promoData.inicio, fecha_fin: promoData.fin, titulo: promoData.evento }, getAuthConfig());
+        alert("Banner publicado exitosamente");
+        setPropuestaIA(null);
+        setPromoData({ evento: '', descuento: '', inicio: '', fin: '' });
+    } catch (e) { alert("Error al guardar la promo."); }
+  };
+
   const obtenerUrlEnrutamientoDinamico = (ruta) => {
     if (!ruta) return "about:blank";
     const origenDireccion = puntosEntregaCoordenadas[puntoOrigenMapa];
@@ -246,6 +296,17 @@ export default function AdminDashboard() {
                 <div class="info-card"><div class="icon-box">👶</div><div class="content-box"><p class="label">Opcional Sillita de Bebé</p><p class="value">${tieneSillita ? '✔️ Adicionada' : '❌ No Solicitada'}</p></div></div>
                 <div class="info-card"><div class="icon-box">🧼</div><div class="content-box"><p class="label">Servicio de Lavado Obligatorio</p><p class="value">$ ${lavadoARS} ARS</p></div></div>
                 <div class="info-card"><div class="icon-box">💵</div><div class="content-box"><p class="label">Tasa Cambio Base</p><p class="value">1 USD = $ ${cotizacionDolar} ARS</p></div></div>
+                
+                ${reserva.descuento_aplicado_ars > 0 ? `
+                  <div class="info-card full-width" style="border-left: 4px solid #10b981; background-color: #ecfdf5;">
+                    <div class="icon-box" style="border-color: #10b981; color: #10b981;">✨</div>
+                    <div class="content-box">
+                      <p class="label" style="color: #059669;">Promoción Especial Aplicada</p>
+                      <p class="value">${reserva.porcentaje_promo}% OFF - Ahorro: $ ${parseFloat(reserva.descuento_aplicado_ars).toLocaleString('es-AR')} ARS</p>
+                    </div>
+                  </div>
+                ` : ''}
+
                 <div class="info-card full-width garantia-card"><div class="icon-box">🛡️</div><div class="content-box"><p class="label">Franquicia de Garantía Reembolsable</p><p class="value">$ ${garantiaARS} ARS <span style="font-size: 11px; font-weight: 500; color: #64748b;">(${garantiaUSD} USD)</span></p></div></div>
               </div>
               <div class="total-box">
@@ -317,7 +378,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* SIDEBAR CORPORATIVO BALANZ */}
+      {/* SIDEBAR CORPORATIVO */}
       <aside className="w-80 bg-[#1E222F] p-6 flex flex-col sticky top-0 h-screen border-r border-slate-800/60 z-40 max-lg:w-full max-lg:h-auto max-lg:p-5 max-lg:border-b">
         <div className="flex flex-col gap-1 mb-6 max-lg:mb-3 text-left">
           <div className="flex items-center gap-3">
@@ -338,6 +399,7 @@ export default function AdminDashboard() {
 
         <nav className="flex-1 flex flex-col gap-1.5 max-lg:flex-row max-lg:overflow-x-auto max-lg:pb-2 max-lg:scrollbar-none max-lg:w-full">
           <NavBtn active={activeTab==='ventas'} label="Ventas" icon={<BarChart3 size={16}/>} onClick={()=>setActiveTab('ventas')}/>
+          <NavBtn active={activeTab==='promos'} label="Promos IA" icon={<Sparkles size={16}/>} onClick={()=>setActiveTab('promos')}/>
           <NavBtn active={activeTab==='calendario'} label="Calendario" icon={<CalendarIcon size={16}/>} onClick={()=>setActiveTab('calendario')}/>
           <NavBtn active={activeTab==='rutas'} label="Rutas" icon={<Navigation size={16}/>} onClick={()=>setActiveTab('rutas')}/>
           <NavBtn active={activeTab==='mapa'} label="Mapa" icon={<MapIcon size={16}/>} onClick={()=>setActiveTab('mapa')}/>
@@ -469,6 +531,13 @@ export default function AdminDashboard() {
                               <span className="text-[10px] font-black text-[#88BDF2] uppercase tracking-widest">{r.auto_modelo || 'Vehículo'}</span>
                               <span className="text-[9px] font-black bg-[#121319] text-[#88BDF2] px-1.5 py-0.5 rounded border border-slate-800/60">{r.patente || 'S/P'}</span>
                             </div>
+                            {r.descuento_aplicado_ars > 0 && (
+                                <div className="mt-2 bg-emerald-900/30 px-2 py-1 rounded w-fit border border-emerald-700/50">
+                                    <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">
+                                        PROMO {r.porcentaje_promo}%: -$ {parseFloat(r.descuento_aplicado_ars).toLocaleString('es-AR')}
+                                    </span>
+                                </div>
+                            )}
                             <p className="text-xs font-black text-emerald-400 mt-1">Monto: ${parseFloat(r.monto_total_ars || 0).toLocaleString('es-AR')}</p>
                           </td>
                           <td className="p-6 text-center">
@@ -522,6 +591,13 @@ export default function AdminDashboard() {
                       <div className="text-left">
                         <h4 className="text-lg font-black uppercase italic tracking-tight text-white">{r.cliente_nombre}</h4>
                         <p className="text-xs font-bold text-[#88BDF2] uppercase mt-0.5">{r.auto_modelo || 'Vehículo de Flota'}</p>
+                        {r.descuento_aplicado_ars > 0 && (
+                            <div className="mt-1.5 bg-emerald-900/30 px-2 py-1 rounded w-fit border border-emerald-700/50">
+                                <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">
+                                    PROMO {r.porcentaje_promo}%: -$ {parseFloat(r.descuento_aplicado_ars).toLocaleString('es-AR')}
+                                </span>
+                            </div>
+                        )}
                         <p className="text-sm font-black text-emerald-400 mt-1">Monto: ${parseFloat(r.monto_total_ars || 0).toLocaleString('es-AR')}</p>
                       </div>
 
@@ -563,9 +639,75 @@ export default function AdminDashboard() {
           );
         })()}
 
+        {/* --- NUEVA PESTAÑA: PROMOCIONES IA --- */}
+        {activeTab === 'promos' && (
+          <div className="space-y-6 animate-in fade-in duration-500 text-left">
+             <div className="bg-[#1E222F] p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl border border-slate-800/40">
+                <div className="flex items-center gap-3 mb-6">
+                    <Sparkles className="text-[#88BDF2]" size={24}/>
+                    <h3 className="text-xl font-black italic text-white uppercase tracking-tighter">Generador de Promos IA</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="text-[10px] font-black uppercase text-[#6F7D93] mb-1 block pl-1">Evento Comercial</label>
+                        <input placeholder="Ej: Black Friday" className={inputStyle} value={promoData.evento} onChange={e => setPromoData({...promoData, evento: e.target.value})} />
+                    </div>
+                    <div>
+                        <label className="text-[10px] font-black uppercase text-[#6F7D93] mb-1 block pl-1">% de Descuento</label>
+                        <input type="number" placeholder="Ej: 20" className={inputStyle} value={promoData.descuento} onChange={e => setPromoData({...promoData, descuento: e.target.value})} />
+                    </div>
+                    <div>
+                        <label className="text-[10px] font-black uppercase text-[#6F7D93] mb-1 block pl-1">Fecha de Inicio</label>
+                        <input type="date" className={inputStyle} value={promoData.inicio} onChange={e => setPromoData({...promoData, inicio: e.target.value})} />
+                    </div>
+                    <div>
+                        <label className="text-[10px] font-black uppercase text-[#6F7D93] mb-1 block pl-1">Fecha de Fin</label>
+                        <input type="date" className={inputStyle} value={promoData.fin} onChange={e => setPromoData({...promoData, fin: e.target.value})} />
+                    </div>
+                </div>
+
+                <div className="mt-6 flex flex-col sm:flex-row gap-4">
+                    <button 
+                        onClick={generarPropuestaIA} 
+                        disabled={iaLoading || !promoData.evento || !promoData.descuento} 
+                        className="flex-1 bg-[#121319] border border-slate-800 p-4 rounded-xl font-black text-[#88BDF2] hover:bg-[#88BDF2] hover:text-[#121319] transition-all flex justify-center items-center gap-2 uppercase tracking-widest disabled:opacity-50 cursor-pointer"
+                    >
+                        {iaLoading ? <Loader2 className="animate-spin" /> : <Sparkles size={18} />}
+                        Generar Propuesta
+                    </button>
+                    {propuestaIA && (
+                        <button 
+                            onClick={guardarPromo} 
+                            className="flex-1 bg-emerald-600 p-4 rounded-xl font-black text-white hover:bg-emerald-500 transition-all uppercase tracking-widest cursor-pointer"
+                        >
+                            Publicar Banner Oficial
+                        </button>
+                    )}
+                </div>
+
+                {propuestaIA && (
+                    <div className="mt-8 border-t border-slate-800/60 pt-8 animate-in slide-in-from-bottom-4">
+                        <p className="text-[10px] font-black uppercase text-[#88BDF2] tracking-[0.2em] mb-4">Vista Previa Generada</p>
+                        <div className="bg-[#121319] p-6 rounded-2xl border border-slate-800/40 flex flex-col md:flex-row gap-6 items-center">
+                            {propuestaIA.imagen_url && (
+                                <img src={propuestaIA.imagen_url} alt="Banner IA" className="w-full md:w-64 h-40 object-cover rounded-xl shadow-lg border border-slate-800" />
+                            )}
+                            <div className="text-left w-full">
+                                <h5 className="text-2xl font-black italic mb-2 text-white uppercase tracking-tight">{propuestaIA.titulo || promoData.evento}</h5>
+                                <p className="text-[#6F7D93] font-bold mb-4 text-sm leading-relaxed">{propuestaIA.descripcion}</p>
+                                <span className="inline-block bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-widest">Descuento del {promoData.descuento}% OFF</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+             </div>
+          </div>
+        )}
+
         {/* 2. CALENDARIO OCURRIDO EN TIEMPO REAL */}
         {activeTab === 'calendario' && (
-          <div className="space-y-6 animate-in fade-in duration-500">
+          <div className="space-y-6 animate-in fade-in duration-500 text-left">
             <div className="bg-[#1E222F] p-4 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl border border-slate-800/40 overflow-hidden">
               <h3 className="font-black uppercase italic text-lg md:text-xl text-white tracking-wider mb-6 text-left">Ocupación en Tiempo Real</h3>
 

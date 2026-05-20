@@ -28,20 +28,20 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
     setMessages([{ role: 'assistant', content: welcome[i18n.language] || welcome['es'] }]);
   }, [i18n.language]);
 
+  // Autoscroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
     }
   }, [messages, loading]);
 
-  // Manejo de la sugerencia automática si no hay autos disponibles
+  // Manejo de la sugerencia automática si el componente padre detecta falta de disponibilidad
   useEffect(() => {
-    if (!context) return;
-    if (context.status === 'no_availability') {
+    if (context) {
       const suggestions = {
-        es: `Estimado cliente, le informo amablemente que para las fechas solicitadas nuestra flota se encuentra reservada. No obstante, disponemos de una unidad premium libre a partir del día ${context.sugerencia}. ¿Desea que gestionemos su reserva para dicha fecha?`,
-        en: `Dear customer, I kindly inform you that our fleet is fully booked for the requested dates. However, we have a premium unit available starting on ${context.sugerencia}. Would you like us to manage your reservation for that date?`,
-        pt: `Prezado cliente, informo que nossa frota está reservada para as datas solicitadas. No entanto, temos uma unidade premium disponível a partir do dia ${context.sugerencia}. Deseja que organizemos sua reserva para esta data?`
+        es: `Estimado cliente, detectamos que las fechas consultadas presentan alta ocupación. ${context}. ¿Desea consultar por otras fechas o vehículos disponibles?`,
+        en: `Dear customer, we detected that the requested dates are highly booked. ${context}. Would you like to check other dates or available vehicles?`,
+        pt: `Prezado cliente, detectamos que as datas consultadas têm alta ocupação. ${context}. Deseja consultar outras datas ou veículos disponíveis?`
       };
       setMessages(prev => [...prev, { role: 'assistant', content: suggestions[i18n.language] || suggestions['es'] }]);
     }
@@ -87,7 +87,6 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
       isOpen ? 'max-sm:w-full max-sm:inset-0 max-sm:p-0' : 'w-auto'
     }`}>
       
-      {/* BOTÓN WHATSAPP FLOTANTE */}
       {!isOpen && (
         <button 
           onClick={handleWhatsAppClick}
@@ -100,34 +99,20 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
         </button>
       )}
 
-      {/* 🏔️ BOTÓN APERTURA CHAT IA: Icono de Montañas y Sol original recuperado */}
       {!isOpen ? (
         <button 
           onClick={() => setIsOpen(true)} 
           className="relative group bg-slate-800 text-white p-4 sm:p-5 rounded-full shadow-[0_20px_50px_rgba(30,41,59,0.3)] hover:scale-105 transition-all active:scale-95 flex items-center justify-center border-2 border-sky-500/30 cursor-pointer"
           aria-label="Abrir Chat de Asistencia"
         >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 24 24" 
-            className="w-7 h-7 sm:w-8 sm:h-8 text-sky-400 transition-transform group-hover:scale-110"
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            {/* Montañas */}
-            <path d="m8 3 4 8 5-5 5 15H2L8 3z" fill="none" />
-            {/* Sol Solitario del Logo */}
-            <circle cx="18" cy="5" r="2" fill="currentColor" stroke="none" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-7 h-7 sm:w-8 sm:h-8 text-sky-400 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+            <circle cx="18" cy="5" r="2" />
           </svg>
         </button>
       ) : (
-        /* INTERFAZ DEL CHAT ABIERTO */
         <div className="bg-white w-full sm:w-[400px] h-[85vh] sm:h-[650px] max-sm:fixed max-sm:inset-0 max-sm:h-full max-sm:w-full shadow-[0_40px_100px_-20px_rgba(148,163,184,0.3)] rounded-[2.5rem] max-sm:rounded-none flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
           
-          {/* HEADER DEL CONSERJE */}
           <div className="bg-slate-800 p-6 text-white flex justify-between items-center relative max-sm:pt-10 border-b border-slate-700">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center overflow-hidden shadow-sm p-1">
@@ -140,13 +125,11 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
                 </span>
               </div>
             </div>
-
             <button onClick={() => setIsOpen(false)} className="hover:bg-white/10 p-2.5 rounded-xl transition-all cursor-pointer">
               <X size={20} className="text-slate-400" />
             </button>
           </div>
 
-          {/* CUERPO DEL CHAT */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-5 bg-slate-50/40">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -159,19 +142,16 @@ export default function ChatIA({ isOpen, setIsOpen, context, userData }) {
                 </div>
               </div>
             ))}
-            {loading && <div className="p-2 italic text-[11px] text-sky-500 font-bold animate-pulse">Good Trip Assistant está procesando su solicitud...</div>}
+            {loading && <div className="p-2 italic text-[11px] text-sky-500 font-bold animate-pulse">Good Trip Assistant está procesando...</div>}
           </div>
 
-          {/* ASISTENCIA HUMANA ALTERNATIVA */}
           <div className="px-6 py-2.5 bg-slate-100/70 border-t border-slate-100 flex justify-center text-center">
             <button onClick={handleWhatsAppClick} className="text-[8.5px] font-black text-slate-500 uppercase tracking-[0.12em] hover:text-[#25D366] transition-colors flex items-center gap-2 cursor-pointer leading-tight">
-              {/* Icono de Montaña miniatura de ayuda */}
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
               {ui.help}
             </button>
           </div>
 
-          {/* ENTRADA DE TEXTO */}
           <div className="p-5 bg-white flex gap-3 items-center border-t border-slate-100 max-sm:pb-8">
             <input 
               value={input} 
