@@ -1,40 +1,14 @@
-/* 🛡️ OPTIMIZACIÓN PREMIUM: Glassmorphism real */
-main .bg-transparent, 
-#requisitos, 
-#flota, 
-#testimonios, 
-#reservas {
-  /* CAMBIO: Fondo más claro y transparente, quitamos el color sólido pesado */
+/* 🛡️ OPTIMIZACIÓN: Evitar que el blur se propague a los hijos */
+main .bg-transparent {
   background-color: rgba(255, 255, 255, 0.05) !important; 
-  
-  /* Aumentamos el desenfoque para dar sensación de profundidad */
-  backdrop-filter: blur(20px) !important; 
-  -webkit-backdrop-filter: blur(20px) !important;
-  
-  /* Borde más brillante (esto es lo que hace que "resalte" sobre el fondo oscuro) */
-  border: 1px solid rgba(255, 255, 255, 0.1) !important; 
-  
-  /* Sombra más ligera para que el bloque "flote" */
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
-  
-  color: #ffffff !important;
+  /* quitamos !important del backdrop-filter para poder resetearlo en el banner */
+  backdrop-filter: blur(20px); 
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-/* Mejora la legibilidad de los textos secundarios que se veían muy apagados */
-#requisitos p, 
-#requisitos li, 
-#requisitos span {
-  color: #a0aec0 !important; /* Un gris más claro para mejor contraste */
-  font-weight: 500;
-}
-
-/* Agregamos un pequeño brillo al pasar el mouse (Efecto Premium) */
-main .bg-transparent:hover, 
-#requisitos:hover, 
-#flota:hover, 
-#testimonios:hover, 
-#reservas:hover {
-  border: 1px solid rgba(136, 189, 242, 0.3) !important;
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  transition: all 0.3s ease !important;
+/* Forzar que el banner ignore el blur del padre */
+.promo-banner-container {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }

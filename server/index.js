@@ -7,18 +7,19 @@ require('dotenv').config();
 
 const db = require('./config/db');
 
-// --- RUTAS (HE AGREGADO promoRoutes) ---
+// --- RUTAS ---
 const priceRoutes = require('./routes/prices');
 const chatRoutes = require('./routes/chat');
 const adminRoutes = require('./routes/admin'); 
 const authRoutes = require('./routes/auth');
 const routesManagement = require('./routes/routes');
-const promoRoutes = require('./routes/promociones'); // <--- ESTO FALTABA
+const promoRoutes = require('./routes/promociones'); 
 
 const app = express();
 
 // --- 1. CREACIÓN AUTOMÁTICA DE CARPETAS ---
-const uploadDirs = ['uploads/autos', 'uploads/routes', 'public/uploads'];
+// Se añade 'uploads/banner' para que el guardado de promociones con IA no falle por falta de directorio
+const uploadDirs = ['uploads/autos', 'uploads/routes', 'uploads/banner', 'public/uploads'];
 uploadDirs.forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -26,17 +27,22 @@ uploadDirs.forEach(dir => {
     }
 });
 
-// --- 2. PARSING MIDDLEWARES ---
-// IMPORTANTE: Esto debe ir antes de las rutas
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true }));
+// --- 2. PARSING MIDDLEWARES (¡REPARADO CON LÍMITE DE 50MB!) ---
+// Esto permite recibir los strings Base64 gigantes generados por gpt-image-2 sin colapsar el servidor
+app.use(express.json({ limit: '50mb' })); 
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // --- 3. LOGGER PROFESIONAL ---
 app.use((req, res, next) => {
     console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
-    // Si hay datos, los muestra; si es JSON, los procesa el middleware anterior
     if (req.method !== 'GET') {
-        console.log('Datos recibidos:', req.body); 
+        // Para evitar llenar la consola con megabytes de texto Base64, recortamos la impresión si es muy larga
+        const bodyPreview = JSON.stringify(req.body);
+        if (bodyPreview && bodyPreview.length > 500) {
+            console.log('Datos recibidos: (Carga larga o Base64 oculta para limpieza del log)');
+        } else {
+            console.log('Datos recibidos:', req.body); 
+        }
     }
     next();
 });
@@ -65,17 +71,17 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" } 
 }));
 
-// --- 5. ESTÁTICOS ---
-app.use('/images', express.static(path.join(__dirname, 'public/images')));
+/// --- 5. ESTÁTICOS (CONFIGURACIÓN FINAL) ---
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+console.log("✅ Servidor sirviendo archivos desde: " + path.join(__dirname, 'uploads'));
 
-// --- 6. RUTAS API (INTEGRACIÓN) ---
+// --- 6. RUTAS API ---
 app.use('/api/auth', authRoutes);     
 app.use('/api/prices', priceRoutes);  
 app.use('/api/chat', chatRoutes);     
 app.use('/api/admin', adminRoutes); 
 app.use('/api/routes', routesManagement);   
-app.use('/api/promos', promoRoutes); // <--- AHORA TU BACKEND RECONOCE LAS PROMOS
+app.use('/api/promos', promoRoutes); 
 
 // --- 7. HEALTH CHECK ---
 app.get('/health', async (req, res) => {

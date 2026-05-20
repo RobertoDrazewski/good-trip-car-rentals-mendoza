@@ -12,14 +12,12 @@ router.post('/', async (req, res) => {
         const { message, lang, userData } = req.body;
 
         // 1. CONSULTAS A LA BASE DE DATOS (Recuperación total de datos)
-        // Obtenemos todos los precios, autos, reservas y rutas para que la IA sea experta
         const [tarifasCompletas] = await db.query('SELECT * FROM precios_mensuales');
         const [autos] = await db.query('SELECT id, modelo, patente, transmision FROM autos');
         const [reservas] = await db.query('SELECT auto_id, fecha_inicio, fecha_fin, estado FROM reservas WHERE estado != "rechazado"');
         const [rutas] = await db.query('SELECT id, titulo, descripcion FROM routes ORDER BY orden ASC');
         
         // 2. CONSTRUCCIÓN DEL CONTEXTO PARA LA IA
-        // Pasamos todas las tarifas disponibles para que la IA consulte el mes que desee
         const contextoParaIA = {
             tarifasMensuales: tarifasCompletas,
             flotaDisponible: autos,
@@ -58,13 +56,14 @@ router.post('/', async (req, res) => {
 
         CONTEXTO CLIENTE: ${userData ? JSON.stringify(userData) : 'Cliente explorando la plataforma'}.`;
 
+        // 5. LLAMADA UTILIZANDO UN MODELO PERMITIDO: gpt-4-turbo
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o",
+            model: "gpt-4-turbo", // Ajustado de gpt-4o a gpt-4-turbo (de tus modelos autorizados)
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: message }
             ],
-            temperature: 0.1,
+            temperature: 0.1, // Mantiene el modelo preciso y matemático para las cotizaciones
         });
 
         let finalResponse = completion.choices[0].message.content;
@@ -74,7 +73,7 @@ router.post('/', async (req, res) => {
           .replace(/che/gi, '').replace(/podés/gi, 'puede').replace(/querés/gi, 'desea')
           .replace(/mandame/gi, 'envíeme').replace(/te esperamos/gi, 'estamos a su disposición')
           .replace(/un espectáculo/gi, 'una excelente opción').replace(/tenés/gi, 'tiene')
-           .replace(/estás/gi, 'está').replace(/mirá/gi, 'observe').replace(/viste/gi, 'como usted sabe');
+          .replace(/estás/gi, 'está').replace(/mirá/gi, 'observe').replace(/viste/gi, 'como usted sabe');
 
         res.json({ response: finalResponse.trim() });
 
