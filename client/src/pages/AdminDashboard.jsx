@@ -700,130 +700,140 @@ export default function AdminDashboard() {
           );
         })()}
 
-        {/* 2. PROMOCIONES IA */}
-        {activeTab === 'promos' && (
-          <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-              <div className="bg-[#1E222F] p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-800/40 shadow-xl text-left">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="bg-[#121319] p-2.5 rounded-xl border border-slate-800/60"><Sparkles className="text-amber-400" size={24}/></div>
-                  <div>
-                    <h2 className="text-xl font-black text-white italic uppercase tracking-tighter">Generador IA</h2>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6F7D93]">Potenciado por Machine Learning</p>
-                  </div>
-                </div>
+        // 2. PROMOCIONES IA - BLOQUE COMPLETO CORREGIDO
+{activeTab === 'promos' && (
+  <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      {/* FORMULARIO DE GENERACIÓN */}
+      <div className="bg-[#1E222F]/60 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/10 shadow-2xl text-left">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="bg-[#121319] p-3 rounded-2xl border border-slate-800/60">
+            <Sparkles className="text-amber-400" size={24}/>
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-white italic uppercase tracking-tighter">Generador IA</h2>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6F7D93]">Diseño inteligente de banners</p>
+          </div>
+        </div>
 
-                <div className="space-y-5">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black uppercase text-[#88BDF2] tracking-wider pl-1">Motivo o Evento</label>
-                    <input placeholder="Ej. Black Friday, Verano..." className={inputStyle} value={promoData.evento} onChange={e => setPromoData({...promoData, evento: e.target.value})} />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-black uppercase text-[#88BDF2] tracking-wider pl-1">Descuento (%)</label>
-                    <input type="number" placeholder="Ej. 15" className={inputStyle} value={promoData.descuento} onChange={e => setPromoData({...promoData, descuento: e.target.value})} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black uppercase text-[#88BDF2] tracking-wider pl-1">Vigencia Inicio</label>
-                      <input type="date" className={inputStyle} value={promoData.inicio} onChange={e => setPromoData({...promoData, inicio: e.target.value})} />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-black uppercase text-[#88BDF2] tracking-wider pl-1">Vigencia Fin</label>
-                      <input type="date" className={inputStyle} value={promoData.fin} onChange={e => setPromoData({...promoData, fin: e.target.value})} />
-                    </div>
-                  </div>
-
-                  <button 
-                    onClick={generarPropuestaIA} 
-                    disabled={iaLoading || !promoData.evento || !promoData.descuento || !promoData.inicio || !promoData.fin}
-                    className="w-full mt-4 bg-[#88BDF2] text-[#121319] p-4 rounded-xl font-black text-sm flex justify-center items-center gap-2 uppercase tracking-widest hover:bg-[#5383B3] hover:text-white transition-all disabled:opacity-50 cursor-pointer shadow-[0_10px_20px_rgba(136,189,242,0.15)]"
-                  >
-                    {iaLoading ? <Loader2 className="animate-spin" size={18}/> : <Sparkles size={18}/>}
-                    {iaLoading ? 'Diseñando Banner...' : 'Generar Propuesta IA'}
-                  </button>
-                </div>
-              </div>
-
-              <div className="bg-[#1E222F] p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border border-slate-800/40 shadow-xl flex flex-col items-center justify-center text-center min-h-[400px]">
-                {!propuestaIA ? (
-                  <div className="text-[#6F7D93] flex flex-col items-center gap-4">
-                    <Sparkles size={48} className="opacity-20" />
-                    <p className="text-sm font-black uppercase tracking-widest italic max-w-[200px] leading-tight">La propuesta gráfica aparecerá aquí</p>
-                  </div>
-                ) : (
-                  <div className="w-full text-left animate-in fade-in duration-500">
-                    <p className="text-[9px] font-black uppercase text-emerald-400 mb-2 tracking-widest">Vista Previa del Banner</p>
-                    <img src={propuestaIA.imagen_url} alt="Promo" className="w-full h-48 object-cover rounded-xl border border-slate-700 shadow-lg mb-4" />
-                    <h4 className="text-lg font-black text-white italic uppercase tracking-tighter mb-1">{promoData.evento}</h4>
-                    <p className="text-sm font-medium text-slate-300 italic">"{propuestaIA.descripcion}"</p>
-                    <div className="mt-3 inline-block bg-rose-500 text-white text-xs font-black px-3 py-1 rounded uppercase tracking-wider">
-                      {promoData.descuento}% OFF
-                    </div>
-                    <button onClick={guardarPromo} className="w-full mt-6 bg-emerald-600 p-4 rounded-xl font-black text-white hover:bg-emerald-500 transition-all uppercase tracking-widest shadow-[0_10px_20px_rgba(16,185,129,0.3)] cursor-pointer">
-                      🚀 Publicar en la Web Oficial
-                    </button>
-                  </div>
-                )}
-              </div>
+        <div className="space-y-5">
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black uppercase text-[#88BDF2] tracking-wider pl-1">Motivo o Evento</label>
+            <input placeholder="Ej. Black Friday, Verano..." className={inputStyle} value={promoData.evento} onChange={e => setPromoData({...promoData, evento: e.target.value})} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black uppercase text-[#88BDF2] tracking-wider pl-1">Descuento (%)</label>
+            <input type="number" placeholder="Ej. 15" className={inputStyle} value={promoData.descuento} onChange={e => setPromoData({...promoData, descuento: e.target.value})} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black uppercase text-[#88BDF2] tracking-wider pl-1">Inicio</label>
+              <input type="date" className={inputStyle} value={promoData.inicio} onChange={e => setPromoData({...promoData, inicio: e.target.value})} />
             </div>
-
-            {/* LISTADO DE BANNERS ACTIVOS Y CESTO */}
-            <div className="bg-[#1E222F] p-6 rounded-2xl border border-slate-800 shadow-xl text-left mt-6">
-              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <Activity size={20} className="text-[#88BDF2]" /> Banners Publicados
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-slate-300">
-                  <thead className="text-xs uppercase bg-slate-800/80 text-slate-400">
-                    <tr>
-                      <th className="px-4 py-3">Imagen</th>
-                      <th className="px-4 py-3">Título / Evento</th>
-                      <th className="px-4 py-3">Descuento</th>
-                      <th className="px-4 py-3">Vigencia</th>
-                      <th className="px-4 py-3 text-center">Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {banners.length > 0 ? banners.map(b => (
-                      <tr key={b.id} className="border-b border-slate-800 hover:bg-slate-800/30 transition-colors">
-                        <td className="px-4 py-3">
-                          {b.imagen_url ? (
-                            <img src={b.imagen_url.startsWith('http') ? b.imagen_url : `${apiUrl}${b.imagen_url}`} alt="banner" className="w-20 h-12 object-cover rounded border border-slate-700" />
-                          ) : (
-                            <span className="text-[10px] text-slate-500">Sin Imagen</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 font-bold text-white uppercase">{b.titulo}</td>
-                        <td className="px-4 py-3 text-emerald-400 font-black">{b.descuento}% OFF</td>
-                        <td className="px-4 py-3 text-xs">
-                          <span className="block text-slate-400">Inicio: {b.fecha_inicio?.substring(0, 10)}</span>
-                          <span className="block text-slate-400 mt-1">Fin: {b.fecha_fin?.substring(0, 10)}</span>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <button 
-                            onClick={() => {
-                              if (window.confirm("⚠️ ¿Estás seguro de eliminar este banner publicado?")) {
-                                handleAction('delete', `${apiUrl}/api/promos/${b.id}`);
-                              }
-                            }}
-                            className="text-rose-500 hover:text-white p-2.5 bg-[#121319] hover:bg-rose-500 rounded-xl border border-slate-800 transition-colors cursor-pointer"
-                            title="Eliminar Banner"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    )) : (
-                      <tr>
-                        <td colSpan="5" className="px-4 py-8 text-center text-slate-500 italic font-medium uppercase text-[10px] tracking-widest">No hay banners publicados actualmente.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black uppercase text-[#88BDF2] tracking-wider pl-1">Fin</label>
+              <input type="date" className={inputStyle} value={promoData.fin} onChange={e => setPromoData({...promoData, fin: e.target.value})} />
             </div>
           </div>
+
+          <button 
+            onClick={generarPropuestaIA} 
+            disabled={iaLoading || !promoData.evento || !promoData.descuento || !promoData.inicio || !promoData.fin}
+            className="w-full mt-4 bg-[#88BDF2] text-[#121319] p-4 rounded-xl font-black text-sm flex justify-center items-center gap-2 uppercase tracking-widest hover:bg-white transition-all disabled:opacity-50 cursor-pointer shadow-lg"
+          >
+            {iaLoading ? <Loader2 className="animate-spin" size={18}/> : <Sparkles size={18}/>}
+            {iaLoading ? 'Diseñando Banner...' : 'Generar Propuesta IA'}
+          </button>
+        </div>
+      </div>
+
+      {/* VISTA PREVIA Y PUBLICACIÓN */}
+      <div className="bg-[#1E222F]/60 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col items-center justify-center text-center min-h-[400px]">
+        {!propuestaIA ? (
+          <div className="text-[#6F7D93] flex flex-col items-center gap-4">
+            <Sparkles size={48} className="opacity-20" />
+            <p className="text-sm font-black uppercase tracking-widest italic max-w-[200px] leading-tight">La propuesta gráfica aparecerá aquí</p>
+          </div>
+        ) : (
+          <div className="w-full text-left animate-in fade-in duration-500">
+            <p className="text-[9px] font-black uppercase text-emerald-400 mb-3 tracking-widest">Vista Previa del Banner</p>
+            <img src={propuestaIA.imagen_url} alt="Promo" className="w-full h-48 object-cover rounded-2xl border border-white/10 shadow-lg mb-6" />
+            <h4 className="text-xl font-black text-white italic uppercase tracking-tighter mb-1">{promoData.evento}</h4>
+            <p className="text-sm font-medium text-slate-300 italic mb-4">"{propuestaIA.descripcion}"</p>
+            
+            <button 
+              onClick={async () => {
+                try {
+                  await axios.post(`${apiUrl}/api/promos/save-promo`, {
+                    titulo: promoData.evento,
+                    descripcion: propuestaIA.descripcion,
+                    imagen_url: propuestaIA.imagen_url,
+                    descuento: promoData.descuento,
+                    fecha_inicio: promoData.inicio,
+                    fecha_fin: promoData.fin
+                  });
+                  alert("🚀 ¡Banner publicado en la web oficial!");
+                  // Refrescar lista manualmente
+                  handleAction('list', `${apiUrl}/api/promos/all`);
+                } catch (e) { alert("Error al publicar"); }
+              }} 
+              className="w-full bg-emerald-600 p-4 rounded-xl font-black text-white hover:bg-emerald-500 transition-all uppercase tracking-widest cursor-pointer shadow-lg"
+            >
+              🚀 Publicar en Web Oficial
+            </button>
+          </div>
         )}
+      </div>
+    </div>
+
+    {/* LISTADO DE BANNERS */}
+    <div className="bg-[#1E222F]/60 backdrop-blur-md p-8 rounded-[2.5rem] border border-white/10 shadow-xl text-left mt-6">
+      <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2 uppercase italic tracking-tighter">
+        <Activity size={20} className="text-[#88BDF2]" /> Banners Publicados
+      </h3>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm text-slate-300">
+          <thead className="text-[10px] uppercase bg-white/5 text-slate-400">
+            <tr>
+              <th className="px-6 py-4">Imagen</th>
+              <th className="px-6 py-4">Evento</th>
+              <th className="px-6 py-4">Descuento</th>
+              <th className="px-6 py-4">Vigencia</th>
+              <th className="px-6 py-4 text-center">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {banners.length > 0 ? banners.map(b => (
+              <tr key={b.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                <td className="px-6 py-4">
+                  <img src={b.imagen_url.startsWith('http') ? b.imagen_url : `${apiUrl}${b.imagen_url}`} className="w-20 h-12 object-cover rounded-xl border border-white/10" />
+                </td>
+                <td className="px-6 py-4 font-black text-white uppercase">{b.titulo}</td>
+                <td className="px-6 py-4 text-emerald-400 font-black">{b.descuento}% OFF</td>
+                <td className="px-6 py-4 text-[10px]">
+                  <span className="block text-slate-400">Desde: {b.fecha_inicio?.substring(0, 10)}</span>
+                  <span className="block text-slate-400 mt-1">Hasta: {b.fecha_fin?.substring(0, 10)}</span>
+                </td>
+                <td className="px-6 py-4 text-center">
+                  <button 
+                    onClick={() => handleAction('delete', `${apiUrl}/api/promos/${b.id}`)}
+                    className="text-rose-500 hover:text-white p-3 bg-white/5 rounded-xl border border-white/5 transition-colors cursor-pointer"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan="5" className="px-4 py-8 text-center text-slate-500 italic uppercase text-[10px] tracking-widest">No hay banners publicados.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+)}
 
         {/* 3. CALENDARIO */}
         {activeTab === 'calendario' && (

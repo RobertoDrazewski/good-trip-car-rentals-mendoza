@@ -4,7 +4,7 @@ import { X, Send, MessageCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 // Importación modular del logotipo oficial
-import logoMendozaRent from '../assets/logo.png';
+import logoMendozaRent from '../assets/logocuadrado.png';
 
 // URL de consumo de la API
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Loader2, Fuel, Users, Briefcase, Gauge, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 
-// 🔌 CAPTURA DINÁMICA DE LA API
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function CarCarousel() {
@@ -16,177 +15,96 @@ export default function CarCarousel() {
         const res = await axios.get(`${API_BASE_URL}/api/admin/dashboard`); 
         const disponibles = res.data.autos.filter(a => a.estado === 'Disponible');
         setAutos(disponibles);
-      } catch (err) {
-        console.error("Error cargando flota:", err);
-      } finally {
-        setLoading(false);
-      }
+      } catch (err) { console.error("Error cargando flota:", err); } 
+      finally { setLoading(false); }
     };
     fetchAutos();
   }, []);
 
-  const prevSlide = () => {
-    if (autos.length === 0) return;
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? autos.length - 1 : prevIndex - 1
-    );
+  const scrollToBooking = () => {
+    const element = document.getElementById('reservas');
+    if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const nextSlide = () => {
-    if (autos.length === 0) return;
-    setCurrentIndex((prevIndex) => 
-      prevIndex === autos.length - 1 ? 0 : prevIndex + 1
-    );
-  };
-
-  if (loading) return (
-    <div className="flex justify-center py-10">
-      <Loader2 className="animate-spin text-[#88BDF2]" size={32} />
-    </div>
-  );
-
-  if (autos.length === 0) return (
-    <div className="text-center py-8 text-[#666D7E] font-medium italic text-sm">
-      No hay vehículos disponibles en este momento.
-    </div>
-  );
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#88BDF2]" size={32} /></div>;
+  if (autos.length === 0) return null;
 
   const auto = autos[currentIndex];
 
   return (
-    <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
+    <div className="w-full flex flex-col items-center animate-in fade-in duration-500 h-full">
       
-      {/* 🛠️ ENTORNO NOCTURNO: Contenedor adaptado a la estética Balanz Dark */}
-      <div className="w-full bg-[#121319] rounded-3xl border border-slate-800/40 overflow-hidden flex flex-col md:grid md:grid-cols-12 md:h-[480px] relative animate-in fade-in duration-300 shadow-2xl">
+      {/* TARJETA UNIFICADA: Ajustada para ser robusta como el BookingForm */}
+      <div className="w-full h-full p-8 rounded-[2.5rem] bg-[#121319]/60 backdrop-blur-md border border-white/10 shadow-2xl flex flex-col justify-between">
         
-        {/* BADGE DE VALORACIÓN COMPACTO */}
-        <div className="absolute top-3 left-3 z-10">
-          <span className="bg-[#1E222F]/95 backdrop-blur-sm text-[#88BDF2] border border-slate-800/80 text-[8px] sm:text-[9px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider flex items-center gap-1 shadow-sm">
-            <Star size={9} fill="currentColor" stroke="none" /> 5.0 Google
-          </span>
-        </div>
-
-        {/* COLUMNA IZQUIERDA: CONTENEDOR DE IMAGEN AMPLADO */}
-        <div className="h-52 sm:h-64 md:h-full md:col-span-5 bg-[#1E222F]/30 relative flex items-center justify-center p-4 md:p-6 border-b md:border-b-0 md:border-r border-slate-800/40">
+        {/* IMAGEN MÁS GRANDE: Aumentamos altura de 56 a 64 y quitamos limitaciones de max-h */}
+        <div className="relative w-full h-64 bg-gradient-to-b from-[#1E222F]/50 to-transparent rounded-[2rem] flex items-center justify-center mb-6 overflow-hidden">
+          <div className="absolute w-64 h-64 bg-[#88BDF2]/10 rounded-full blur-3xl" />
           <img 
             src={auto.imagen_url ? `${API_BASE_URL}${auto.imagen_url}` : '/uploads/autos/default-car.jpg'} 
             alt={auto.modelo}
-            className="max-w-full max-h-[160px] sm:max-h-[210px] md:max-h-[340px] object-contain transition-transform duration-500 drop-shadow-md group-hover:scale-105"
+            className="relative z-10 w-[90%] h-[90%] object-contain drop-shadow-2xl hover:scale-110 transition-transform duration-500"
           />
         </div>
 
-        {/* COLUMNA DERECHA: DETALLES Y DATOS TÉCNICOS INTEGRADOS */}
-        <div className="p-5 sm:p-6 md:p-7 md:col-span-7 flex flex-col justify-between text-left bg-[#1E222F] h-full">
-          
-          {/* Fila superior: Título, Atributos y Precio */}
+        {/* CONTENIDO INTEGRADO */}
+        <div className="flex flex-col flex-grow justify-between">
           <div>
-            <div className="flex justify-between items-start gap-4 mb-3.5">
-              <div className="min-w-0 flex-1">
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tighter text-white leading-tight mb-1.5">
-                  {auto.modelo}
-                </h3>
-                <div className="flex flex-wrap gap-1">
-                  <span className="bg-[#121319] text-[#88BDF2] text-[8px] font-black uppercase px-2.5 py-0.5 rounded-md tracking-wider border border-slate-800">
-                    {auto.transmision}
-                  </span>
-                  <span className="bg-[#121319]/40 text-[#6F7D93] text-[8px] font-black uppercase px-2.5 py-0.5 rounded-md tracking-wider border border-slate-800/40">
-                    {auto.color || 'Gris Plata'}
-                  </span>
-                </div>
-              </div>
-              
-              {/* Bloque Precio */}
-              <div className="text-right flex-shrink-0 bg-[#121319] px-3 py-1.5 rounded-xl border border-slate-800/60 shadow-inner">
-                <p className="text-[8px] font-black text-[#666D7E] uppercase tracking-wider mb-0.5">Por Día</p>
-                <p className="text-xl sm:text-2xl font-black text-white leading-none">
-                  <span className="text-[11px] font-bold text-[#6F7D93] mr-0.5">$</span>{auto.precio_base_usd}
-                </p>
-              </div>
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-3xl font-black uppercase tracking-tighter text-white italic">{auto.modelo}</h3>
+              <span className="flex items-center gap-1 text-[10px] font-black text-[#88BDF2] uppercase bg-[#88BDF2]/10 px-2 py-0.5 rounded-full">
+                <Star size={10} fill="#88BDF2" /> 5.0
+              </span>
             </div>
 
-            {/* Descripción Estilo Editorial */}
-            <p className="text-[#6F7D93] text-xs sm:text-sm leading-relaxed mb-4 font-bold italic border-l-4 border-[#88BDF2] pl-3.5 py-1">
-              {auto.descripcion_larga || "Un vehículo seleccionado por nuestra familia para garantizar tu confort en las rutas mendocinas."}
+            <p className="text-[#A0AEC0] text-xs leading-relaxed font-semibold mb-6 italic border-l-2 border-[#88BDF2] pl-3">
+              {auto.descripcion_larga || "Un vehículo premium seleccionado para garantizar tu confort y seguridad en las rutas mendocinas."}
             </p>
-          </div>
 
-          {/* GRILLA TÉCNICA REESCALADA DE ALTO IMPACTO */}
-          <div className="grid grid-cols-2 gap-x-5 gap-y-4 pt-4 border-t border-slate-800/40">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-[#121319] rounded-xl text-white border border-slate-800">
-                <Users size={15} className="text-[#88BDF2]" />
-              </div>
-              <div>
-                <p className="text-[7px] text-[#666D7E] font-black uppercase tracking-wider">Pasajeros</p>
-                <p className="text-[11px] font-black text-white uppercase">5 Adultos</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-[#121319] rounded-xl text-white border border-slate-800">
-                <Briefcase size={15} className="text-[#88BDF2]" />
-              </div>
-              <div>
-                <p className="text-[7px] text-[#666D7E] font-black uppercase tracking-wider">Equipaje</p>
-                <p className="text-[11px] font-black text-white uppercase">2 Grandes</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-[#121319] rounded-xl text-white border border-slate-800">
-                <Fuel size={15} className="text-[#88BDF2]" />
-              </div>
-              <div>
-                <p className="text-[7px] text-[#666D7E] font-black uppercase tracking-wider">Motor</p>
-                <p className="text-[11px] font-black text-white uppercase">Eficiente</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-[#121319] rounded-xl text-white border border-slate-800">
-                <Gauge size={15} className="text-[#88BDF2]" />
-              </div>
-              <div>
-                <p className="text-[7px] text-[#666D7E] font-black uppercase tracking-wider">Clima</p>
-                <p className="text-[11px] font-black text-white uppercase">Full A/C</p>
-              </div>
+            <div className="grid grid-cols-2 gap-y-4 gap-x-4 mb-6">
+              {[
+                { icon: <Users size={18}/>, label: "Pasajeros", val: "5 Adultos" },
+                { icon: <Briefcase size={18}/>, label: "Equipaje", val: "2 Grandes" },
+                { icon: <Fuel size={18}/>, label: "Motor", val: "Eficiente" },
+                { icon: <Gauge size={18}/>, label: "Clima", val: "Full A/C" }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 text-white">
+                  <div className="text-[#88BDF2] bg-white/5 p-2 rounded-lg">{item.icon}</div>
+                  <div className="flex flex-col">
+                    <span className="text-[8px] uppercase font-bold text-[#6F7D93]">{item.label}</span>
+                    <span className="text-[11px] font-black">{item.val}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Botón de Acción principal */}
-          <button 
-            onClick={() => window.scrollTo({ top: 150, behavior: 'smooth' })}
-            className="mt-5 w-full py-3 bg-[#88BDF2] text-[#121319] rounded-xl font-black uppercase tracking-wider text-[10px] flex items-center justify-center gap-2 hover:bg-[#5383B3] hover:text-white transition-all duration-300 group/btn cursor-pointer shadow-md"
-          >
-            Seleccionar este vehículo
-            <ChevronRight size={13} className="group-hover/btn:translate-x-0.5 transition-transform" />
-          </button>
+          <div className="flex items-center justify-between pt-6 border-t border-white/5">
+             <p className="text-3xl font-black text-white italic">$ {auto.precio_base_usd} <span className="text-xs text-[#6F7D93] not-italic font-bold">/ día</span></p>
+             <button 
+                onClick={scrollToBooking}
+                className="px-8 py-4 bg-[#88BDF2] text-[#121319] font-black uppercase text-[10px] tracking-widest rounded-xl hover:bg-white transition-all shadow-lg"
+             >
+                Reservar
+             </button>
+          </div>
         </div>
       </div>
 
-      {/* CONTROLES DE DIRECCIÓN */}
-      <div className="flex items-center justify-center gap-4 mt-4 w-full">
-        <button
-          onClick={prevSlide}
-          className="p-2 bg-[#1E222F] hover:bg-[#5383B3] text-white rounded-full shadow-md active:scale-90 transition-all cursor-pointer border border-slate-800"
-          aria-label="Vehículo Anterior"
-        >
-          <ChevronLeft size={16} />
+      {/* CONTROLES */}
+      <div className="flex items-center gap-6 mt-8">
+        <button onClick={() => setCurrentIndex(i => i === 0 ? autos.length - 1 : i - 1)} className="p-4 bg-white/5 hover:bg-[#88BDF2] text-white hover:text-[#121319] rounded-full transition-all border border-white/10">
+            <ChevronLeft size={24} />
         </button>
-
-        <span className="text-[10px] font-black uppercase tracking-widest text-[#6F7D93] bg-[#1E222F] px-3 py-1 rounded-full border border-slate-800 shadow-sm select-none">
-          {currentIndex + 1} <span className="text-slate-700 mx-1">/</span> {autos.length}
-        </span>
-
-        <button
-          onClick={nextSlide}
-          className="p-2 bg-[#1E222F] hover:bg-[#5383B3] text-white rounded-full shadow-md active:scale-90 transition-all cursor-pointer border border-slate-800"
-          aria-label="Vehículo Siguiente"
-        >
-          <ChevronRight size={16} />
+        <div className="flex gap-2">
+            {autos.map((_, idx) => (
+                <div key={idx} className={`h-1.5 rounded-full transition-all ${idx === currentIndex ? 'w-10 bg-[#88BDF2]' : 'w-2 bg-white/20'}`} />
+            ))}
+        </div>
+        <button onClick={() => setCurrentIndex(i => i === autos.length - 1 ? 0 : i + 1)} className="p-4 bg-white/5 hover:bg-[#88BDF2] text-white hover:text-[#121319] rounded-full transition-all border border-white/10">
+            <ChevronRight size={24} />
         </button>
       </div>
-
     </div>
   );
 }

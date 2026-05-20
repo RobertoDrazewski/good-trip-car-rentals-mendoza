@@ -47,21 +47,21 @@ i18n
           // --- SECCIÓN DE FLOTA ---
           "flota_title": "Nuestra",
 
-          // --- SECCIÓN DE REQUISITOS (Requirements) ---
+          // --- SECCIÓN DE REQUISITOS NUEVOS (Requirements) ---
           "req_section_title": "Requisitos de",
           "req_section_subtitle": "Alquiler",
-          "req_age_title": "Edad Mínima",
-          "req_age_text": "Para conducir nuestras unidades es necesario ser mayor de 23 años.",
-          "req_doc_title": "Documentación",
-          "req_doc_text": "Licencia de conducir física, vigente y habilitante para vehículos particulares.",
-          "req_km_title": "Kilometraje Libre",
-          "req_km_text": "Kilómetros ilimitados en todas las unidades y sin cargo por conductor adicional.",
-          "req_card_title": "Sin Tarjeta",
-          "req_card_text": "No solicitamos garantía de tarjeta de crédito para concretar el alquiler.",
-          "req_warranty_title": "Garantía",
-          "req_warranty_text": "Depósito de $450.000 ARS o USD 300 (Reembolsable íntegramente al finalizar el contrato).",
-          "req_guide_title": "Guía Turística",
-          "req_guide_text": "Le obsequiamos una guía exclusiva para aprovechar sus rutas en Mendoza.",
+          "req_conditions_title": "Condiciones Mínimas",
+          "req_conditions_text": "Ser mayor de 23 años con licencia física vigente. El período mínimo de alquiler es de 3 días.",
+          "req_doc_title": "Seguro y Documentación",
+          "req_doc_text": "El auto cuenta con seguro para alquilar sin chofer, contrato formal y tarjeta verde para circular sin inconvenientes.",
+          "req_km_title": "Kilómetros y Conductores",
+          "req_km_text": "Los kilómetros son ilimitados en todas las unidades y no se cobra ningún cargo por conductor adicional.",
+          "req_fuel_title": "Política de Combustible",
+          "req_fuel_text": "La unidad se entrega con tanque lleno de nafta INFINIA y se debe devolver exactamente de igual manera.",
+          "req_delivery_title": "Logística y Entregas",
+          "req_delivery_text": "Entrega sin cargo en tu hospedaje (Gran Mendoza). Retiro/devolución en aeropuerto tiene un costo único total de $36.000.",
+          "req_warranty_title": "Garantía y Pagos",
+          "req_warranty_text": "Sin tarjeta de crédito. Depósito de garantía de $450.000 ARS o USD 300 (Reembolsable íntegramente al finalizar).",
 
           // --- SECCIÓN DE RUTAS & TRAZADOR MAPA ---
           "routes_title": "Trazador",
@@ -71,7 +71,7 @@ i18n
           "routes_empty": "Próximamente nuevas rutas...",
           "routes_error_map": "Seleccioná un destino mendocino para trazar el mapa",
 
-          // --- WIDGET DEL CLIMA (WeatherWidget Avanzado) ---
+          // --- WIDGET DEL CLIMA ---
           "weather_title": "Pronóstico",
           "weather_subtitle": "Semanal",
           "weather_sync": "Sincronizando Clima...",
@@ -87,7 +87,7 @@ i18n
           "season_winter": "Invierno",
           "season_spring": "Primavera",
 
-          // --- RESEÑAS (GoogleReviews) ---
+          // --- RESEÑAS ---
           "reviews_section_title": "Nuestra",
           "reviews_section_subtitle": "Reputación",
           "reviews_badge_tag": "Reseñas reales de viajeros en Mendoza",
@@ -166,21 +166,21 @@ i18n
           // --- SECCIÓN DE FLOTA ---
           "flota_title": "Our",
 
-          // --- SECCIÓN DE REQUISITOS (Requirements) ---
+          // --- SECCIÓN DE REQUISITOS NUEVOS (Requirements) ---
           "req_section_title": "Rental",
           "req_section_subtitle": "Requirements",
-          "req_age_title": "Minimum Age",
-          "req_age_text": "To drive our units it is required to be over 23 years old.",
-          "req_doc_title": "Documentation",
-          "req_doc_text": "Physical, valid driver's license authorized for passenger cars.",
-          "req_km_title": "Free Mileage",
-          "req_km_text": "Unlimited kilometers on all units and no charge for additional driver.",
-          "req_card_title": "No Card Required",
-          "req_card_text": "We do not request a credit card guarantee to complete the rental.",
-          "req_warranty_title": "Security Deposit",
-          "req_warranty_text": "Deposit of $450,000 ARS or USD 300 (Fully refundable at the end of the contract).",
-          "req_guide_title": "Tourist Guide",
-          "req_guide_text": "We provide a complimentary exclusive guide to enjoy your routes in Mendoza.",
+          "req_conditions_title": "Minimum Conditions",
+          "req_conditions_text": "Must be over 23 years old with a valid physical license. Minimum rental period is 3 days.",
+          "req_doc_title": "Insurance & Documentation",
+          "req_doc_text": "The car includes rental insurance without a driver, a formal contract, and a green card to drive without issues.",
+          "req_km_title": "Mileage & Drivers",
+          "req_km_text": "Unlimited kilometers on all units and no charge for an additional driver.",
+          "req_fuel_title": "Fuel Policy",
+          "req_fuel_text": "The unit is delivered with a full tank of INFINIA gas and must be returned in the exact same condition.",
+          "req_delivery_title": "Logistics & Delivery",
+          "req_delivery_text": "Free delivery to your accommodation (Greater Mendoza). Airport pick-up/return has a single total cost of $36,000 ARS.",
+          "req_warranty_title": "Warranty & Payments",
+          "req_warranty_text": "No credit card needed. Security deposit of $450,000 ARS or USD 300 (Fully refundable at the end of the rental).",
 
           // --- SECCIÓN DE RUTAS & TRAZADOR MAPA ---
           "routes_title": "Mendoza",
@@ -190,7 +190,7 @@ i18n
           "routes_empty": "New routes coming soon...",
           "routes_error_map": "Select a destination to trace the map route",
 
-          // --- WIDGET DEL CLIMA (WeatherWidget Avanzado) ---
+          // --- WIDGET DEL CLIMA ---
           "weather_title": "Weekly",
           "weather_subtitle": "Forecast",
           "weather_sync": "Syncing Weather...",
@@ -224,7 +224,7 @@ i18n
           "modal_titulo": "REQUEST SENT!",
           "modal_sub": "We will contact you via WhatsApp to confirm the details.",
           "placeholder_nombre": "Full name",
-          "placeholder_wa": "WhatsApp (e.g., 2612764618)",
+          "placeholder_wa": "WhatsApp (e.g., +54 9 261 276 4618)",
           "btn_confirmar": "CONFIRM & CHAT",
 
           // --- CHAT IA ---
@@ -285,21 +285,21 @@ i18n
           // --- SECCIÓN DE FLOTA ---
           "flota_title": "Nossa",
 
-          // --- SECCIÓN DE REQUISITOS (Requirements) ---
+          // --- SECCIÓN DE REQUISITOS NUEVOS (Requirements) ---
           "req_section_title": "Requisitos de",
           "req_section_subtitle": "Aluguel",
-          "req_age_title": "Idade Mínima",
-          "req_age_text": "Para dirigir nossas unidades é necessário ter mais de 23 anos.",
-          "req_doc_title": "Documentación",
-          "req_doc_text": "Carteira de habilitação física, válida e autorizada para veículos de passeio.",
-          "req_km_title": "Quilometragem Livre",
-          "req_km_text": "Quilômetros ilimitados em todas as unidades e sem taxa para motorista adicional.",
-          "req_card_title": "Sem Cartão",
-          "req_card_text": "Não solicitamos garantia de cartão de crédito para fechar o aluguel.",
-          "req_warranty_title": "Caução / Garantia",
-          "req_warranty_text": "Depósito de $450.000 ARS ou USD 300 (Totalmente reembolsável ao final do contrato).",
-          "req_guide_title": "Guia Turístico",
-          "req_guide_text": "Oferecemos um guia exclusivo gratuito para aproveitar suas rotas em Mendoza.",
+          "req_conditions_title": "Condições Mínimas",
+          "req_conditions_text": "Ter mais de 23 anos com carteira de habilitação física válida. O período mínimo de locação é de 3 dias.",
+          "req_doc_title": "Seguro e Documentação",
+          "req_doc_text": "O carro possui seguro para aluguel sem motorista, contrato formal e documento (cartão verde) para circular sem problemas.",
+          "req_km_title": "Quilometragem e Motoristas",
+          "req_km_text": "Quilômetros ilimitados em todas as unidades e sem cobrança de taxa para motorista adicional.",
+          "req_fuel_title": "Política de Combustível",
+          "req_fuel_text": "A unidade é entregue com o tanque cheio de gasolina INFINIA e deve ser devolvida exatamente da mesma forma.",
+          "req_delivery_title": "Logística e Entregas",
+          "req_delivery_text": "Entrega grátis na sua hospedagem (Grande Mendoza). Retirada/devolução no aeroporto tem um custo único total de $36.000 ARS.",
+          "req_warranty_title": "Garantia e Pagamentos",
+          "req_warranty_text": "Sem cartão de crédito. Depósito de caução de $450.000 ARS ou USD 300 (Totalmente reembolsável no final).",
 
           // --- SECCIÓN DE ROTAS & TRAZADOR MAPA ---
           "routes_title": "Traçador",
@@ -309,7 +309,7 @@ i18n
           "routes_empty": "Novas rotas em breve...",
           "routes_error_map": "Selecione um destino para traçar a rota no mapa",
 
-          // --- WIDGET DEL CLIMA (WeatherWidget Avanzado) ---
+          // --- WIDGET DEL CLIMA ---
           "weather_title": "Previsão",
           "weather_subtitle": "Semanal",
           "weather_sync": "Sincronizando Clima...",

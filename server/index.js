@@ -18,32 +18,23 @@ const promoRoutes = require('./routes/promociones');
 const app = express();
 
 // --- 1. CREACIÓN AUTOMÁTICA DE CARPETAS ---
-// Se añade 'uploads/banner' para que el guardado de promociones con IA no falle por falta de directorio
 const uploadDirs = ['uploads/autos', 'uploads/routes', 'uploads/banner', 'public/uploads'];
 uploadDirs.forEach(dir => {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-        console.log(`📁 Carpeta creada: ${dir}`);
+    // Usamos path.join para asegurar compatibilidad total entre Windows y Linux (Render)
+    const fullPath = path.join(__dirname, dir);
+    if (!fs.existsSync(fullPath)) {
+        fs.mkdirSync(fullPath, { recursive: true });
+        console.log(`📁 Carpeta creada: ${fullPath}`);
     }
 });
 
-// --- 2. PARSING MIDDLEWARES (¡REPARADO CON LÍMITE DE 50MB!) ---
-// Esto permite recibir los strings Base64 gigantes generados por gpt-image-2 sin colapsar el servidor
+// --- 2. PARSING MIDDLEWARES ---
 app.use(express.json({ limit: '50mb' })); 
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // --- 3. LOGGER PROFESIONAL ---
 app.use((req, res, next) => {
     console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
-    if (req.method !== 'GET') {
-        // Para evitar llenar la consola con megabytes de texto Base64, recortamos la impresión si es muy larga
-        const bodyPreview = JSON.stringify(req.body);
-        if (bodyPreview && bodyPreview.length > 500) {
-            console.log('Datos recibidos: (Carga larga o Base64 oculta para limpieza del log)');
-        } else {
-            console.log('Datos recibidos:', req.body); 
-        }
-    }
     next();
 });
 
@@ -61,8 +52,6 @@ app.use(cors({
             callback(new Error('Bloqueado por CORS'));
         }
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true
 }));
 
@@ -71,9 +60,9 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" } 
 }));
 
-/// --- 5. ESTÁTICOS (CONFIGURACIÓN FINAL) ---
+/// --- 5. ESTÁTICOS (CONFIGURACIÓN CRÍTICA) ---
+// Aseguramos que la ruta 'uploads' siempre apunte al directorio correcto en el servidor
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-console.log("✅ Servidor sirviendo archivos desde: " + path.join(__dirname, 'uploads'));
 
 // --- 6. RUTAS API ---
 app.use('/api/auth', authRoutes);     
@@ -87,34 +76,22 @@ app.use('/api/promos', promoRoutes);
 app.get('/health', async (req, res) => {
     try {
         await db.query('SELECT 1');
-        res.json({ status: 'ok', database: 'connected', server: 'Mendoza Rent-a-Car API v1.2' });
+        res.json({ status: 'ok', server: 'Good Trip API v1.2' });
     } catch (e) {
-        res.status(503).json({ status: 'error', database: 'disconnected', detail: e.message });
+        res.status(503).json({ status: 'error', detail: e.message });
     }
 });
 
 // --- 8. MANEJO DE ERRORES ---
-app.use((req, res) => {
-    res.status(404).json({ status: 'error', message: "Ruta no encontrada" });
-});
+app.use((req, res) => res.status(404).json({ message: "Ruta no encontrada" }));
 
 app.use((err, req, res, next) => {
-    console.error(`[Fatal Error] ${new Date().toISOString()}:`, err.message);
-    res.status(500).json({ status: 'error', message: 'Error interno en el servidor.', detail: err.message });
+    console.error(`[Error] ${err.message}`);
+    res.status(500).json({ message: 'Error interno.', detail: err.message });
 });
 
 // --- 9. ARRANQUE ---
 const PORT = process.env.PORT || 3001;
-const startServer = async () => {
-    try {
-        await db.query('SELECT 1');
-        app.listen(PORT, () => {
-            console.log(`🚀 API CORRIENDO EN PUERTO ${PORT}`);
-        });
-    } catch (error) {
-        console.error('❌ ERROR AL INICIAR:', error.message);
-        process.exit(1); 
-    }
-};
-
-startServer();
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 SERVIDOR ESCUCHANDO EN PUERTO ${PORT}`);
+});
