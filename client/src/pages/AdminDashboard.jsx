@@ -47,6 +47,7 @@ export default function AdminDashboard() {
   const prevLeadsCount = useRef(null);
   const audioCtxRef = useRef(null); 
   const [banners, setBanners] = useState([]);
+  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
 
   // --- ESTADOS PROMOCIONES IA ---
   const [promoData, setPromoData] = useState({ evento: '', descuento: '', inicio: '', fin: '' });
@@ -646,9 +647,9 @@ export default function AdminDashboard() {
                               className="bg-[#121319] text-white font-black text-[9px] px-2 py-1 uppercase rounded-md border border-slate-800 outline-none"
                             >
                               <option value="pendiente">⏳ Pendiente</option>
-                              <option value="confirmado">✔️ Confirmado</option>
+                              
                               <option value="contratado">🤝 Contratado</option>
-                              <option value="cancelado">❌ Cancelado</option>
+                              
                           </select>
                           {r.sillita === 1 || r.sillita === true || String(r.sillita) === '1' || String(r.sillita) === 'true' ? 
                             <span className="bg-emerald-500/10 text-emerald-400 font-black text-[9px] px-2 py-0.5 rounded-full border border-emerald-500/20">Sillita ✔️</span> : 
@@ -938,40 +939,174 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* 4. RUTAS */}
+        {/* 4. RUTAS Y MAPAS */}
         {activeTab === 'rutas' && (
-          <div className="space-y-6 animate-in fade-in duration-500 text-left">
-            <div className="bg-[#1E222F] p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl border border-slate-800/40">
-              <h2 className="text-xl font-black text-white italic uppercase tracking-tighter mb-6 flex items-center gap-2"><Navigation size={24} className="text-[#88BDF2]"/> Agregar Nueva Ruta</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-8 animate-in fade-in duration-500 text-left">
+            
+            {/* FORMULARIO DE CREACIÓN */}
+            <div className="bg-[#1E222F] p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl border border-slate-800/40 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                <Navigation size={120} />
+              </div>
+              
+              <h2 className="text-xl font-black text-white italic uppercase tracking-tighter mb-6 flex items-center gap-2">
+                <Navigation size={24} className="text-[#88BDF2]"/> 
+                Agregar Nueva Ruta Turística
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                 <div className="space-y-4">
-                  <input placeholder="Título de la Ruta" className={inputStyle} value={newRuta.nombre} onChange={e => setNewRuta({...newRuta, nombre: e.target.value})} />
-                  <textarea placeholder="Descripción Breve" className={`${inputStyle} h-24 resize-none`} value={newRuta.descripcion} onChange={e => setNewRuta({...newRuta, descripcion: e.target.value})} />
+                  {/* Título de la Ruta */}
+                  <div>
+                    <label className="text-[10px] font-black text-[#6F7D93] uppercase tracking-widest ml-2 mb-1 block">Nombre del Destino</label>
+                    <input 
+                      placeholder="Ej: Ruta del Vino, Alta Montaña..." 
+                      className="w-full bg-[#121319] text-white p-3.5 rounded-xl border border-slate-800 focus:border-[#88BDF2] outline-none text-sm font-bold placeholder-slate-600 transition-colors" 
+                      value={newRuta.nombre} 
+                      onChange={e => setNewRuta({...newRuta, nombre: e.target.value})} 
+                    />
+                  </div>
+
+                  {/* Botón Magia IA para Descripción */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between ml-2">
+                      <label className="text-[10px] font-black text-[#6F7D93] uppercase tracking-widest block">Descripción Atractiva</label>
+                      <button 
+                        type="button"
+                        onClick={async () => {
+                          if (!newRuta.nombre) return alert("¡Ingresa el nombre de la ruta primero!");
+                          setIsGeneratingDesc(true);
+                          try {
+                            // 🔴 CORRECCIÓN: Apuntando a tu endpoint /ai-desc
+                            const res = await axios.post(`${apiUrl}/api/routes/ai-desc`, { 
+                                titulo: newRuta.nombre,
+                                descripcion_base: newRuta.descripcion || "Un lugar increíble para visitar en Mendoza."
+                            }, getAuthConfig());
+                            
+                            // 🔴 CORRECCIÓN: Tu backend devuelve res.data.suggestion
+                            if (res && res.data && res.data.suggestion) {
+                              setNewRuta({...newRuta, descripcion: res.data.suggestion});
+                            }
+                          } catch (error) {
+                            console.error("Error OpenAI:", error);
+                            alert("Error al conectar con la IA de OpenAI.");
+                          } finally {
+                            setIsGeneratingDesc(false);
+                          }
+                        }}
+                        disabled={isGeneratingDesc}
+                        className="text-[9px] font-black uppercase tracking-widest bg-[#88BDF2]/10 text-[#88BDF2] hover:bg-[#88BDF2]/20 py-1 px-2.5 rounded-md flex items-center gap-1.5 transition-colors border border-[#88BDF2]/20"
+                      >
+                        {isGeneratingDesc ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+                        {isGeneratingDesc ? 'Pensando...' : 'Generar con IA'}
+                      </button>
+                    </div>
+                    <textarea 
+                      placeholder="Describe la experiencia de viaje..." 
+                      className="w-full bg-[#121319] text-white p-3.5 rounded-xl border border-slate-800 focus:border-[#88BDF2] outline-none text-sm font-medium placeholder-slate-600 transition-colors h-28 resize-none italic" 
+                      value={newRuta.descripcion} 
+                      onChange={e => setNewRuta({...newRuta, descripcion: e.target.value})} 
+                    />
+                  </div>
                 </div>
+
                 <div className="space-y-4">
-                  <input placeholder="Enlace a Google Maps (Opcional)" className={inputStyle} value={newRuta.maps_url} onChange={e => setNewRuta({...newRuta, maps_url: e.target.value})} />
-                  <input type="file" accept="image/*" className={`${inputStyle} file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-[#88BDF2] file:text-[#121319] hover:file:bg-[#5383B3]`} onChange={e => setNewRuta({...newRuta, imagen: e.target.files[0]})} />
-                  <button onClick={async () => {
-                    const fd = new FormData();
-                    fd.append('titulo', newRuta.nombre);
-                    fd.append('descripcion', newRuta.descripcion);
-                    fd.append('maps_url', newRuta.maps_url);
-                    if(newRuta.imagen) fd.append('imagen', newRuta.imagen);
-                    await axios.post(`${apiUrl}/api/routes/add`, fd, getAuthConfig());
-                    setNewRuta({ nombre: '', descripcion: '', imagen: null, maps_url: '' });
-                    fetchData();
-                  }} className="w-full bg-[#88BDF2] text-[#121319] p-3.5 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-[#5383B3] hover:text-white transition-colors cursor-pointer">Guardar Ruta</button>
+                  {/* Link Google Maps */}
+                  <div>
+                    <label className="text-[10px] font-black text-[#6F7D93] uppercase tracking-widest ml-2 mb-1 block">Link de Google Maps</label>
+                    <input 
+                      placeholder="https://maps.google.com/..." 
+                      className="w-full bg-[#121319] text-[#88BDF2] p-3.5 rounded-xl border border-slate-800 focus:border-[#88BDF2] outline-none text-xs font-medium placeholder-slate-600 transition-colors" 
+                      value={newRuta.maps_url} 
+                      onChange={e => setNewRuta({...newRuta, maps_url: e.target.value})} 
+                    />
+                  </div>
+
+                  {/* Imagen de la Ruta */}
+                  <div>
+                    <label className="text-[10px] font-black text-[#6F7D93] uppercase tracking-widest ml-2 mb-1 block">Foto del Paisaje</label>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="w-full bg-[#121319] text-slate-400 p-2 rounded-xl border border-slate-800 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-[#88BDF2] file:text-[#121319] hover:file:bg-[#5383B3] transition-all cursor-pointer" 
+                      onChange={e => setNewRuta({...newRuta, imagen: e.target.files[0]})} 
+                    />
+                  </div>
+
+                  {/* Botón Guardar */}
+                  <button 
+                    onClick={async () => {
+                      if (!newRuta.nombre || !newRuta.descripcion) return alert("Completa título y descripción.");
+                      
+                      const fd = new FormData();
+                      fd.append('titulo', newRuta.nombre);
+                      fd.append('descripcion', newRuta.descripcion);
+                      fd.append('maps_url', newRuta.maps_url || '');
+                      if(newRuta.imagen) fd.append('imagen', newRuta.imagen);
+                      
+                      try {
+                        // 🔴 CORRECCIÓN: Apuntando a /save que es la ruta de tu backend
+                        await axios.post(`${apiUrl}/api/routes/save`, fd, getAuthConfig());
+                        
+                        setNewRuta({ nombre: '', descripcion: '', imagen: null, maps_url: '' });
+                        if(typeof fetchData === 'function') fetchData(); // Refresca las rutas
+                        alert("¡Ruta publicada con éxito! 🚀");
+                      } catch (error) {
+                        console.error("Error al guardar ruta:", error);
+                        alert(`Error del servidor al guardar: ${error.response?.data?.error || error.message}`);
+                      }
+                    }} 
+                    className="w-full bg-[#88BDF2] text-[#121319] p-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-lg hover:shadow-[0_0_20px_rgba(136,189,242,0.3)] cursor-pointer mt-2 flex justify-center items-center gap-2"
+                  >
+                    Publicar Ruta en la Web
+                  </button>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {rutas.map(r => (
-                <div key={r.id} className="bg-[#1E222F] p-5 rounded-2xl flex justify-between items-center shadow-sm border border-slate-800/40">
-                  <span className="font-black text-xs uppercase italic truncate max-w-[180px] text-white">{r.titulo}</span>
-                  <button onClick={()=>handleAction('delete', `${apiUrl}/api/routes/${r.id}`)} className="text-[#6F7D93] hover:text-rose-500 cursor-pointer transition-colors"><Trash2 size={18}/></button>
+            {/* LISTADO DE RUTAS ACTIVAS Y CESTO */}
+            <div className="bg-[#121319] p-6 rounded-[2rem] border border-slate-800 shadow-inner">
+               <h3 className="text-sm font-black text-[#6F7D93] uppercase tracking-widest mb-4 ml-2">Destinos Publicados</h3>
+               
+               {rutas.length === 0 ? (
+                  <p className="text-slate-500 text-sm italic py-4 text-center">No hay rutas publicadas aún.</p>
+               ) : (
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {rutas.map(r => (
+                    <div key={r.id} className="bg-[#1E222F] p-4 rounded-2xl flex justify-between items-center shadow-lg border border-slate-800 hover:border-slate-700 transition-colors group">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <img 
+                            src={r.imagen_url ? `${apiUrl}${r.imagen_url}` : 'https://images.unsplash.com/photo-1596436889106-be35e843f974'} 
+                            alt={r.titulo} 
+                            className="w-10 h-10 rounded-lg object-cover border border-slate-700"
+                        />
+                        <div className="min-w-0">
+                          <p className="font-black text-xs uppercase italic text-white truncate">{r.titulo}</p>
+                          <p className="text-[9px] text-[#88BDF2] font-bold truncate">GPS Vinculado</p>
+                        </div>
+                      </div>
+                      
+                      <button 
+                        onClick={async () => {
+                          if(window.confirm(`¿Seguro que deseas eliminar la ruta ${r.titulo}?`)) {
+                             // Llamada directa a tu endpoint DELETE de rutas
+                             try {
+                               await axios.delete(`${apiUrl}/api/routes/${r.id}`, getAuthConfig());
+                               if(typeof fetchData === 'function') fetchData();
+                             } catch(err) {
+                               alert("Error al eliminar la ruta.");
+                             }
+                          }
+                        }} 
+                        className="p-2.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 rounded-lg transition-colors cursor-pointer flex-shrink-0"
+                        title="Eliminar Ruta"
+                      >
+                        <Trash2 size={16}/>
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+               )}
             </div>
           </div>
         )}

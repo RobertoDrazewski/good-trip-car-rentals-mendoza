@@ -14,13 +14,14 @@ const adminRoutes = require('./routes/admin');
 const authRoutes = require('./routes/auth');
 const routesManagement = require('./routes/routes');
 const promoRoutes = require('./routes/promociones'); 
+// ✅ NUEVO: Importamos la ruta de reservas para que el Front pueda guardar
+const reservaRoutes = require('./routes/reservas'); 
 
 const app = express();
 
 // --- 1. CREACIÓN AUTOMÁTICA DE CARPETAS ---
 const uploadDirs = ['uploads/autos', 'uploads/routes', 'uploads/banner', 'public/uploads'];
 uploadDirs.forEach(dir => {
-    // Usamos path.join para asegurar compatibilidad total entre Windows y Linux (Render)
     const fullPath = path.join(__dirname, dir);
     if (!fs.existsSync(fullPath)) {
         fs.mkdirSync(fullPath, { recursive: true });
@@ -61,7 +62,6 @@ app.use(helmet({
 }));
 
 /// --- 5. ESTÁTICOS (CONFIGURACIÓN CRÍTICA) ---
-// Aseguramos que la ruta 'uploads' siempre apunte al directorio correcto en el servidor
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- 6. RUTAS API ---
@@ -71,6 +71,8 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/routes', routesManagement);   
 app.use('/api/promos', promoRoutes); 
+// ✅ NUEVO: Conectamos la ruta para que escuche las peticiones del frontend
+app.use('/api/reservas', reservaRoutes); 
 
 // --- 7. HEALTH CHECK ---
 app.get('/health', async (req, res) => {
